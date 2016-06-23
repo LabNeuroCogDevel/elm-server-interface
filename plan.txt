@@ -1,0 +1,56 @@
+
+Core DB Website Layout
+
+Search bar at top then
+-------------------------
+table of results/people |
+-------------------------
+
+double click on a person's row to edit it.
+
+sort.
+
+Model: 
+   Query - Search Query
+   List People
+   Editing Person
+   Sorting Information
+
+Msgs:
+   Edit Query
+   Submit Query
+   Receive Search Results
+   Click on a sort button
+   New Person
+   DoubleClick on Person
+   EditField
+   SubmitPerson
+
+Functions:
+   validate
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
