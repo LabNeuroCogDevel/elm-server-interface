@@ -78,7 +78,7 @@ genders = [ "M", "F" ]
 
 
 hands : List String
-hands = [ "L", "R", "LR" ]
+hands = [ "L", "R", "LR", "U" ]
 
 
 (|:) = Val.apply
