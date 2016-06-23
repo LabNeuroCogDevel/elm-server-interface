@@ -1,7 +1,7 @@
 module Core.HttpCmds exposing (..)
 
 import Http exposing (..)
-import JsonDecoders exposing (..)
+import Types.Person.JsonDecoders exposing (..)
 import Json.Decode exposing (..)
 import Nav.Paging exposing (..)
 import Core.Model exposing (..)

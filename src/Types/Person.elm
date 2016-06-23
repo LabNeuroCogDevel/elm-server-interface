@@ -1,4 +1,4 @@
-module Person exposing (..)
+module Types.Person exposing (..)
 
 import Date exposing (Date)
 

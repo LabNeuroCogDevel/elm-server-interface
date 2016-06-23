@@ -1,8 +1,8 @@
-module JsonDecoders exposing (..)
+module Types.Person.JsonDecoders exposing (..)
 
 import Json.Decode exposing (..)
 import Maybe exposing (Maybe, withDefault)
-import Person exposing (Person)
+import Types.Person exposing (Person)
 import String exposing (join)
 
 apply : Decoder (a -> b) -> Decoder a -> Decoder b

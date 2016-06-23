@@ -1,6 +1,6 @@
 module Pages.People.View exposing (..)
 
-import Person exposing (..)
+import Types.Person exposing (..)
 import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)

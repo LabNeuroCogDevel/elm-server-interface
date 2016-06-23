@@ -1,14 +1,16 @@
 module Pages.People.HttpCmds exposing (..)
 
-import Pages.People.Model as P
 import Core.HttpCmds exposing (..)
 import Json.Decode exposing (..)
-import JsonDecoders exposing (..)
+import Types.Person.JsonDecoders exposing (..)
 import Nav.Paging exposing (..)
+
 import Regex
 import String
+
 import List as L
 import Dict as D
+import Pages.People.Model as P
 
 -- TODO ERROR HANDLING
 -- Errors "silently" fail here

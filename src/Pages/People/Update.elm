@@ -7,8 +7,6 @@ import Form exposing (Form)
 import Nav.RQ exposing (RQ, getQueryRQ)
 
 import List 
-import Person
-import Utils
 import String
 import Result
 
@@ -17,7 +15,10 @@ import List as L
 import Dict as D
 import Maybe as M
 import Pages.People.Model as P
+
 import Pages.People.HttpCmds as HttpCmds
+import Types.Person as Person
+import Utils as Utils
 
 init : RQ -> (Model, Cmd Msg)
 init rq = 

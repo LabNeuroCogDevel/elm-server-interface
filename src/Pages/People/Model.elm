@@ -9,12 +9,12 @@ import Nav.Paging exposing (PagingInfo,makePagingInfo)
 import Form exposing (Form)
 import String exposing (words)
 import Maybe exposing (withDefault)
-import Person exposing (Person, Pid, modifyPerson)
+import Types.Person exposing (Person, Pid, modifyPerson)
 
-import Person
 import Maybe
 
 import Form.Field as Field
+import Types.Person as Person
 
 
 type Msg
