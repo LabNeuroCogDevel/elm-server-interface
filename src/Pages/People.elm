@@ -1,6 +1,6 @@
 module Pages.People exposing (..)
 
-import Either exposing (..)
+import Types.Either exposing (..)
 
 import Pages.People.View as V
 import Pages.People.Update as U

@@ -1,4 +1,4 @@
-module Either exposing (..)
+module Types.Either exposing (..)
 
 import Maybe exposing (..)
 

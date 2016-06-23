@@ -1,7 +1,7 @@
 module Pages.People.Update exposing (..)
 
 import Pages.People.Model exposing (..)
-import Either exposing (..)
+import Types.Either exposing (..)
 
 import Form exposing (Form)
 import Nav.RQ exposing (RQ, getQueryRQ)

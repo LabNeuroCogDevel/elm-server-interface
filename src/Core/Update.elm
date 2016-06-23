@@ -3,7 +3,7 @@ module Core.Update exposing (..)
 import Core.Model exposing (..)
 import Platform.Cmd exposing (..)
 import Utils exposing (..)
-import Either exposing (..)
+import Types.Either exposing (..)
 
 import Hop exposing (makeUrl)
 import Nav.Routes exposing (Route, routeToPath, routerConfig)

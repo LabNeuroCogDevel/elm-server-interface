@@ -7,7 +7,7 @@ import Dict exposing (..)
 
 import Hop exposing (makeUrlFromLocation)
 import Platform.Cmd exposing (Cmd)
-import Either exposing (Either (..))
+import Types.Either exposing (Either (..))
 
 import Navigation
 import String
