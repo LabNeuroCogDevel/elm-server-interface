@@ -14,6 +14,8 @@ import String
 import Result
 import Regex
 
+singleton : a -> List a 
+singleton x = [x]
 
 -- Takes the current route and maybe a new route and maybe a new
 -- query
