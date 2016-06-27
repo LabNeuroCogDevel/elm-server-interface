@@ -1,5 +1,6 @@
 module Components.Contacts.Model exposing (..)
 
+import Types.ContactInfo exposing (..)
 
 type alias Model = (String,Maybe (List ContactInfo))
 

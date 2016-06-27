@@ -17,9 +17,12 @@ import View.Pagination exposing (makePaginator)
 import String
 import Maybe
 
+import List as L
+
 import Html.App as Html
 import Html.Attributes as Atts
 import Json.Decode as Json
+import Components.Contacts.View as ContView
 
 
 
@@ -59,7 +62,7 @@ vtemp model =
                   , th [] [ text "IDs" ]
                   ]
               ]
-          , tbody [] (newPersonForm model.form :: List.map (viewEditPerson model) model.people)
+          , tbody [] <| L.concat ([newPersonForm model.form] :: List.map (viewEditPerson model) model.people)
           ]
 
       {--
@@ -91,44 +94,63 @@ vtemp model =
           ]
       ]
 
-viewEditPerson : Model -> Person -> Html Msg
-viewEditPerson m p = case m.editpid of 
-  Nothing ->
-    viewPerson p
+viewEditPerson : Model -> Person -> List (Html Msg)
+viewEditPerson m p = 
+  let
+    default = viewPerson m p 
+  in 
+    case m.editpid of 
+      Nothing ->
+        default
 
-  Just id -> if id == p.pid
-    then
-      editPersonForm m.editForm
-    else
-      viewPerson p
+      Just id -> if id == p.pid
+        then
+          [ editPersonForm m.editForm ]
+        else
+          default
 
-viewPerson : Person -> Html Msg
-viewPerson person = 
-  tr 
-    [ onDoubleClick
-        <| NavigateTo
-            (Just (People (Edit person.pid)))
-            Nothing
-    , onClick
-        <| NavigateTo
-            (Just (People (View person.pid)))
-            Nothing
-    ] --EditPerson person.pid ]
-    [ td []
-        [ text <| toString person.pid ]
-    , td []
-        [ text <| withDefault "N/A" person.fullname ]
-        --if person.fullname == "" then "N/A" else person.fullname ]
+viewPerson : Model -> Person -> List (Html Msg)
+viewPerson model person = 
+  [ tr 
+      [ onDoubleClick
+          <| NavigateTo
+              (Just (People (Edit person.pid)))
+              Nothing
+      , onClick
+          <| NavigateTo
+              (Just (People (View person.pid)))
+              Nothing
+      ] --EditPerson person.pid ]
+      [ td []
+          [ text <| toString person.pid ]
+      , td []
+          [ text <| withDefault "N/A" person.fullname ]
+          --if person.fullname == "" then "N/A" else person.fullname ]
+      , td []
+          [ text <| withDefault "N/A" person.dob ]
+      , td []
+          [ text <| withDefault "N/A" person.sex ]
+      , td []
+          [ text <| withDefault "N/A" person.hand ]
+      , td []
+          [ text <| if person.ids == [] then "N/A" else String.join " " person.ids ]
+      ]
+  ]
+  ++
+  ( case model.activepid of
+      Nothing ->
+        []
 
-    , td []
-        [ text <| withDefault "N/A" person.dob ]
-    , td []
-        [ text <| withDefault "N/A" person.sex ]
-    , td []
-        [ text <| withDefault "N/A" person.hand ]
-    , td []
-        [ text <| if person.ids == [] then "N/A" else String.join " " person.ids ]
-    ]
+      Just id -> if id == person.pid
+        then
+          case model.contactInfo of
+            Nothing -> 
+              []
+            Just info ->
+              [ tr [] [ td [ colspan 0 ] [ContView.viewCIs info ]]]
+        else 
+          []
+  )
 
 nFields : Int
 nFields = 7
