@@ -149,10 +149,13 @@ viewPerson model person =
         Nothing -> 
           []
         Just info ->
-          [ tr [ style [("background","#a0a0a0")]] [ td [ colspan 6 ] [ContView.viewCIs info ]]]
+          [ tr [ style [("background","#a0a0a0")]] [ td [ colspan nCols ] [ContView.viewCIs info ]]]
     else
       []
   )
+  
+nCols : Int
+nCols = 6
 
 nFields : Int
 nFields = 7

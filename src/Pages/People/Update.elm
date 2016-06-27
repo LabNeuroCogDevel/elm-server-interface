@@ -52,11 +52,17 @@ update msg model =
       in 
         case person of
           Just p -> 
-            ( {model | activepid = Just pid
-                     , contactInfo = Nothing
-                     }
-            , ContHttp.getCICmd (always NoOp) ContactInfo pid
-            )
+            if model.activepid == Just pid
+            then
+              ( { model | activepid = Nothing }
+              , Cmd.none
+              )
+            else
+              ( { model | activepid = Just pid
+                        , contactInfo = Nothing
+                        }
+              , ContHttp.getCICmd (always NoOp) ContactInfo pid
+              )
           Nothing ->
             ( model
             , Utils.navigateTo
