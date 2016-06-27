@@ -66,7 +66,7 @@ update msg model =
             )
     
     ContactInfo info ->
-      ( { model | contactInfo = info }
+      ( { model | contactInfo = Just info }
       , Cmd.none
       )
 
