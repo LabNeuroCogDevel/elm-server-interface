@@ -13,36 +13,58 @@ import Components.Contacts.Model exposing (..)
 
 -- import Result exposing (toMaybe)
 -- import String exposing (toInt)
+import Char exposing (isDigit)
 
 import Regex as R
 import String as S
 import List as L
 import Utils as U
 
-contactString : Int -> Contact -> String
-contactString n contact = 
-  let
-    cType = contact.contactType
-    ct =
-      if n == (S.length cType)
-      then
-        cType
-      else
-        S.dropRight n cType
-  in
+
+dropUnlessEmpty : Int -> String -> String
+dropUnlessEmpty n str = 
+  if n >= (S.length str)
+  then
+    str
+  else
+    S.dropRight n str
     
-  ct ++ ": " ++ contact.content
+showPhone : String -> String
+showPhone num =
+  let
+    digs = S.filter isDigit num
+  in 
+    if (S.length digs == 10)
+    then
+      "("
+      ++
+      (S.left 3 digs)
+      ++
+      ") "
+      ++
+      (S.slice 3 -4 digs)
+      ++
+      "-"
+      ++
+      (S.right 4 digs)
+    else
+      num
+
+
+contactString : (String -> String) -> (String -> String) -> Contact -> String
+contactString handleType handleValue contact = 
+  (handleType contact.contactType) ++ ": " ++ (handleValue contact.content)
     ++ " (" ++ (if contact.notGood then "invalid" else "valid")
     ++")"
 
-splitMail : Int -> Contact -> List String
-splitMail n contact = 
+splitMail : (String -> String) -> (String -> String) -> Contact -> List String
+splitMail ht hv contact = 
   let
     conts = R.split (R.All) (R.regex "\\s*;\\s*") contact.content
   in
     L.map
       (\str ->
-        contactString n { contact | content = str }
+        contactString ht hv { contact | content = str }
       )
       conts
 
@@ -72,9 +94,9 @@ viewContacts contacts =
           (.contactType)
         )
         rest
-    mailStrings = L.concatMap (splitMail 5) mails
-    phoneStrings = L.map (contactString 5) phones
-    restStrings = L.map (contactString 0) rest2
+    mailStrings = L.concatMap (splitMail (dropUnlessEmpty 5) identity) mails
+    phoneStrings = L.map (contactString (dropUnlessEmpty 5) showPhone) phones
+    restStrings = L.map (contactString identity identity) rest2
     rows = U.transpose "" [mailStrings,phoneStrings,restStrings]
   in
     table [ class "table" ]
