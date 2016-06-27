@@ -77,6 +77,10 @@ vtemp model =
                   [ text <| "paging: "++(toString model.paging) ]
               , li []
                   [ text <| "routeQuery: "++(toString model.routeQuery) ]
+              , li []
+                  [ text <| "activepid: "++(toString model.activepid) ]
+              , li []
+                  [ text <| "contactInfo: "++(toString model.contactInfo) ]
                   {--
               , li []
                   [ text "editpid: "++(toString model.editpid) ]
