@@ -19,6 +19,7 @@ import Pages.People.Model as P
 import Pages.People.HttpCmds as HttpCmds
 import Types.Person as Person
 import Utils as Utils
+import Components.Contacts.HttpCmds as ContHttp
 
 init : RQ -> (Model, Cmd Msg)
 init rq = 
@@ -45,6 +46,30 @@ update msg model =
        }
       , Cmd.none)
 
+    ViewPerson pid ->
+      let 
+        person = List.head <| List.filter (((==) pid) << .pid) model.people
+      in 
+        case person of
+          Just p -> 
+            ( {model | activepid = Just pid
+                     , contactInfo = Nothing
+                     }
+            , ContHttp.getCICmd (always NoOp) ContactInfo pid
+            )
+          Nothing ->
+            ( model
+            , Utils.navigateTo
+                model.routeQuery
+                (Just (R.People R.All))
+                (Just <| getQueryRQ model.routeQuery)
+            )
+    
+    ContactInfo info ->
+      ( { model | contactInfo = info }
+      , Cmd.none
+      )
+
     EditPerson pid ->
       let 
         person = List.head <| List.filter (((==) pid) << .pid) model.people
@@ -64,7 +89,9 @@ update msg model =
             )
 
     CancelEdit ->
-      ( {model | editpid = Nothing}
+      ( {model | editpid = Nothing
+               , activepid = Nothing 
+               }
       , Utils.navigateTo
           model.routeQuery
           (Just (R.People R.All))

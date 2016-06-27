@@ -7,20 +7,11 @@ import Components.Contacts.Model exposing (..)
 
 import Result exposing (toMaybe)
 import String exposing (toInt)
-import Http exposing (get)
-import Task exposing (perform)
-
-
-
-
-testUrl : String
-testUrl = "http://localhost:3003/contacts_view?pid=eq."
+import Components.Contacts.HttpCmds exposing (getCICmd)
 
 
 ciCmd : Int -> Cmd Msg
-ciCmd n = 
-  perform (Error << toString) ContactStuff
-    <| get ciListDecoder (testUrl ++ toString n)
+ciCmd = getCICmd Error ContactStuff
 
 
 init : (Model, Cmd Msg)

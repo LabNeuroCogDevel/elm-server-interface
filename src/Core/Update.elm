@@ -79,7 +79,7 @@ getMessage route =
     R.People operation ->
       PeopleMsg <| case operation of
         R.New -> PM.NoOp
-        R.View n -> PM.NoOp
+        R.View n -> PM.ViewPerson n
         R.Edit n -> PM.EditPerson n
         R.Delete _ -> PM.NoOp
         R.All -> PM.NoOp

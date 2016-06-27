@@ -103,8 +103,12 @@ viewPerson person =
   tr 
     [ onDoubleClick
         <| NavigateTo
-             (Just (People (Edit person.pid)))
-             Nothing
+            (Just (People (Edit person.pid)))
+            Nothing
+    , onClick
+        <| NavigateTo
+            (Just (People (View person.pid)))
+            Nothing
     ] --EditPerson person.pid ]
     [ td []
         [ text <| toString person.pid ]

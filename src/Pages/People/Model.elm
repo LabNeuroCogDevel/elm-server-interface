@@ -10,6 +10,7 @@ import Form exposing (Form)
 import String exposing (words)
 import Maybe exposing (withDefault)
 import Types.Person exposing (Person, Pid, modifyPerson)
+import Types.ContactInfo exposing (ContactInfo)
 
 import Maybe
 
@@ -22,10 +23,12 @@ type Msg
   | FormMsg Form.Msg
   | EditFormMsg Form.Msg
   | SubmitPerson Person
+  | ViewPerson Pid
   | EditPerson Pid
   | SavePerson Person
   | CancelEdit
   | RQChanged RQ
+  | ContactInfo (List ContactInfo)
   | NavigateTo (Maybe Route) (Maybe Query)
   | ChangePeopleList (List Person) PagingInfo
 
@@ -36,6 +39,8 @@ type alias Model =
   , people : List Person
   , id : Int
   , editpid : Maybe Int
+  , activepid : Maybe Int
+  , contactInfo : Maybe (List ContactInfo)
   , paging : PagingInfo
   , pagingErr : String
   , routeQuery : RQ
@@ -67,6 +72,8 @@ initModel rq =
   , people = []
   , id = 0
   , editpid = Nothing
+  , activepid = Nothing
+  , contactInfo = Nothing
   , paging = makePagingInfo 25 1 1 1
   , pagingErr = ""
   , routeQuery = rq
