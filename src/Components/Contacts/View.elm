@@ -77,14 +77,21 @@ viewContacts contacts =
     restStrings = L.map (contactString 0) rest2
     rows = U.transpose "" [mailStrings,phoneStrings,restStrings]
   in
-    table [] <| L.map ((tr []) << (L.map ((td []) << U.singleton << text))) (["Emails","Phone Numbers","Other"]::rows)
+    table [ class "table" ]
+      [ thead [ class "thead-inverse" ]
+          [ tr [] 
+              <| L.map ((th [ ]) << U.singleton << text) ["Emails","Phone Numbers","Other"]
+          ]
+      , tbody [ ]
+          <| L.map ((tr []) << (L.map ((td []) << U.singleton << text))) rows
+      ]
 
 
 
 viewCI : ContactInfo -> Html msg
 viewCI ci = 
   div []
-    [ text <| ci.relation ++ ": " ++ ci.name
+    [ h4 [] [ text <| ci.relation ++ ": " ++ ci.name ]
     , viewContacts ci.contacts
     ]
 

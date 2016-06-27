@@ -109,6 +109,9 @@ viewEditPerson m p =
         else
           default
 
+isActive : Model -> Person -> Bool
+isActive m p = m.activepid == Just p.pid
+
 viewPerson : Model -> Person -> List (Html Msg)
 viewPerson model person = 
   [ tr 
@@ -120,6 +123,9 @@ viewPerson model person =
           <| NavigateTo
               (Just (People (View person.pid)))
               Nothing
+      , classList
+          [("table-success", isActive model person)
+          ]
       ] --EditPerson person.pid ]
       [ td []
           [ text <| toString person.pid ]
@@ -137,19 +143,15 @@ viewPerson model person =
       ]
   ]
   ++
-  ( case model.activepid of
-      Nothing ->
-        []
-
-      Just id -> if id == person.pid
-        then
-          case model.contactInfo of
-            Nothing -> 
-              []
-            Just info ->
-              [ tr [] [ td [ colspan 0 ] [ContView.viewCIs info ]]]
-        else 
+  ( if isActive model person
+    then
+      case model.contactInfo of
+        Nothing -> 
           []
+        Just info ->
+          [ tr [ style [("background","#a0a0a0")]] [ td [ colspan 6 ] [ContView.viewCIs info ]]]
+    else
+      []
   )
 
 nFields : Int
