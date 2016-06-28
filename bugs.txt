@@ -1,0 +1,3 @@
+When double clicking on a person, we end up on the (People/All) page rather than People/Edit
+
+
