@@ -6,7 +6,7 @@ import Dict exposing (..)
 
 type Page
   = NotFoundPage
-  | PeoplePage { page : Int }
+  | PeoplePage { page : Int, search : String }
   | RootPage
 
 getPage : Route -> Query -> Page
@@ -19,7 +19,11 @@ getPage route query = case route of
 
   People _ ->
     PeoplePage
-      <| getPageFromQuery query { page = 1 }
+      <| getSearchFromQuery query
+      <| getPageFromQuery query
+      <| { page = 1
+         , search = ""
+         }
 
 samePage : Page -> Page -> Bool
 samePage p1 p2 = case (p1,p2) of
@@ -48,6 +52,7 @@ pageToQuery page = case page of
   PeoplePage x ->
     Dict.fromList 
       [("page", toString x.page)
+      ,("search", x.search)
       ]
 
 

@@ -8,6 +8,7 @@ import Dict exposing (Dict)
 
 import Navigation
 import Regex
+import Dict
 
 
 -- RQ is short for Route and Query
@@ -27,6 +28,9 @@ makeRQ r q =
 
 getQueryRQ : RQ -> Query
 getQueryRQ rq = pageToQuery rq.page
+
+getQueryParam : String -> RQ -> Maybe String
+getQueryParam str rq = Dict.get str (getQueryRQ rq)
 
 getPageRQ : RQ -> Page
 getPageRQ rq = rq.page

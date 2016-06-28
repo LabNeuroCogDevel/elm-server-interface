@@ -4,7 +4,7 @@ import Pages.People.Model exposing (..)
 import Types.Either exposing (..)
 
 import Form exposing (Form)
-import Nav.RQ exposing (RQ, getQueryRQ)
+import Nav.RQ exposing (RQ, getQueryParam)--, getQueryRQ)
 
 import List 
 import String
@@ -46,6 +46,24 @@ update msg model =
        }
       , Cmd.none)
 
+    SearchStringChanged str ->
+      ( { model
+        | searchString = str
+        }
+      , Cmd.none
+      )
+
+    PeopleSearch search ->
+      ( { model
+        | search = search
+        }
+      , Utils.navigateTo
+          model.routeQuery
+          Nothing
+          (Just <| D.singleton "search" model.searchString)
+
+      )
+
     ViewPerson pid ->
       let 
         person = List.head <| List.filter (((==) pid) << .pid) model.people
@@ -55,10 +73,14 @@ update msg model =
             if model.activepid == Just pid
             then
               ( { model | activepid = Nothing }
-              , Cmd.none
+              , Utils.navigateTo
+                  model.routeQuery
+                  (Just (R.People R.All))
+                  Nothing
               )
             else
               ( { model | activepid = Just pid
+                        , editpid = Nothing
                         , contactInfo = Nothing
                         }
               , ContHttp.getCICmd (always NoOp) ContactInfo pid
@@ -68,7 +90,8 @@ update msg model =
             , Utils.navigateTo
                 model.routeQuery
                 (Just (R.People R.All))
-                (Just <| getQueryRQ model.routeQuery)
+                Nothing
+                --(Just <| getQueryRQ model.routeQuery)
             )
     
     ContactInfo info ->
@@ -91,7 +114,7 @@ update msg model =
             , Utils.navigateTo
                 model.routeQuery
                 (Just (R.People R.All))
-                (Just <| getQueryRQ model.routeQuery)
+                Nothing --(Just <| getQueryRQ model.routeQuery)
             )
 
     CancelEdit ->
@@ -101,7 +124,7 @@ update msg model =
       , Utils.navigateTo
           model.routeQuery
           (Just (R.People R.All))
-          (Just <| getQueryRQ model.routeQuery)
+          Nothing --(Just <| getQueryRQ model.routeQuery)
       )
 
     NavigateTo route query ->
@@ -120,7 +143,7 @@ update msg model =
       , Utils.navigateTo
           model.routeQuery
           (Just (R.People R.All))
-          (Just <| getQueryRQ model.routeQuery)
+          Nothing --(Just <| getQueryRQ model.routeQuery)
       )
       --(R.View person.pid)))
 
@@ -149,22 +172,29 @@ urlUpdate : RQ -> Model -> (Model, Cmd Msg)
 urlUpdate rq model = 
   let
     newModel = { model | routeQuery = rq }
-    maybePageNum = (D.get "page" <| getQueryRQ rq)
+    maybePageNum = (getQueryParam "page" rq)
                    `M.andThen`
                    (Result.toMaybe << String.toInt)
-  in
-    case maybePageNum of
-      Just n ->
-        ( newModel
-        , if n /= model.paging.curPage
+    maybeSearchStr = getQueryParam "search" rq
+    cmd = 
+      case maybePageNum of
+        Just n ->
+          if n /= model.paging.curPage
           then
             HttpCmds.getPeople 25 n
           else
             Cmd.none
-        )
+
+        Nothing ->
+          Cmd.none
+    nm' = case maybeSearchStr of
+      Just str ->
+        { newModel | searchString = str }
 
       Nothing ->
-        (newModel, Cmd.none)
+        newModel
+  in
+    (nm',cmd)
 
 
 

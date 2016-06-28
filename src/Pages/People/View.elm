@@ -23,6 +23,7 @@ import Html.App as Html
 import Html.Attributes as Atts
 import Json.Decode as Json
 import Components.Contacts.View as ContView
+import Components.Search.View as SrchView
 
 
 
@@ -51,6 +52,7 @@ vtemp model =
               ++ "." ]
       , h2 [] [ text model.pagingErr ]
       , makePaginator (updateRoute rq (People All)) pg
+      , SrchView.viewSearch model.searchString SearchStringChanged PeopleSearch
       , table [ class "table table-striped" ]
           [ thead []
               [ tr []
@@ -84,6 +86,8 @@ vtemp model =
                   [ text <| "activepid: "++(toString model.activepid) ]
               , li []
                   [ text <| "contactInfo: "++(toString model.contactInfo) ]
+              , li []
+                  [ text <| "search: "++(toString model.search) ]
                   {--
               , li []
                   [ text "editpid: "++(toString model.editpid) ]

@@ -20,6 +20,11 @@ type alias Paged x =
   | page : Int
   }
 
+type alias Searchable x =
+  { x
+  | search : String
+  }
+
 getPageFromQuery : Dict String String -> Paged x -> Paged x
 getPageFromQuery queries struct = 
   let
@@ -30,4 +35,13 @@ getPageFromQuery queries struct =
   in
     { struct | page = n }
   
+getSearchFromQuery : Dict String String -> Searchable x -> Searchable x
+getSearchFromQuery queries struct =
+  let
+    str
+      = M.withDefault struct.search
+          <| D.get "search" queries
+      
+  in
+    { struct | search = str }
 

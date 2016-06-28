@@ -17,11 +17,12 @@ type Key
   | Age
   | Sex
   | Hand
+  | Id
 
 
 allKeys : List Key
 allKeys =
-  [ Name, Age, Sex, Hand ]
+  [ Name, Age, Sex, Hand, Id ]
 
 
 keyNames : Key -> (String, List String)
@@ -38,12 +39,33 @@ keyNames key = case key of
   Hand ->
     ("hand", [])
 
+  Id ->
+    ("id", [])
+
 
 type Operator
   = Eq
+  | Like
   | Lt
   | Gt
 
+allOperators : List Operator
+allOperators = 
+  [ Eq, Like, Lt, Gt ]
+
+operatorNames : Operator -> (String, List String)
+operatorNames operator = case operator of
+  Eq ->
+    ("=",["equals", "eq", "is"])
+
+  Like ->
+    (":",["like"])
+
+  Lt ->
+    ("<",["lt","less than"])
+
+  Gt ->
+    (">",["gt","greater than"])
 
 type alias SearchParam =
   { key : Key
@@ -76,15 +98,13 @@ keyList =
 
 operators : Dict String Operator
 operators = D.fromList
-  [ ( "=", Eq )
-  , ( ":", Eq )
-  , ( "<", Lt )
-  , ( ">", Gt )
-  ]
+  <| getList ((\(pk,ks) -> pk::ks) << operatorNames) (flip (,)) allOperators
 
 
 operatorList : List String
-operatorList = D.keys operators
+operatorList =
+  getList ((\(pk,ks) -> pk::ks) << operatorNames) (\k str -> str) allOperators
+
 
 
 parseSearch : String -> Search
@@ -98,7 +118,7 @@ parseParam s = Nothing
 {--}
 parseParam : String -> Maybe SearchParam
 parseParam str = 
-  (head <| filter (flip startsWith str) keyList) -- find the string it starts with
+  (head <| filter (flip startsWith (S.toLower str)) keyList) -- find the string it starts with
   `andThen`
   (\kstr -> -- save the start string as kstr
     (D.get kstr keys) -- find the corresponding key
@@ -108,7 +128,7 @@ parseParam str =
         rest = trimLeft <| dropLeft (S.length kstr) str -- drop the matched string and trim whitespace
         (operator, dl) =  -- save the operator and length of matched operator string
           withDefault (Eq,0) -- if no operator specified assume equality
-            ( (head <| filter (flip startsWith rest) operatorList) -- find the operator it starts with
+            ( (head <| filter (flip startsWith (S.toLower rest)) operatorList) -- find the operator it starts with
               `andThen` 
               (\opstr ->  -- save the operator string as opstr
                 (D.get opstr operators) -- look up the operator
