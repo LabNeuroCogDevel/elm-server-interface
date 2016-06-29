@@ -1,7 +1,7 @@
 module Utils exposing (..)
 
 import Nav.Routes exposing (..)
-import Nav.Pages exposing (..)
+import Nav.Queries exposing (..)
 import Nav.RQ exposing (..)
 import Dict exposing (..)
 import Maybe exposing (..)
@@ -58,7 +58,7 @@ navigateTo rq route query =
             Just q ->
               q
         q2 =
-          if samePageRoute (getPageRQ rq) r
+          if samePage (getRouteRQ rq) r
           then
             getQueryRQ rq
           else

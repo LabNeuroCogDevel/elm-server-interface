@@ -1,6 +1,7 @@
 module Pages.NotFound exposing (..)
 
 import Nav.Routes exposing (..)
+import Nav.Queries exposing (..)
 import Platform.Cmd exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)

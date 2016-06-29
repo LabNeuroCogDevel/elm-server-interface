@@ -1,7 +1,8 @@
 module Nav.RQ exposing (..)
 
 import Nav.Routes exposing (..)
-import Nav.Pages exposing (..)
+import Nav.Queries exposing (..)
+--import Nav.Pages exposing (..)
 import Hop exposing (..)
 
 import Dict exposing (Dict)
@@ -10,36 +11,45 @@ import Navigation
 import Regex
 import Dict
 
+import Nav.Routes as Rs
 
 -- RQ is short for Route and Query
 
 type alias RQ =
   { route : Route
   --, query : Dict String String
-  , page : Page
+  --, page : Page
   }
+
 
 makeRQ : Route -> Query -> RQ
 makeRQ r q =
-  { route = r
+  { route = updateQueryRoute r q
   --, query = q
-  , page = getPage r q 
+  --, page = getPage r q 
   }
 
+
 getQueryRQ : RQ -> Query
-getQueryRQ rq = pageToQuery rq.page
+getQueryRQ rq = routeToQuery rq.route
+
 
 getQueryParam : String -> RQ -> Maybe String
 getQueryParam str rq = Dict.get str (getQueryRQ rq)
 
+{--
 getPageRQ : RQ -> Page
 getPageRQ rq = rq.page
+--}
+
 
 getRouteRQ : RQ -> Route
 getRouteRQ rq = rq.route
 
+
 updateRoute : RQ -> Route -> RQ
 updateRoute rq route = makeRQ route <| getQueryRQ rq
+
 
 updateQuery : RQ -> String -> String -> RQ
 updateQuery rq k v = 

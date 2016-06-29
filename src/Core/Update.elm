@@ -7,6 +7,7 @@ import Types.Either exposing (..)
 
 import Hop exposing (makeUrl)
 import Nav.Routes exposing (Route, routeToPath, routerConfig)
+import Nav.Operations exposing (Operation (..))
 import Nav.RQ exposing (RQ, getQueryRQ)
 
 import Navigation
@@ -69,21 +70,21 @@ update msg model =
       in ({ model | peopleModel = newModel }, Cmd.map PeopleMsg cmds)
 
 
-getMessage : R.Route -> Msg
+getMessage : Route -> Msg
 getMessage route = 
   case route of
     R.NotFound ->
       NoOp
     R.Root ->
-      NavigateTo (Just (R.People R.All)) (Just (D.singleton "page" "1"))
-    R.People operation ->
+      NavigateTo (Just (R.defaultPeople All)) (Just (D.singleton "page" "1"))
+    R.People _ operation ->
       PeopleMsg <| case operation of
-        R.New -> PM.NoOp
-        R.View n -> PM.ViewPerson n
-        R.Edit n -> PM.EditPerson n
-        R.Delete _ -> PM.NoOp
-        R.All -> PM.NoOp
-        R.Cancel -> PM.CancelEdit
+        New -> PM.NoOp
+        View n -> PM.ViewPerson n
+        Edit n -> PM.EditPerson n
+        Delete _ -> PM.NoOp
+        All -> PM.NoOp
+        Cancel -> PM.CancelEdit
         
 
 

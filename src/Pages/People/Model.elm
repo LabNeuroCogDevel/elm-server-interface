@@ -6,6 +6,7 @@ import Form.Validate as Val exposing (..)
 import Components.Search.Model exposing (..)
 
 import Nav.RQ exposing (RQ,getQueryParam)
+import Nav.Queries exposing (Query)
 import Nav.Paging exposing (PagingInfo,makePagingInfo)
 import Form exposing (Form)
 import String exposing (words)

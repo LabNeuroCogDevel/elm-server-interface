@@ -1,8 +1,8 @@
 module Core.Model exposing (..)
 
 import Pages.People.Model as People
-import Nav.Routes exposing (Route,Query)
-import Nav.Pages exposing (Page)
+import Nav.Routes exposing (Route)
+import Nav.Queries exposing (Query)
 import Nav.RQ exposing (RQ)
 import Hop.Types exposing (Location)
 

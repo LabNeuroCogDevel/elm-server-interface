@@ -4,81 +4,39 @@ import Hop exposing (makeUrl, makeUrlFromLocation, matchUrl, setQuery)
 import Hop.Types exposing (Config, Query, Location, PathMatcher, Router)
 import Navigation
 
-import Dict exposing (Dict)
+import Dict exposing (Dict,empty)
+
 import Dict
 import Regex
 
 import Hop.Matchers exposing (..)
+import Nav.Operations exposing (..)
+import Nav.Queries exposing (..)
 
+import Nav.Queries as NQ
 
-type Operation 
-  = View Int
-  | Edit Int 
-  | Delete Int
-  | All
-  | New
-  | Cancel
-  --| Create
-
-type alias Query = Dict String String 
-
-opBasePath : Operation -> String
-opBasePath x =
-  case x of
-    (View _) -> "/"
-    (Edit _) -> "/edit/"
-    (Delete _) -> "/delete/"
-    --Create -> "/create"
-    All -> "/all"
-    New -> "/new"
-    Cancel -> "/cancel"
-
-
-operationToPath : Operation -> String
-operationToPath x =
-  case x of
-    View n ->
-      (opBasePath x) ++ (toString n)
-
-    Edit n ->
-      (opBasePath x) ++ (toString n)
-
-    Delete n ->
-      (opBasePath x) ++ (toString n)
-
-    _ ->
-      opBasePath x
-
-operationMatchers : List (PathMatcher Operation)
-operationMatchers =
-  [ match2 View (opBasePath <| View 0) int
-  , match2 Edit (opBasePath <| Edit 0) int
-  , match2 Delete (opBasePath <| Delete 0) int
-  , match1 All <| opBasePath All
-  , match1 All ""
-  , match1 New <| opBasePath New
-  , match1 Cancel <| opBasePath Cancel
-  --, match1 Create <| opBasePath Create
-  ]
-
+-- base Route represents the page. Anything else after that is a subroute
 type Route
   = Root
-  | People Operation
+  | People PeopleQuery Operation
   | NotFound
-                
+
+
+defaultPeople : Operation -> Route
+defaultPeople = People defaultPeopleQuery
 
 routeBasePath : Route -> String
 routeBasePath x =
   case x of
     Root -> "/"
-    People _ -> "/people"
+    People _ _ -> "/people"
     NotFound -> "/err404"
 
 
 routeToPath : Route -> String
 routeToPath route = 
   case route of
-    People op -> 
+    People _ op -> 
       (routeBasePath route) ++ (operationToPath op)
 
     _ ->
@@ -89,7 +47,7 @@ matchers : List (PathMatcher Route)
 matchers = 
   [ match1 Root <| routeBasePath Root
   , match1 Root ""
-  , nested1 People (routeBasePath <| People All) operationMatchers
+  , nested1 defaultPeople (routeBasePath <| defaultPeople All) operationMatchers
   , match1 NotFound <| routeBasePath NotFound
   ]
 
@@ -101,6 +59,50 @@ routerConfig =
   , matchers = matchers
   , notFound = NotFound
   }
+
+
+
+updateQueryRoute : Route -> NQ.Query -> Route
+updateQueryRoute route query = case route of
+  People oldQuery subroute ->
+    flip People subroute
+      <| getSearchFromQuery query
+      <| getPageFromQuery query
+      <| oldQuery
+
+  _ ->
+    route
+
+
+samePage : Route -> Route -> Bool
+samePage p1 p2 = case (p1,p2) of
+  (Root,Root) ->
+    True
+
+  (NotFound,NotFound) ->
+    True
+
+  (People _ _,People _ _) ->
+    True
+
+  _ -> False
+
+
+
+routeToQuery : Route -> NQ.Query
+routeToQuery page = case page of
+  Root ->
+    empty
+
+  NotFound ->
+    empty
+
+  People x _ ->
+    Dict.fromList 
+      [("page", toString x.page)
+      ,("search", x.search)
+      ]
+
 
 
   

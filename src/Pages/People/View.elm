@@ -8,6 +8,7 @@ import Pages.People.Model exposing (..)
 import View.Bootstrap exposing (..)
 import Nav.Routes exposing (..)
 import Nav.RQ exposing (..)
+import Nav.Operations exposing (..)
 
 import Maybe exposing (withDefault)
 import Form exposing (Form)
@@ -51,7 +52,7 @@ vtemp model =
               ++ toString (lastItem) ++ " of " ++ (toString maxItem)
               ++ "." ]
       , h2 [] [ text model.pagingErr ]
-      , makePaginator (updateRoute rq (People All)) pg
+      , makePaginator (updateRoute rq (defaultPeople All)) pg
       , SrchView.viewSearch model.searchString SearchStringChanged PeopleSearch
       , table [ class "table table-striped" ]
           [ thead []
@@ -121,11 +122,11 @@ viewPerson model person =
   [ tr 
       [ onDoubleClick
           <| NavigateTo
-              (Just (People (Edit person.pid)))
+              (Just (defaultPeople (Edit person.pid)))
               Nothing
       , onClick
           <| NavigateTo
-              (Just (People (View person.pid)))
+              (Just (defaultPeople (View person.pid)))
               Nothing
       , classList
           [("table-success", isActive model person)
@@ -217,7 +218,7 @@ resetMsg : Msg
 resetMsg = FormMsg <| Form.Reset []
 
 cancelMsg : Msg
-cancelMsg = NavigateTo (Just (People Cancel)) Nothing
+cancelMsg = NavigateTo (Just (defaultPeople Cancel)) Nothing
 
 newPersonMsg : Model -> Person -> Msg
 newPersonMsg model person = SubmitPerson { person | pid = model.id }

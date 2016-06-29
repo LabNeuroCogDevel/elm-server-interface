@@ -1,6 +1,5 @@
 module Core.View exposing (..)
 
-import Nav.Pages exposing (..)
 import Nav.Routes exposing (..)
 import Core.Model exposing (..)
 import Types.Either exposing (..)
@@ -27,16 +26,16 @@ view model =
     , div [ class "alert alert-danger" ]
         [ text model.errorMsg ]
     --}
-    , case model.routeQuery.page of
-        RootPage ->
+    , case model.routeQuery.route of
+        Root ->
           Html.map handlePeopleMessage <|
             People.view model.peopleModel
         
-        PeoplePage _ ->
+        People _ _ ->
           Html.map handlePeopleMessage <|
             People.view model.peopleModel
 
-        NotFoundPage ->
+        NotFound ->
           NotFound.view NavigateTo ()
     ]
     

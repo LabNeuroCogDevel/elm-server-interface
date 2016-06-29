@@ -15,6 +15,16 @@ import String
 import Maybe as M
 import Dict as D
 
+type alias Query = Dict String String 
+
+type alias PeopleQuery = { page : Int, search : String }
+
+defaultPeopleQuery : PeopleQuery
+defaultPeopleQuery =
+  { page = 1
+  , search = ""
+  }
+
 type alias Paged x = 
   { x
   | page : Int

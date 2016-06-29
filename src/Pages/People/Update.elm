@@ -2,6 +2,8 @@ module Pages.People.Update exposing (..)
 
 import Pages.People.Model exposing (..)
 import Types.Either exposing (..)
+import Nav.Operations exposing (..)
+import Nav.Routes exposing (..)
 
 import Form exposing (Form)
 import Nav.RQ exposing (RQ, getQueryParam)--, getQueryRQ)
@@ -75,7 +77,7 @@ update msg model =
               ( { model | activepid = Nothing }
               , Utils.navigateTo
                   model.routeQuery
-                  (Just (R.People R.All))
+                  (Just (defaultPeople All))
                   Nothing
               )
             else
@@ -89,7 +91,7 @@ update msg model =
             ( model
             , Utils.navigateTo
                 model.routeQuery
-                (Just (R.People R.All))
+                (Just (defaultPeople All))
                 Nothing
                 --(Just <| getQueryRQ model.routeQuery)
             )
@@ -113,7 +115,7 @@ update msg model =
             ( model
             , Utils.navigateTo
                 model.routeQuery
-                (Just (R.People R.All))
+                (Just (defaultPeople All))
                 Nothing --(Just <| getQueryRQ model.routeQuery)
             )
 
@@ -123,7 +125,7 @@ update msg model =
                }
       , Utils.navigateTo
           model.routeQuery
-          (Just (R.People R.All))
+          (Just (defaultPeople All))
           Nothing --(Just <| getQueryRQ model.routeQuery)
       )
 
@@ -142,10 +144,10 @@ update msg model =
               , editpid = Nothing}
       , Utils.navigateTo
           model.routeQuery
-          (Just (R.People R.All))
+          (Just (defaultPeople All))
           Nothing --(Just <| getQueryRQ model.routeQuery)
       )
-      --(R.View person.pid)))
+      --(View person.pid)))
 
     ChangePeopleList pList pging -> 
       let
