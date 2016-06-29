@@ -21,6 +21,7 @@ import Pages.People.Model as P
 import Pages.People.HttpCmds as HttpCmds
 import Types.Person as Person
 import Utils as Utils
+import Components.Search.Model exposing (..)
 import Components.Contacts.HttpCmds as ContHttp
 
 init : RQ -> (Model, Cmd Msg)
@@ -182,12 +183,13 @@ urlUpdate rq model =
                    `M.andThen`
                    (Result.toMaybe << String.toInt)
     maybeSearchStr = getQueryParam "search" rq
+    search = M.withDefault model.search (M.map parseSearch maybeSearchStr)
     cmd = 
       case maybePageNum of
         Just n ->
           --if n /= model.paging.curPage
           --then
-          HttpCmds.getPeople model.search 25 n
+          HttpCmds.getPeople search 25 n
           --else
           --  Cmd.none
 
@@ -195,7 +197,7 @@ urlUpdate rq model =
           Cmd.none
     nm' = case maybeSearchStr of
       Just str ->
-        { newModel | searchString = str }
+        { newModel | searchString = str, search = search }
 
       Nothing ->
         newModel

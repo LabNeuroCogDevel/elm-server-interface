@@ -36,8 +36,10 @@ getDisplayList numPages curPage = case numPages of
     [2, 3]
   5 ->
     [2, 3, 4]
-  -- 6 ->
-    -- [2, 3, 4, 5]
+  6 ->
+    [2, 3, 4, 5]
+  7 ->
+    [2, 3, 4, 5, 6]
   _ -> 
     if curPage <= 4
       then
@@ -82,7 +84,8 @@ paginatorNumber rq pg n =
          ,("active", n == pg.curPage)
          ]
      ]
-     [ a [ class "page-link"
+     [ (if n == pg.curPage then span else a)
+         [ class "page-link"
          , href <| makeUrlRQ
                 <| updateQuery rq "page"
                 <| toString n
@@ -135,7 +138,7 @@ makePaginator rq pg =
             , paginatorNumber rq pg 1
             ]
             ++
-            ( if List.head pagesList == Just 2
+            ( if List.head pagesList == Just 2 || List.isEmpty pagesList
               then
                 []
               else 
@@ -144,15 +147,22 @@ makePaginator rq pg =
             ++
             ( List.map (paginatorNumber rq pg) pagesList )
             ++
-            ( if last pagesList == Just (pg.totalPages - 1)
+            ( if last pagesList == Just (pg.totalPages - 1) || List.isEmpty pagesList
               then
                 []
               else 
                 [ paginatorDots ]
             )
             ++
-            [ paginatorNumber rq pg (pg.totalPages)
-            , paginatorNext rq pg
+            ( if pg.totalPages == 1
+              then
+                []
+              else
+                [ paginatorNumber rq pg (pg.totalPages)
+                ]
+            )
+            ++
+            [ paginatorNext rq pg
             ]
       ]
 

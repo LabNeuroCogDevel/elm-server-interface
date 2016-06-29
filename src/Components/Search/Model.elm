@@ -18,11 +18,12 @@ type Key
   | Sex
   | Hand
   | Id
+  | DOB
 
 
 allKeys : List Key
 allKeys =
-  [ Name, Age, Sex, Hand, Id ]
+  [ Name, Age, Sex, Hand, Id, DOB ]
 
 
 keyNames : Key -> (String, List String)
@@ -41,6 +42,9 @@ keyNames key = case key of
 
   Id ->
     ("pid", ["id"])
+
+  DOB ->
+    ("dob", ["born","bdate","birthdate"])
 
 
 type Operator
