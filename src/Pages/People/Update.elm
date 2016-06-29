@@ -101,6 +101,10 @@ update msg model =
       , Cmd.none
       )
 
+    -- TODO implement crud ops
+    CrudOp op ->
+      (model,Cmd.none)
+
     EditPerson pid ->
       let 
         person = List.head <| List.filter (((==) pid) << .pid) model.people
@@ -181,11 +185,11 @@ urlUpdate rq model =
     cmd = 
       case maybePageNum of
         Just n ->
-          if n /= model.paging.curPage
-          then
-            HttpCmds.getPeople 25 n
-          else
-            Cmd.none
+          --if n /= model.paging.curPage
+          --then
+          HttpCmds.getPeople model.search 25 n
+          --else
+          --  Cmd.none
 
         Nothing ->
           Cmd.none

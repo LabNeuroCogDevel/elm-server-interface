@@ -28,10 +28,10 @@ allKeys =
 keyNames : Key -> (String, List String)
 keyNames key = case key of
   Name ->
-    ("name", [])
+    ("fullname", ["name"])
 
   Age ->
-    ("age", [])
+    ("curage", ["age"])
 
   Sex ->
     ("sex", [])
@@ -40,32 +40,36 @@ keyNames key = case key of
     ("hand", [])
 
   Id ->
-    ("id", [])
+    ("pid", ["id"])
 
 
 type Operator
   = Eq
   | Like
+  | ILike
   | Lt
   | Gt
 
 allOperators : List Operator
 allOperators = 
-  [ Eq, Like, Lt, Gt ]
+  [ Eq, ILike, Like, Lt, Gt ]
 
 operatorNames : Operator -> (String, List String)
 operatorNames operator = case operator of
   Eq ->
-    ("=",["equals", "eq", "is"])
+    ("eq",["equals", "=", "is"])
 
   Like ->
-    (":",["like"])
+    ("like",[])
+
+  ILike ->
+    ("ilike",[":"])
 
   Lt ->
-    ("<",["lt","less than"])
+    ("lt",["<","less than"])
 
   Gt ->
-    (">",["gt","greater than"])
+    ("gt",[">","greater than"])
 
 type alias SearchParam =
   { key : Key
@@ -145,5 +149,30 @@ parseParam str =
           }
     )
   )
-
 --}
+
+searchToQuery : Search -> List (String,String)
+searchToQuery = L.map paramToQuery
+
+transformArg op arg = case op of
+  ILike ->
+    "*"++arg++"*"
+
+  Like ->
+    "*"++arg++"*"
+
+  _ ->
+    arg
+
+paramToQuery : SearchParam -> (String,String)
+paramToQuery s =
+  ( fst <| keyNames s.key
+  , (fst <| operatorNames s.operator)
+    ++
+    "."
+    ++
+    (transformArg s.operator s.args)
+  )
+
+
+

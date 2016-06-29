@@ -9,6 +9,7 @@ import Hop exposing (makeUrl)
 import Nav.Routes exposing (Route, routeToPath, routerConfig)
 import Nav.Operations exposing (Operation (..))
 import Nav.RQ exposing (RQ, getQueryRQ)
+import Components.Search.Model exposing (parseSearch)
 
 import Navigation
 import Result
@@ -37,7 +38,13 @@ init rq =
     cmd = batch [ Cmd.map PeopleMsg cmds
                 , morecmds
                 , Cmd.map PeopleMsg 
-                    <| PC.getPeople 25
+                    <| PC.getPeople 
+                         (parseSearch
+                           <| M.withDefault ""
+                           <| D.get "search"
+                           <| getQueryRQ rq
+                         )
+                         25
                     <| M.withDefault 1 
                     <| (D.get "page" (getQueryRQ rq))
                        `M.andThen`

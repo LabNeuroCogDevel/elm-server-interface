@@ -4,6 +4,7 @@ import Core.HttpCmds exposing (..)
 import Json.Decode exposing (..)
 import Types.Person.JsonDecoders exposing (..)
 import Nav.Paging exposing (..)
+import Components.Search.Model exposing (..)
 
 import Regex
 import String
@@ -16,8 +17,8 @@ import Pages.People.Model as P
 -- Errors "silently" fail here
 -- not exactly silent since it returns -1 or -2, but still pretty
 -- silent
-getPeople : Int -> Int -> Cmd P.Msg
-getPeople itemsPerPage page = 
+getPeople : Search -> Int -> Int -> Cmd P.Msg
+getPeople srch itemsPerPage page = 
   let
     fIndex = (page - 1) * itemsPerPage
     lIndex = fIndex + itemsPerPage - 1 
@@ -43,7 +44,7 @@ getPeople itemsPerPage page =
                             _ ->
                               makePagingInfo 1 -1 -1 -1)
 
-    <| getWithHeaders (list memberDecoderLarge) personUrl
+    <| getWithHeaders (list memberDecoderLarge) (makePersonUrl <| searchToQuery srch)
          [ ("Range-Unit", "items")
          , ("Range", toString fIndex ++ "-" ++ toString lIndex)
          ]

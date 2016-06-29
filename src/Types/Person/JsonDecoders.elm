@@ -10,15 +10,18 @@ import String exposing (join)
 
 memberDecoderLarge : Decoder Person
 memberDecoderLarge  = succeed Person
- |: ( "pid"        :=  int    )
- |: ( maybe <| ("fname"   :=  string )
+  |: ( "pid"        :=  int    )
+  |: ( maybe <| "fullname" := string )
+{--
+  |: ( maybe <| ("fname"   :=  string )
                `andThen`
                (\fname -> ("lname" := string)
                           `andThen`
                           (\lname -> succeed
                                      <| join " " [fname,lname])))
- |: ( maybe <| "dob"        :=  string )
- |: ( maybe <| "sex"        :=  string )
- |: ( maybe <| "hand"       :=  string )
- |: ( map (withDefault []) <| maybe <| "ids"        :=  stringList )
+--}
+  |: ( maybe <| "dob"        :=  string )
+  |: ( maybe <| "sex"        :=  string )
+  |: ( maybe <| "hand"       :=  string )
+  |: ( map (withDefault []) <| maybe <| "ids"        :=  stringList )
 

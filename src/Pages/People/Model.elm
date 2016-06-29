@@ -7,6 +7,7 @@ import Components.Search.Model exposing (..)
 
 import Nav.RQ exposing (RQ,getQueryParam)
 import Nav.Queries exposing (Query)
+import Nav.Operations exposing (Operation)
 import Nav.Paging exposing (PagingInfo,makePagingInfo)
 import Form exposing (Form)
 import String exposing (words)
@@ -25,6 +26,7 @@ type Msg
   | FormMsg Form.Msg
   | EditFormMsg Form.Msg
   | SubmitPerson Person
+  | CrudOp Operation
   | ViewPerson Pid
   | EditPerson Pid
   | SavePerson Person
