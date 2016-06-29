@@ -63,7 +63,7 @@ update msg model =
       , Utils.navigateTo
           model.routeQuery
           Nothing
-          (Just <| D.singleton "search" model.searchString)
+          (Just <| D.fromList [("search",model.searchString),("page","1")])
 
       )
 
