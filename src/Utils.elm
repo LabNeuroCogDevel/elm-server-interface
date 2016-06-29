@@ -82,7 +82,7 @@ makeUrlRQ : RQ -> String
 makeUrlRQ rq = 
   makeUrlFromLocation routerConfig
     { path = Regex.split Regex.All (Regex.regex "/") <|
-               routeToPath rq.route
+               routeToPath <| getRouteRQ rq
     , query = getQueryRQ rq
     }
 

@@ -1,5 +1,6 @@
 module Core.View exposing (..)
 
+import Nav.RQ exposing (..)
 import Nav.Routes exposing (..)
 import Core.Model exposing (..)
 import Types.Either exposing (..)
@@ -26,7 +27,7 @@ view model =
     , div [ class "alert alert-danger" ]
         [ text model.errorMsg ]
     --}
-    , case model.routeQuery.route of
+    , case getRouteRQ <| model.routeQuery of
         Root ->
           Html.map handlePeopleMessage <|
             People.view model.peopleModel

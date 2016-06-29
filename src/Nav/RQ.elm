@@ -15,23 +15,27 @@ import Nav.Routes as Rs
 
 -- RQ is short for Route and Query
 
-type alias RQ =
+type alias RQ = Route
+{--
   { route : Route
   --, query : Dict String String
   --, page : Page
   }
+--}
 
 
 makeRQ : Route -> Query -> RQ
-makeRQ r q =
+makeRQ r q = updateQueryRoute r q
+{--
   { route = updateQueryRoute r q
   --, query = q
   --, page = getPage r q 
   }
+--}
 
 
 getQueryRQ : RQ -> Query
-getQueryRQ rq = routeToQuery rq.route
+getQueryRQ rq = routeToQuery <| getRouteRQ rq
 
 
 getQueryParam : String -> RQ -> Maybe String
@@ -44,7 +48,7 @@ getPageRQ rq = rq.page
 
 
 getRouteRQ : RQ -> Route
-getRouteRQ rq = rq.route
+getRouteRQ rq = rq
 
 
 updateRoute : RQ -> Route -> RQ
@@ -53,7 +57,7 @@ updateRoute rq route = makeRQ route <| getQueryRQ rq
 
 updateQuery : RQ -> String -> String -> RQ
 updateQuery rq k v = 
-  makeRQ rq.route
+  makeRQ (getRouteRQ rq)
     <| Dict.insert k v <| getQueryRQ rq
 
 

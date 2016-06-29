@@ -29,7 +29,7 @@ init : RQ -> (Model, Cmd Msg)
 init rq = 
   let
     (pm, cmds) = People.init rq
-    (model, morecmds) = update (getMessage rq.route)
+    (model, morecmds) = update (getMessage rq)
       { routeQuery = rq
       , peopleModel = pm
       , errorMsg = ""
@@ -70,7 +70,7 @@ update msg model =
       in ({ model | peopleModel = newModel }, Cmd.map PeopleMsg cmds)
 
 
-getMessage : Route -> Msg
+getMessage : RQ -> Msg
 getMessage route = 
   case route of
     R.NotFound ->
@@ -94,7 +94,7 @@ urlUpdate rq model =
     (newPeopleModel, pCmd) = People.urlUpdate rq model.peopleModel
     (newModel, cmd') = 
       update 
-        (getMessage rq.route)
+        (getMessage rq)
         { model
         | routeQuery = rq
         , peopleModel = newPeopleModel
