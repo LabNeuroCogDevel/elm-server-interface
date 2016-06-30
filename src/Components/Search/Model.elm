@@ -51,111 +51,115 @@ keyNames key = case key of
   DOB ->
     ("dob", ["born","bdate","birthdate"])
 
+-- pull a tag off the input
+-- use tag to determine how to parse args and
+-- send off the request
+
+type OpTag
+  = EqT
+  | LikeT
+  | ILikeT
+  | LtT
+  | GtT
+  | RangeT
+  | InT
+  | ContainsT
+  | ContainedInT
+  | NotT OpTag
 
 type Operator
-  = Eq
-  | Like
-  | ILike
-  | Lt
-  | Gt
-  | Range
-  | In
-  | Contains
-  | ContainedIn
+  = Eq String
+  | Like String
+  | ILike String
+  | Lt String
+  | Gt String
+  | Range String String
+  | In (List String)
+  | Contains (List String)
+  | ContainedIn (List String)
   | Not Operator
 
-simpleOperators : List Operator
+simpleOperators : List OpTag
 simpleOperators = 
-  [ ContainedIn, Contains, Eq, ILike, Like, Lt, Gt, In ]
+  [ ContainedInT, ContainsT, EqT, ILikeT, LikeT, LtT, GtT, InT ]
 
-allOperators : List Operator
-allOperators = simpleOperators ++ (L.map Not simpleOperators)
+allOperators : List OpTag
+allOperators = simpleOperators ++ (L.map NotT simpleOperators)
 
 notNames : List String
 notNames = ["not ","!","/","! ","/ ","not"]
 
-basicOperatorNames : Operator -> (String, List String)
+basicOperatorNames : OpTag -> List String
 basicOperatorNames operator = case operator of
-  Eq ->
-    ("eq",["equals", "=", "is"])
+  EqT ->
+    ["eq","equals", "=", "is"]
 
-  Like ->
-    ("like",[])
+  LikeT ->
+    ["like"]
 
-  Range ->
-    ("",[])
+  RangeT ->
+    ["range"]
 
-  ILike ->
-    ("ilike",[])
+  ILikeT ->
+    ["ilike"]
 
-  Lt ->
-    ("lt",["<","less than"])
+  LtT ->
+    ["lt","<","less than"]
 
-  Gt ->
-    ("gt",[">","greater than"])
+  GtT ->
+    ["gt",">","greater than"]
 
-  In ->
-    ("in",[])
+  InT ->
+    ["in"]
 
-  Contains ->
-    ("@>",["contains","contain"])
+  ContainsT ->
+    ["@>","contains","contain"]
 
-  ContainedIn ->
-    ("<@",["contained in"])
+  ContainedInT ->
+    ["<@","contained in"]
 
-  Not op ->
-    ( "not."++(opSearchName op)
-    , notNames `UL.andThen` \notname ->
-      allBasicOpNames op `UL.andThen` \opname ->
-      [ notname ++ opname ]
-    )
+  NotT op ->
+    notNames `UL.andThen` \notname ->
+    basicOperatorNames op `UL.andThen` \opname ->
+    [ notname ++ opname ]
 
-operatorNames : Key -> Operator -> (String, List String)
+
+operatorNames : Key -> OpTag -> List String
 operatorNames key operator = 
   let
-    (def, defs) = basicOperatorNames operator
-    a=(def,defs)
-    b=(def,":"::defs)
+    defs = basicOperatorNames operator
+    b=":"::defs
   in case (key,operator) of
-    (Name, ILike) ->
+    (Name, ILikeT) ->
       b
 
-    (Sex, ILike) ->
+    (Sex, ILikeT) ->
       b
 
-    (Hand, ILike) ->
+    (Hand, ILikeT) ->
       b
 
-    (Id, Eq) ->
+    (Id, EqT) ->
       b
 
-    (Ids, Contains) ->
+    (Ids, ContainsT) ->
       b
 
-    (key,Not op) ->
-      ( def
-      , notNames `UL.andThen` \notname ->
-        allOpNames key op `UL.andThen` \opname ->
-        [ notname ++ opname ]
-      )
+    (key,NotT op) ->
+      notNames `UL.andThen` \notname ->
+      operatorNames key op `UL.andThen` \opname ->
+      [ notname ++ opname ]
       
     _ ->
-      a
+      defs
 
 
-allBasicOpNames : Operator -> List String
-allBasicOpNames op = let (b,bs) = basicOperatorNames op in b::bs
-
-allOpNames : Key -> Operator -> List String
-allOpNames key op = let (b,bs) = operatorNames key op in b::bs
-
-opSearchName : Operator -> String
-opSearchName = fst << basicOperatorNames
+--opSearchName : OpTag -> String
+--opSearchName = fst << basicOperatorNames
 
 type alias SearchParam =
   { key : Key
   , operator : Operator
-  , args : String
   }
 
 
@@ -181,24 +185,20 @@ keyList =
 
 
 
-operators : Key -> Dict String Operator
+operators : Key -> Dict String OpTag
 operators key = D.fromList
-  <| getList ((\(pk,ks) -> pk::ks) << operatorNames key) (flip (,)) allOperators
+  <| getList (operatorNames key) (flip (,)) allOperators
 
 
 operatorList : Key -> List String
 operatorList key =
-  getList ((\(pk,ks) -> pk::ks) << operatorNames key) (\k str -> str) allOperators
+  getList (operatorNames key) (\k str -> str) allOperators
 
 
 
 parseSearch : String -> Search
 parseSearch = (<<) (filterMap <| parseParam << trim) <| R.split All <| regex "\\s*;\\s*"
 
-{--
-parseParam : String -> Maybe SearchParam
-parseParam s = Nothing
---}
 
 parseKey : String -> Maybe (Key, String)
 parseKey str =
@@ -212,17 +212,53 @@ parseKey str =
     )
   )
 
-parseOperator : Key -> String -> Maybe (Operator, String)
+
+parseOperator : Key -> String -> Maybe Operator
 parseOperator key str =
   (head <| filter (flip startsWith (S.toLower str)) <| operatorList key) -- find the string it starts with
   `andThen`
   (\opstr -> -- save as opstr
     (D.get opstr <| operators key) -- get the operator
     `andThen`
-    (\op -> -- save as op
-      Just (op, trimLeft <| dropLeft (S.length opstr) str) -- drop matched string and trim whitespace
+    (\optag -> -- save as op
+      (opTagParseArgs optag <| trimLeft <| dropLeft (S.length opstr) str) -- drop matched string and trim whitespace
     )
   )
+
+
+opTagParseArgs : OpTag -> String -> Maybe Operator
+opTagParseArgs optag = case optag of
+  EqT ->
+    Just << Eq 
+
+  LikeT ->
+    Just << Like 
+
+  ILikeT ->
+    Just << ILike
+
+  LtT ->
+    Just << Lt
+
+  GtT ->
+    Just << Gt
+
+  RangeT ->
+    \str -> Nothing
+
+  InT ->
+    Just << In << splitR "\\s,\\s"
+
+  ContainsT ->
+    Just << Contains << splitR "\\s,\\s"
+
+  ContainedInT ->
+    Just << ContainedIn << splitR "\\s,\\s"
+
+  NotT opt ->
+    opTagParseArgs opt
+
+
 {--}
 parseParam : String -> Maybe SearchParam
 parseParam str = 
@@ -230,20 +266,19 @@ parseParam str =
   `andThen`
   (\(key,rest) ->  -- save the key as key
     let
-      (operator, rest') =  -- save the operator and length of matched operator string
-        withDefault (Eq,rest) -- if no operator specified assume equality
+      operator =  -- save the operator and length of matched operator string
+        withDefault (Eq rest) -- if no operator specified assume equality
           <| parseOperator key rest
     in -- return results
       Just
         { key = key
         , operator = operator
-        , args = rest'
         }
   )
 --}
 
 searchToQuery : Search -> List (String,String)
-searchToQuery = L.map paramToQuery
+searchToQuery = L.concatMap paramToQueries
 
 removeWhitespace : String -> String
 removeWhitespace = R.replace R.All (regex "\\s") (\_ -> "")
@@ -251,6 +286,7 @@ removeWhitespace = R.replace R.All (regex "\\s") (\_ -> "")
 splitR : String -> String -> List String
 splitR regx str = R.split R.All (regex regx) str
 
+{--
 transformArg : Operator -> String -> String
 transformArg op arg = case op of
   Not op' ->
@@ -273,16 +309,45 @@ transformArg op arg = case op of
 
   _ ->
     arg
+--}
 
-paramToQuery : SearchParam -> (String,String)
-paramToQuery s =
-  ( fst <| keyNames s.key
-  , (opSearchName s.operator)
-    ++
-    "."
-    ++
-    (transformArg s.operator s.args)
-  )
+getDBQueries : Operator -> List String
+getDBQueries op = case op of
+  Eq str ->
+    [ S.concat ["eq",".",str] ]
+
+  Like str ->
+    [ S.concat ["like",".","*",str,"*"] ]
+
+  ILike str ->
+    [ S.concat ["ilike",".","*",str,"*"] ]
+
+  Lt str ->
+    [ S.concat ["lt",".",str] ]
+
+  Gt str ->
+    [ S.concat ["gt",".",str] ]
+
+  Range s1 s2 ->
+    []
+
+  In strs ->
+    [ S.concat <| ["in","."]++strs ]
+
+  Contains strs ->
+    [ S.concat <| ["@>","."]++["["]++(L.map (\str -> S.concat ["\"",str,"\""]) strs)++["]"] ]
+
+  ContainedIn strs ->
+    [ S.concat <| ["<@","."]++["["]++(L.map (\str -> S.concat ["\"",str,"\""]) strs)++["]"] ]
+
+  Not o ->
+    L.map (\str -> S.concat ["not",".",str]) <| getDBQueries o
+  
+
+paramToQueries : SearchParam -> List (String,String)
+paramToQueries s =
+  L.map ((,) <| fst <| keyNames s.key) 
+    <| getDBQueries s.operator
 
 
 
