@@ -18,7 +18,7 @@ import Char exposing (isDigit)
 import Regex as R
 import String as S
 import List as L
-import Utils as U
+import Utils.List as U
 
 
 dropUnlessEmpty : Int -> String -> String

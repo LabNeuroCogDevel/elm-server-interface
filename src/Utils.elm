@@ -17,16 +17,6 @@ import String
 import Result
 import Regex
 
-singleton : a -> List a 
-singleton x = [x]
-
-transpose : a -> (List (List a)) -> (List (List a))
-transpose def cols =
-  if L.all L.isEmpty cols
-  then
-    []
-  else
-    (L.map (withDefault def << L.head) cols) :: (transpose def <| L.map (withDefault [] << L.tail) cols)
 
 -- Takes the current route and maybe a new route and maybe a new
 -- query
