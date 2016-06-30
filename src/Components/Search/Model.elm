@@ -142,7 +142,7 @@ operatorNames key operator =
     (Hand, ILikeT) ->
       b
 
-    (Id, EqT) ->
+    (Id, RangeT) ->
       b
 
     (Ids, ContainsT) ->
