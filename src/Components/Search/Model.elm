@@ -2,15 +2,18 @@ module Components.Search.Model exposing (..)
 
 import Regex exposing (..)
 import Maybe exposing (..)
-import String exposing (trim, startsWith, dropLeft, trimLeft)
+import Utils.Maybe exposing (..)
 
+import String exposing (trim, startsWith, dropLeft, trimLeft)
 import Dict exposing (Dict)
 import List exposing (map, filterMap, filter, head, concat)
 
 import Dict as D
 import Regex as R
+import Result as Res
 import String as S
 import List as L
+import Maybe as M
 import Utils.List as UL
 
 type Key
@@ -73,7 +76,7 @@ type Operator
   | ILike String
   | Lt String
   | Gt String
-  | Range String String
+  | Range (Maybe String) (Maybe String)
   | In (List String)
   | Contains (List String)
   | ContainedIn (List String)
@@ -81,7 +84,7 @@ type Operator
 
 simpleOperators : List OpTag
 simpleOperators = 
-  [ ContainedInT, ContainsT, EqT, ILikeT, LikeT, LtT, GtT, InT ]
+  [ ContainedInT, ContainsT, EqT, ILikeT, LikeT, LtT, GtT, InT, RangeT ]
 
 allOperators : List OpTag
 allOperators = simpleOperators ++ (L.map NotT simpleOperators)
@@ -143,6 +146,9 @@ operatorNames key operator =
       b
 
     (Ids, ContainsT) ->
+      b
+
+    (Age, RangeT) ->
       b
 
     (key,NotT op) ->
@@ -244,7 +250,30 @@ opTagParseArgs optag = case optag of
     Just << Gt
 
   RangeT ->
-    \str -> Nothing
+    \str -> case S.indices "-" str of
+      [] ->
+        M.map
+          (\f ->
+            Range
+              (Just <| toString f)
+              (Just <| toString <| f+1)
+          )
+          <| Res.toMaybe
+          <| S.toFloat str
+
+
+      [i] ->
+        let
+          start = S.left i str
+          end = S.dropLeft (i+1) str
+        in
+          Just
+            <| Range
+                (test (not << S.isEmpty) start)
+                (test (not << S.isEmpty) end)
+
+      _ ->
+        Nothing
 
   InT ->
     Just << In << splitR "\\s,\\s"
@@ -329,7 +358,21 @@ getDBQueries op = case op of
     [ S.concat ["gt",".",str] ]
 
   Range s1 s2 ->
-    []
+    concat 
+      <| filterMap
+          (uncurry M.map)
+          [ (\str ->
+              getDBQueries
+                <| Not
+                <| Lt str
+            , s1
+            )
+          , (\str ->
+              getDBQueries
+                <| Lt str
+            , s2
+            )
+          ]
 
   In strs ->
     [ S.concat <| ["in","."]++strs ]
