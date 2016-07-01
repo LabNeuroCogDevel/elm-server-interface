@@ -14,6 +14,7 @@ import Components.Contacts.Model exposing (..)
 -- import Result exposing (toMaybe)
 -- import String exposing (toInt)
 import Char exposing (isDigit)
+import ElmEscapeHtml exposing (unescape)
 
 import Regex as R
 import String as S
@@ -40,7 +41,9 @@ showPhone num =
       ++
       (S.left 3 digs)
       ++
-      ") "
+      ")"
+      ++
+      (unescape "&nbsp;")
       ++
       (S.slice 3 -4 digs)
       ++
@@ -99,7 +102,7 @@ viewContacts contacts =
     restStrings = L.map (contactString identity identity) rest2
     rows = U.transpose "" [mailStrings,phoneStrings,restStrings]
   in
-    table [ class "table" ]
+    table [ class "table table-striped" ]
       [ thead [ class "thead-inverse" ]
           [ tr [] 
               <| L.map ((th [ ]) << U.singleton << text) ["Emails","Phone Numbers","Other"]

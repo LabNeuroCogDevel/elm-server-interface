@@ -20,6 +20,8 @@ import Maybe
 import Form
 
 import List as L
+import String as S
+import Utils.List as UL
 
 import Html.App as Html
 import Html.Attributes as Atts
@@ -60,20 +62,11 @@ vtemp model =
               [ tr []
                   [ th [] [ text "PID" ]
                   , th [] [ text "Name" ]
-                  , th [] [ text "DOB" ]
-                  , th [] [ text "Age" ]
+                  , th [] [ text "Age (DOB)" ]
                   , th [] [ text "Sex" ]
                   , th [] [ text "Hand" ]
                   , th [] [ text "Add Date" ]
                   , th [] [ text "Source" ]
-                  , th [] [ text "Last Visit" ]
-                  , th [] [ text "Num Visits" ]
-                  , th [] [ text "Visit Types" ]
-                  , th [] [ text "Studies" ]
-                  , th [] [ text "Num Studies" ]
-                  , th [] [ text "IDs" ]
-                  , th [] [ text "Num Drops" ]
-                  , th [] [ text "Max Drop" ]
                   ]
               ]
           , tbody [] <| L.concat ([newPersonForm model.form] :: List.map (viewEditPerson model) model.people)
@@ -152,9 +145,12 @@ viewPerson model person =
           [ text <| withDefault "N/A" person.fullname ]
           --if person.fullname == "" then "N/A" else person.fullname ]
       , td []
-          [ text <| withDefault "N/A" person.dob ]
-      , td []
-          [ text <| toString person.curage ]
+          [ text <| S.concat [ toString <| floor person.curage
+                             , " ("
+                             , withDefault "N/A" person.dob 
+                             , ")"
+                             ]
+          ]
       , td []
           [ text <| withDefault "N/A" person.sex ]
       , td []
@@ -163,22 +159,6 @@ viewPerson model person =
           [ text <| withDefault "N/A" person.adddate ]
       , td []
           [ text <| withDefault "N/A" person.source ]
-      , td []
-          [ text <| withDefault "N/A" person.lastvisit ]
-      , td []
-          [ text <| toString person.numvisits ]
-      , td []
-          [ text <| if person.visittypes == [] then "N/A" else String.join " " person.visittypes ]
-      , td []
-          [ text <| if person.studies == [] then "N/A" else String.join " " person.studies ]
-      , td []
-          [ text <| toString person.nstudies ]
-      , td []
-          [ text <| if person.ids == [] then "N/A" else String.join " " person.ids ]
-      , td []
-          [ text <| toString person.ndrops ]
-      , td []
-          [ text <| withDefault "N/A" person.maxdrop ]
       ]
   ]
   ++
@@ -188,14 +168,48 @@ viewPerson model person =
         Nothing -> 
           []
         Just info ->
-          [ tr [ style [("background","#a0a0a0")]] [ td [ colspan nCols ] [ContView.viewCIs info ]]]
+          [ tr
+              [ style [("background","#a0a0a0")] ]
+              [ td
+                  [ colspan (4) ]
+                  [ ContView.viewCIs info ]
+              , td
+                  [ colspan (nCols-4) ]
+                  [ viewPersonRest person ]
+              ]
+          ]
     else
       []
   )
   
+viewPersonRest : Person -> Html msg
+viewPersonRest person = 
+  table [ class "table table-striped" ]
+    [ thead [ class "thead-inverse" ]
+        [ tr []
+            [ th [] [ text <| S.concat [ "Summary" ] ]
+            , th [] [ text <| S.concat [ "Visit types" ] ]
+            , th [] [ text <| S.concat [ "Studies" ] ]
+            , th [] [ text <| S.concat [ "Ids" ] ]
+            ]
+        ]
+    , tbody []
+        <| L.map (tr [] << L.map (td [] << UL.singleton << text))
+        <| UL.transpose ""
+            [ [ S.concat [ "Last Visit: ", withDefault "N/A" person.lastvisit ]
+              , S.concat [ "Total Visits: ", toString person.numvisits ]
+              , S.concat [ "Total Studies: ", toString person.nstudies ]
+              , S.concat [ "Max Drop: ", withDefault "N/A" person.maxdrop ]
+              , S.concat [ "Total Drops: ", toString person.ndrops ]
+              ]
+            , person.visittypes
+            , person.studies
+            , person.ids
+            ]
+    ]
 
 nCols : Int
-nCols = 16
+nCols = 8
 
 
 nFields : Int
@@ -251,7 +265,7 @@ formRow formn submit cancel formid wrap frm =
        [ {-- "PID" :- pid
        ,--}
          ("Full Name",  name, formn * nFields + 1, 10, 1)
-       , ("Date of Birth", dob, formn * nFields + 2, 10, 2)
+       , ("Date of Birth", dob, formn * nFields + 2, 10, 1)
        , ("Sex", sex, formn * nFields + 3, 5, 1)
        , ("Hand", hand, formn * nFields + 4, 5, 1)
        , ("IDs", ids, formn * nFields + 5, 10, 1)

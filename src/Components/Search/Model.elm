@@ -63,7 +63,9 @@ type OpTag
   | LikeT
   | ILikeT
   | LtT
+  | LteT
   | GtT
+  | GteT
   | RangeT
   | InT
   | ContainsT
@@ -75,7 +77,9 @@ type Operator
   | Like String
   | ILike String
   | Lt String
+  | Lte String
   | Gt String
+  | Gte String
   | Range (Maybe String) (Maybe String)
   | In (List String)
   | Contains (List String)
@@ -84,7 +88,7 @@ type Operator
 
 simpleOperators : List OpTag
 simpleOperators = 
-  [ ContainedInT, ContainsT, EqT, ILikeT, LikeT, LtT, GtT, InT, RangeT ]
+  [ ContainedInT, ContainsT, LteT, GteT, EqT, ILikeT, LikeT, LtT, GtT, InT, RangeT ]
 
 allOperators : List OpTag
 allOperators = simpleOperators ++ (L.map NotT simpleOperators)
@@ -107,10 +111,16 @@ basicOperatorNames operator = case operator of
     ["ilike"]
 
   LtT ->
-    ["lt","<","less than"]
+    ["lt","<","less than","before"]
+
+  LteT ->
+    ["lte","<=","less than or equal to", "at most"]
 
   GtT ->
-    ["gt",">","greater than"]
+    ["gt",">","greater than","after","more than"]
+
+  GteT ->
+    ["gte",">=","greater than or equal to", "at least"]
 
   InT ->
     ["in"]
@@ -125,6 +135,16 @@ basicOperatorNames operator = case operator of
     notNames `UL.andThen` \notname ->
     basicOperatorNames op `UL.andThen` \opname ->
     [ notname ++ opname ]
+
+keyDefault : Key -> OpTag
+keyDefault key = case key of
+  Name -> ILikeT
+  Sex -> ILikeT
+  Hand -> ILikeT
+  Id -> RangeT
+  Ids -> ContainsT
+  Age -> RangeT
+  DOB -> RangeT
 
 
 operatorNames : Key -> OpTag -> List String
@@ -221,14 +241,13 @@ parseKey str =
 
 parseOperator : Key -> String -> Maybe Operator
 parseOperator key str =
-  (head <| filter (flip startsWith (S.toLower str)) <| operatorList key) -- find the string it starts with
-  `andThen`
+  withDefault "" (head <| filter (flip startsWith (S.toLower str)) <| operatorList key) -- find the string it starts with
+  |>
   (\opstr -> -- save as opstr
-    (D.get opstr <| operators key) -- get the operator
-    `andThen`
-    (\optag -> -- save as op
-      (opTagParseArgs optag <| trimLeft <| dropLeft (S.length opstr) str) -- drop matched string and trim whitespace
-    )
+    let
+      optag = withDefault (keyDefault key) (D.get opstr <| operators key) -- get the operator
+    in
+      opTagParseArgs optag <| trimLeft <| dropLeft (S.length opstr) str -- drop matched string and trim whitespace
   )
 
 
@@ -246,8 +265,14 @@ opTagParseArgs optag = case optag of
   LtT ->
     Just << Lt
 
+  LteT ->
+    Just << Lte
+
   GtT ->
     Just << Gt
+
+  GteT ->
+    Just << Gte
 
   RangeT ->
     \str -> case S.indices "-" str of
@@ -291,8 +316,8 @@ opTagParseArgs optag = case optag of
 {--}
 parseParam : String -> Maybe SearchParam
 parseParam str = 
-  (parseKey str)
-  `andThen`
+  withDefault (Name,str) (parseKey str)
+  |>
   (\(key,rest) ->  -- save the key as key
     let
       operator =  -- save the operator and length of matched operator string
@@ -354,8 +379,14 @@ getDBQueries op = case op of
   Lt str ->
     [ S.concat ["lt",".",str] ]
 
+  Lte str ->
+    [ S.concat ["lte",".",str] ]
+
   Gt str ->
     [ S.concat ["gt",".",str] ]
+
+  Gte str ->
+    [ S.concat ["gte",".",str] ]
 
   Range s1 s2 ->
     concat 
@@ -363,8 +394,7 @@ getDBQueries op = case op of
           (uncurry M.map)
           [ (\str ->
               getDBQueries
-                <| Not
-                <| Lt str
+                <| Gte str
             , s1
             )
           , (\str ->
