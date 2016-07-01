@@ -37,6 +37,7 @@ getPeople srch itemsPerPage page =
         in P.ChangePeopleList people <|
           case contentRange of 
             Nothing -> makePagingInfo 1 -2 -2 -2 -- "No content-range" --(2,1)
+            Just "*/0" -> makePagingInfo itemsPerPage 0 0 0
             Just range -> let
                             ints = L.map String.toInt <|
                               Regex.split Regex.All

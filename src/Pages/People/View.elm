@@ -209,11 +209,11 @@ viewPersonRest person =
     ]
 
 nCols : Int
-nCols = 8
+nCols = 7
 
 
 nFields : Int
-nFields = 7
+nFields = 8
 
 
 newPersonForm : Form CustomError Person -> Html Msg
@@ -236,7 +236,8 @@ formRow formn submit cancel formid wrap frm =
     dob = Form.getFieldAsString "dob" frm
     sex = Form.getFieldAsString "sex" frm
     hand = Form.getFieldAsString "hand" frm
-    ids = Form.getFieldAsString "ids" frm
+    adddate = Form.getFieldAsString "adddate" frm
+    source = Form.getFieldAsString "source" frm
   in
     tr [ class "form-group" ] <|
       (td [] 
@@ -246,7 +247,7 @@ formRow formn submit cancel formid wrap frm =
               , attribute "form" formid
               , class "btn btn-primary"
               , value submit
-              , tabindex <| formn * nFields + 6
+              , tabindex <| formn * nFields + 7
               ]
               [ ]
           , text " "
@@ -255,7 +256,7 @@ formRow formn submit cancel formid wrap frm =
               , attribute "form" formid
               , class "btn btn-danger"
               , value cancel
-              , tabindex <| formn * nFields + 7
+              , tabindex <| formn * nFields + 8
               ]
               [ ]
           ]
@@ -268,7 +269,8 @@ formRow formn submit cancel formid wrap frm =
        , ("Date of Birth", dob, formn * nFields + 2, 10, 1)
        , ("Sex", sex, formn * nFields + 3, 5, 1)
        , ("Hand", hand, formn * nFields + 4, 5, 1)
-       , ("IDs", ids, formn * nFields + 5, 10, 1)
+       , ("Add Date", adddate, formn * nFields + 5, 10, 1)
+       , ("Source", source, formn * nFields + 6, 10, 1)
        ])
 
 
@@ -308,60 +310,3 @@ makeForm name cancel success model frm =
     ]
     []
 
-
-{--
-formView : Form CustomError Person -> Html Msg
-formView frm = 
-  let 
-    --pid = Form.getFieldAsString "pid" frm
-    name = Form.getFieldAsString "fullname" frm
-    dob = Form.getFieldAsString "dob" frm
-    sex = Form.getFieldAsString "sex" frm
-    hand = Form.getFieldAsString "hand" frm
-    ids = Form.getFieldAsString "ids" frm
-  in
-    Html.form
-      [ id "new-person"
-      , on "reset" <| Json.succeed <| FormMsg <| Form.Reset []
-      , onSubmit <| case Form.getOutput frm of 
-          Just person ->
-            SubmitPerson person
-          
-          Nothing ->
-            FormMsg Form.Submit
-      ]
-      [ div [ style [("width","600px")
-                    ,("margin", "50px auto")]
-            , class "form-horizontal" ]
-        <|
-        {--
-        [ legend [] [ text "Person Form" ] ]
-        ++
-        (List.map (Html.map FormMsg)
-         [ textGroup "PID" pid
-         , textGroup "Full Name" name
-         , textGroup "Date of Birth" dob
-         , textGroup "Sex" sex
-         , textGroup "Hand" hand
-         , textGroup "IDs" ids
-         ]) 
-        ++
-        --}
-            [ formActions
-                [ input
-                    [ type' "submit"
-                    --, attribute "form" "new-person"
-                    , class "btn btn-primary"
-                    ]
-                    [ text "Submit" ]
-                , text " "
-                , input
-                    [ type' "reset"
-                    --, attribute "form" "new-person"
-                    , class "btn btn-danger"
-                    ]
-                    [ text "Reset" ]
-                ]
-            ]
-      ]
-      --} --}

@@ -63,11 +63,12 @@ type CustomError
 
 personFields : Person -> List (String, Field.Field)
 personFields p = 
-  [ ("fullname", Field.Text <| withDefault "" p.fullname)
-  , ("dob", Field.Text <| withDefault "" p.dob)
-  , ("sex", Field.Text <| withDefault "" p.sex)
-  , ("hand", Field.Text <| withDefault "" p.hand)
-  , ("ids", Field.Text <| String.join " " p.ids)
+  [ ("fullname", Field.Text <| withDefault "" p.fullname )
+  , ("dob", Field.Text <| withDefault "" p.dob )
+  , ("sex", Field.Text <| withDefault "" p.sex )
+  , ("hand", Field.Text <| withDefault "" p.hand )
+  , ("adddate", Field.Text <| withDefault "" p.adddate )
+  , ("source", Field.Text <| withDefault "" p.source )
   ]
 
 
@@ -123,6 +124,12 @@ validate p = Val.succeed (modifyPerson p)
                           , Val.map Just <|
                               string `andThen` includedIn hands
                           ])
-  |: (get "ids" <| oneOf [ Val.map (always []) emptyString, Val.map words string])
+  |: (get "adddate" <| oneOf [ Val.map (always Nothing) emptyString
+                             , Val.map Just string
+                             ])
+  |: (get "source" <| oneOf [ Val.map (always Nothing) emptyString
+                            , Val.map Just string
+                            ])
+  --|: (get "ids" <| oneOf [ Val.map (always []) emptyString, Val.map words string])
 
 

@@ -318,7 +318,7 @@ parseParam : String -> Maybe SearchParam
 parseParam str = 
   withDefault (Name,str) (parseKey str)
   |>
-  (\(key,rest) ->  -- save the key as key
+  \(key,rest) ->  -- save the key as key
     let
       operator =  -- save the operator and length of matched operator string
         withDefault (Eq rest) -- if no operator specified assume equality
@@ -328,7 +328,6 @@ parseParam str =
         { key = key
         , operator = operator
         }
-  )
 --}
 
 searchToQuery : Search -> List (String,String)

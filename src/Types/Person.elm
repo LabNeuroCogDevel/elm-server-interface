@@ -64,14 +64,15 @@ new =
   , maxdrop = Nothing
   }
 
-modifyPerson : Person -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> List String -> Person
-modifyPerson person fullname dob sex hand ids =
+modifyPerson : Person -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> Person
+modifyPerson person fullname dob sex hand adddate source =
   { person
   | fullname = fullname
   , dob = dob
   , sex = sex
   , hand = hand
-  , ids = ids
+  , adddate = adddate
+  , source = source
   }
 
 
