@@ -34,6 +34,8 @@ type Msg
   | RQChanged RQ
   | SearchStringChanged String
   | PeopleSearch
+  | OrdStringChanged String
+  | OrdEnter
   | ContactInfo (List ContactInfo)
   | NavigateTo (Maybe Route) (Maybe Query)
   | ChangePeopleList (List Person) PagingInfo
@@ -49,13 +51,27 @@ type alias Model =
   , contactInfo : Maybe (List ContactInfo)
   , nameFilter : String
   , searchString : String
+  , ordString : String
   , paging : PagingInfo
   , pagingErr : String
   , routeQuery : RQ
   }
 
+
 buildSearch : Model -> Search
-buildSearch model = { key = Name, operator = ILike model.nameFilter } :: (parseSearch model.searchString)
+buildSearch model = 
+  ( if model.nameFilter /= ""
+    then
+      [{ key = Name, operator = ILike model.nameFilter }]
+    else
+      []
+  ) ++ (parseSearch model.searchString)
+
+
+buildOrdering : Model -> Ordering
+buildOrdering model = 
+  parseOrder model.ordString
+
 
 type CustomError
   = NoError
@@ -87,6 +103,7 @@ initModel rq =
   , contactInfo = Nothing
   , nameFilter = ""
   , searchString = withDefault "" (getQueryParam "search" rq)
+  , ordString = withDefault "" (getQueryParam "order" rq)
   , paging = makePagingInfo 25 1 1 1
   , pagingErr = ""
   , routeQuery = rq
@@ -94,11 +111,11 @@ initModel rq =
 
 
 genders : List String
-genders = [ "M", "F" ]
+genders = [ "M", "F", "m", "f" ]
 
 
 hands : List String
-hands = [ "L", "R", "LR", "U" ]
+hands = [ "L", "R", "LR", "U", "A", "l", "r", "lr", "u", "a" ]
 
 
 (|:) = Val.apply

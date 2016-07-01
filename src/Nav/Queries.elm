@@ -17,12 +17,13 @@ import Dict as D
 
 type alias Query = Dict String String 
 
-type alias PeopleQuery = { page : Int, search : String }
+type alias PeopleQuery = { page : Int, search : String, order : String }
 
 defaultPeopleQuery : PeopleQuery
 defaultPeopleQuery =
   { page = 1
   , search = ""
+  , order = ""
   }
 
 type alias Paged x = 
@@ -34,6 +35,12 @@ type alias Searchable x =
   { x
   | search : String
   }
+
+type alias Orderable x =
+  { x
+  | order : String
+  }
+
 
 getPageFromQuery : Dict String String -> Paged x -> Paged x
 getPageFromQuery queries struct = 
@@ -51,7 +58,15 @@ getSearchFromQuery queries struct =
     str
       = M.withDefault struct.search
           <| D.get "search" queries
-      
   in
     { struct | search = str }
+
+getOrderFromQuery : Dict String String -> Orderable x -> Orderable x
+getOrderFromQuery queries struct =
+  let
+    str
+      = M.withDefault struct.order
+          <| D.get "order" queries
+  in
+    { struct | order = str }
 

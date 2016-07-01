@@ -66,6 +66,7 @@ updateQueryRoute : Route -> NQ.Query -> Route
 updateQueryRoute route query = case route of
   People oldQuery subroute ->
     flip People subroute
+      <| getOrderFromQuery query
       <| getSearchFromQuery query
       <| getPageFromQuery query
       <| oldQuery
@@ -101,6 +102,7 @@ routeToQuery page = case page of
     Dict.fromList 
       [("page", toString x.page)
       ,("search", x.search)
+      ,("order", x.order)
       ]
 
 

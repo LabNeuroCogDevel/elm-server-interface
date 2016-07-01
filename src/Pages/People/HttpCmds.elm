@@ -14,16 +14,16 @@ import Dict as D
 import Pages.People.Model as P
 
 
-runSearch : Search -> Cmd P.Msg
-runSearch search = getPeople search 25 1
+runSearch : Search -> Ordering -> Cmd P.Msg
+runSearch search order = getPeople search order 25 1
 
 
 -- TODO ERROR HANDLING
 -- Errors "silently" fail here
 -- not exactly silent since it returns -1 or -2, but still pretty
 -- silent
-getPeople : Search -> Int -> Int -> Cmd P.Msg
-getPeople srch itemsPerPage page = 
+getPeople : Search -> Ordering -> Int -> Int -> Cmd P.Msg
+getPeople srch ord itemsPerPage page = 
   let
     fIndex = (page - 1) * itemsPerPage
     lIndex = fIndex + itemsPerPage - 1 
@@ -50,7 +50,7 @@ getPeople srch itemsPerPage page =
                             _ ->
                               makePagingInfo 1 -1 -1 -1)
 
-    <| getWithHeaders (list memberDecoderLarge) (makePersonUrl <| searchToQuery srch)
+    <| getWithHeaders (list memberDecoderLarge) (makePersonUrl <| (orderToQuery ord)::(searchToQuery srch))
          [ ("Range-Unit", "items")
          , ("Range", toString fIndex ++ "-" ++ toString lIndex)
          ]

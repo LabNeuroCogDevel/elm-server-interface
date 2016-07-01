@@ -4,7 +4,7 @@ import Regex exposing (..)
 import Maybe exposing (..)
 import Utils.Maybe exposing (..)
 
-import String exposing (trim, startsWith, dropLeft, trimLeft)
+import String exposing (trim, startsWith, dropLeft, trimLeft, join)
 import Dict exposing (Dict)
 import List exposing (map, filterMap, filter, head, concat)
 
@@ -191,6 +191,13 @@ type alias SearchParam =
 
 type alias Search = List SearchParam
 
+type OrderParam
+  = Asc Key
+  | Desc Key
+
+type alias Ordering = List OrderParam
+
+
 getList : (c -> List d) -> (c -> d -> a) -> List c -> List a
 getList info handle base
   =  concat
@@ -221,9 +228,12 @@ operatorList key =
   getList (operatorNames key) (\k str -> str) allOperators
 
 
-
 parseSearch : String -> Search
 parseSearch = (<<) (filterMap <| parseParam << trim) <| R.split All <| regex "\\s*;\\s*"
+
+
+parseOrder : String -> Ordering
+parseOrder = (<<) (filterMap <| parseOrderParam << trim) <| R.split All <| regex "\\s*[;,]\\s*"
 
 
 parseKey : String -> Maybe (Key, String)
@@ -236,6 +246,26 @@ parseKey str =
     (\key -> -- save as key
       Just (key, trimLeft <| dropLeft (S.length kstr) str) -- drop matched string and trim whitespace
     )
+  )
+
+
+parseOrderParam : String -> Maybe OrderParam
+parseOrderParam str = 
+  (parseKey str)
+  `andThen`
+  (\(key,rest) ->
+    if L.any (flip startsWith (S.toLower rest)) ["d","desc","dec","descending","decreasing","v",">"]
+    then
+      Just <| Desc key
+    else
+      Just <| Asc key
+      {--
+      if L.any (flip startsWith (S.toLower rest)) ["a","asc","ascending","i","inc","increasing","^","<"]
+      then
+        Just <| Asc key
+      else
+        Nothing
+      --}
   )
 
 
@@ -313,7 +343,6 @@ opTagParseArgs optag = case optag of
     opTagParseArgs opt
 
 
-{--}
 parseParam : String -> Maybe SearchParam
 parseParam str = 
   withDefault (Name,str) (parseKey str)
@@ -328,41 +357,19 @@ parseParam str =
         { key = key
         , operator = operator
         }
---}
+
 
 searchToQuery : Search -> List (String,String)
 searchToQuery = L.concatMap paramToQueries
 
+
 removeWhitespace : String -> String
 removeWhitespace = R.replace R.All (regex "\\s") (\_ -> "")
+
 
 splitR : String -> String -> List String
 splitR regx str = R.split R.All (regex regx) str
 
-{--
-transformArg : Operator -> String -> String
-transformArg op arg = case op of
-  Not op' ->
-    transformArg op' arg
-
-  ILike ->
-    "*"++arg++"*"
-
-  Like ->
-    "*"++arg++"*"
-
-  In ->
-    removeWhitespace arg
-
-  Contains ->
-    "["++(S.join "," <| L.map (\str -> S.concat ["\"",str,"\""]) <| splitR "\\s,\\s" arg)++"]"
-
-  ContainedIn ->
-    "["++(removeWhitespace arg)++"]"
-
-  _ ->
-    arg
---}
 
 getDBQueries : Operator -> List String
 getDBQueries op = case op of
@@ -421,5 +428,15 @@ paramToQueries s =
   L.map ((,) <| fst <| keyNames s.key) 
     <| getDBQueries s.operator
 
+orderToQuery : Ordering -> (String, String)
+orderToQuery order = 
+  ("order",join "," <| L.map orderParamToString order)
 
+orderParamToString : OrderParam -> String
+orderParamToString ordP = case ordP of
+  Desc key ->
+    S.concat [ fst <| keyNames key, ".", "desc" ]
+
+  Asc key ->
+    S.concat [ fst <| keyNames key, ".", "asc" ]
 

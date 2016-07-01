@@ -56,7 +56,7 @@ vtemp model =
               ++ "." ]
       , h2 [] [ text model.pagingErr ]
       , makePaginator (updateRoute rq (defaultPeople All)) pg
-      , SrchView.viewSearch model.searchString SearchStringChanged PeopleSearch
+      , SrchView.viewSearch model.searchString SearchStringChanged PeopleSearch model.ordString OrdStringChanged OrdEnter
       , table [ class "table table-striped" ]
           [ thead []
               [ tr []
@@ -93,6 +93,8 @@ vtemp model =
                   [ text <| "contactInfo: "++(toString model.contactInfo) ]
               , li []
                   [ text <| "search: "++(toString <| buildSearch model) ]
+              , li []
+                  [ text <| "ordString: "++(model.ordString) ]
                   {--
               , li []
                   [ text "editpid: "++(toString model.editpid) ]

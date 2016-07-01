@@ -9,7 +9,7 @@ import Hop exposing (makeUrl)
 import Nav.Routes exposing (Route, routeToPath, routerConfig)
 import Nav.Operations exposing (Operation (..))
 import Nav.RQ exposing (RQ, getQueryRQ)
-import Components.Search.Model exposing (parseSearch)
+import Components.Search.Model exposing (parseSearch, parseOrder)
 
 import Navigation
 import Result
@@ -42,6 +42,11 @@ init rq =
                          (parseSearch
                            <| M.withDefault ""
                            <| D.get "search"
+                           <| getQueryRQ rq
+                         )
+                         (parseOrder
+                           <| M.withDefault ""
+                           <| D.get "order"
                            <| getQueryRQ rq
                          )
                          25

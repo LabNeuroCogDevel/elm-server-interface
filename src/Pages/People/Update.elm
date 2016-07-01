@@ -51,7 +51,7 @@ update msg model =
               m = { newModel | nameFilter = fnVal }
             in 
               ( m
-              , HttpCmds.runSearch <| buildSearch m
+              , HttpCmds.runSearch (buildSearch m) (buildOrdering m)
               )
 
           Nothing ->
@@ -81,8 +81,22 @@ update msg model =
       , Utils.navigateTo
           model.routeQuery
           Nothing
-          (Just <| D.fromList [("search",model.searchString),("page","1")])
+          (Just <| D.fromList [("search",model.searchString),("page","1"),("order",model.ordString)])
+      )
 
+    OrdStringChanged ordstr ->
+      ( { model
+        | ordString = ordstr
+        }
+      , Cmd.none
+      )
+
+    OrdEnter ->
+      ( model
+      , Utils.navigateTo
+          model.routeQuery
+          Nothing
+          (Just <| D.fromList [("search",model.searchString),("page","1"),("order",model.ordString)])
       )
 
     ViewPerson pid ->
@@ -202,14 +216,18 @@ urlUpdate rq model =
                    (Result.toMaybe << String.toInt)
     maybeSearchStr = getQueryParam "search" rq
     searchStr = M.withDefault model.searchString maybeSearchStr
-    newModel = { nM | searchString = searchStr }
+
+    maybeOrdStr = getQueryParam "order" rq
+    ordStr = M.withDefault model.ordString maybeOrdStr
+
+    newModel = { nM | searchString = searchStr, ordString = ordStr }
 
     cmd = 
       case maybePageNum of
         Just n ->
           --if n /= model.paging.curPage
           --then
-          HttpCmds.getPeople (buildSearch newModel) 25 n
+          HttpCmds.getPeople (buildSearch newModel) (buildOrdering newModel) 25 n
           --else
           --  Cmd.none
 
