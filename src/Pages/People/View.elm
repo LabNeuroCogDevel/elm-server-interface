@@ -77,6 +77,7 @@ vtemp model =
           [] -> text ""
           xs -> p [ class "alert alert-success" ] [ text (toString xs) ]
       --}
+      -- DEBUG
       , div [ class "alert alert-success" ]
           [ ul []
               [ li []
@@ -94,7 +95,7 @@ vtemp model =
               , li []
                   [ text <| "search: "++(toString <| buildSearch model) ]
               , li []
-                  [ text <| "ordString: "++(model.ordString) ]
+                  [ text <| "ordString: "++(toString <| buildOrdering model) ]
                   {--
               , li []
                   [ text "editpid: "++(toString model.editpid) ]
