@@ -33,14 +33,20 @@ formGroup label' maybeError inputs =
         [ errorMessage maybeError ]
     ]
 
-formTCell : String -> (String, FieldState CustomError String, Int) -> Html Form.Msg
-formTCell formid (label', state, i) =
+formTCell : String -> (String, FieldState CustomError String, Int, Int, Int) -> Html Form.Msg
+formTCell formid (label', state, i, l, nc) =
   td
-    [ class <| "form-group " ++ (errorClass state.liveError) ]
+    [ class <| "form-group " ++ (errorClass state.liveError)
+    , colspan nc
+    ]
     [ Input.textInput state [ class <| "form-control "++(errorClass state.liveError)
                             , placeholder label'
                             , attribute "form" formid
-                            , tabindex i]]
+                            , tabindex i
+                            , style
+                                [("min-width",(toString l)++"em")]
+                            ]
+    ]
 
 
 formActions : List (Html msg) -> Html msg

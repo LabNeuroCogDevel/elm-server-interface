@@ -13,6 +13,11 @@ import List as L
 import Dict as D
 import Pages.People.Model as P
 
+
+runSearch : Search -> Cmd P.Msg
+runSearch search = getPeople search 25 1
+
+
 -- TODO ERROR HANDLING
 -- Errors "silently" fail here
 -- not exactly silent since it returns -1 or -2, but still pretty

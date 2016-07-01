@@ -33,7 +33,7 @@ type Msg
   | CancelEdit
   | RQChanged RQ
   | SearchStringChanged String
-  | PeopleSearch Search
+  | PeopleSearch
   | ContactInfo (List ContactInfo)
   | NavigateTo (Maybe Route) (Maybe Query)
   | ChangePeopleList (List Person) PagingInfo
@@ -47,13 +47,15 @@ type alias Model =
   , editpid : Maybe Int
   , activepid : Maybe Int
   , contactInfo : Maybe (List ContactInfo)
+  , nameFilter : String
   , searchString : String
-  , search : Search
   , paging : PagingInfo
   , pagingErr : String
   , routeQuery : RQ
   }
 
+buildSearch : Model -> Search
+buildSearch model = { key = Name, operator = ILike model.nameFilter } :: (parseSearch model.searchString)
 
 type CustomError
   = NoError
@@ -82,8 +84,8 @@ initModel rq =
   , editpid = Nothing
   , activepid = Nothing
   , contactInfo = Nothing
+  , nameFilter = ""
   , searchString = withDefault "" (getQueryParam "search" rq)
-  , search = []
   , paging = makePagingInfo 25 1 1 1
   , pagingErr = ""
   , routeQuery = rq

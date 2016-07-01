@@ -7,12 +7,12 @@ import Components.Search.Model exposing (..)
 import Utils.Html exposing (..)
 
 
-viewSearch : String -> (String -> msg) -> (Search -> msg) -> Html msg
+viewSearch : String -> (String -> msg) -> msg -> Html msg
 viewSearch txt onin onch =
   input
     [ type' "text"
     , onInput onin
-    , onChange (onch << parseSearch)
+    , onChange (always onch)
     , placeholder "Press enter to Search"
     , size 40
     , value txt

@@ -16,6 +16,7 @@ import Nav.Routes as R
 import List as L
 import Dict as D
 import Maybe as M
+import Utils.Maybe as UM
 import Pages.People.Model as P
 
 import Pages.People.HttpCmds as HttpCmds
@@ -36,7 +37,23 @@ update msg model =
       (model, Cmd.none)
 
     FormMsg formMsg ->
-      ({ model | form = Form.update formMsg model.form}, Cmd.none)
+      let 
+        newForm = Form.update formMsg model.form
+        fullnameField = Form.getFieldAsString "fullname" newForm
+        fnValM = fullnameField.value
+        newfnVal = fnValM `M.andThen` UM.test ((/=) model.nameFilter)
+        newModel = { model | form = newForm }
+      in case newfnVal of
+          Just fnVal ->
+            let
+              m = { newModel | nameFilter = fnVal }
+            in 
+              ( m
+              , HttpCmds.runSearch <| buildSearch m
+              )
+
+          Nothing ->
+            ( newModel, Cmd.none )
 
     EditFormMsg formMsg ->
       ({ model | editForm = Form.update formMsg model.editForm}, Cmd.none)
@@ -46,6 +63,7 @@ update msg model =
        | form = Form.update (Form.Reset <| personFields Person.new) model.form
        , people = person :: model.people
        , id = model.id + 1
+       , nameFilter = ""
        }
       , Cmd.none)
 
@@ -56,10 +74,8 @@ update msg model =
       , Cmd.none
       )
 
-    PeopleSearch search ->
-      ( { model
-        | search = search
-        }
+    PeopleSearch ->
+      ( model
       , Utils.navigateTo
           model.routeQuery
           Nothing
@@ -178,31 +194,27 @@ update msg model =
 urlUpdate : RQ -> Model -> (Model, Cmd Msg)
 urlUpdate rq model = 
   let
-    newModel = { model | routeQuery = rq }
+    nM = { model | routeQuery = rq }
     maybePageNum = (getQueryParam "page" rq)
                    `M.andThen`
                    (Result.toMaybe << String.toInt)
     maybeSearchStr = getQueryParam "search" rq
-    search = M.withDefault model.search (M.map parseSearch maybeSearchStr)
+    searchStr = M.withDefault model.searchString maybeSearchStr
+    newModel = { nM | searchString = searchStr }
+
     cmd = 
       case maybePageNum of
         Just n ->
           --if n /= model.paging.curPage
           --then
-          HttpCmds.getPeople search 25 n
+          HttpCmds.getPeople (buildSearch newModel) 25 n
           --else
           --  Cmd.none
 
         Nothing ->
           Cmd.none
-    nm' = case maybeSearchStr of
-      Just str ->
-        { newModel | searchString = str, search = search }
-
-      Nothing ->
-        newModel
   in
-    (nm',cmd)
+    (newModel,cmd)
 
 
 

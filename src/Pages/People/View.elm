@@ -17,6 +17,7 @@ import View.Pagination exposing (makePaginator)
 
 import String
 import Maybe
+import Form
 
 import List as L
 
@@ -60,9 +61,19 @@ vtemp model =
                   [ th [] [ text "PID" ]
                   , th [] [ text "Name" ]
                   , th [] [ text "DOB" ]
+                  , th [] [ text "Age" ]
                   , th [] [ text "Sex" ]
                   , th [] [ text "Hand" ]
+                  , th [] [ text "Add Date" ]
+                  , th [] [ text "Source" ]
+                  , th [] [ text "Last Visit" ]
+                  , th [] [ text "Num Visits" ]
+                  , th [] [ text "Visit Types" ]
+                  , th [] [ text "Studies" ]
+                  , th [] [ text "Num Studies" ]
                   , th [] [ text "IDs" ]
+                  , th [] [ text "Num Drops" ]
+                  , th [] [ text "Max Drop" ]
                   ]
               ]
           , tbody [] <| L.concat ([newPersonForm model.form] :: List.map (viewEditPerson model) model.people)
@@ -88,7 +99,7 @@ vtemp model =
               , li []
                   [ text <| "contactInfo: "++(toString model.contactInfo) ]
               , li []
-                  [ text <| "search: "++(toString model.search) ]
+                  [ text <| "search: "++(toString <| buildSearch model) ]
                   {--
               , li []
                   [ text "editpid: "++(toString model.editpid) ]
@@ -98,6 +109,7 @@ vtemp model =
               ]
           ]
       ]
+
 
 viewEditPerson : Model -> Person -> List (Html Msg)
 viewEditPerson m p = 
@@ -114,8 +126,10 @@ viewEditPerson m p =
         else
           default
 
+
 isActive : Model -> Person -> Bool
 isActive m p = m.activepid == Just p.pid
+
 
 viewPerson : Model -> Person -> List (Html Msg)
 viewPerson model person = 
@@ -140,11 +154,31 @@ viewPerson model person =
       , td []
           [ text <| withDefault "N/A" person.dob ]
       , td []
+          [ text <| toString person.curage ]
+      , td []
           [ text <| withDefault "N/A" person.sex ]
       , td []
           [ text <| withDefault "N/A" person.hand ]
       , td []
+          [ text <| withDefault "N/A" person.adddate ]
+      , td []
+          [ text <| withDefault "N/A" person.source ]
+      , td []
+          [ text <| withDefault "N/A" person.lastvisit ]
+      , td []
+          [ text <| toString person.numvisits ]
+      , td []
+          [ text <| if person.visittypes == [] then "N/A" else String.join " " person.visittypes ]
+      , td []
+          [ text <| if person.studies == [] then "N/A" else String.join " " person.studies ]
+      , td []
+          [ text <| toString person.nstudies ]
+      , td []
           [ text <| if person.ids == [] then "N/A" else String.join " " person.ids ]
+      , td []
+          [ text <| toString person.ndrops ]
+      , td []
+          [ text <| withDefault "N/A" person.maxdrop ]
       ]
   ]
   ++
@@ -159,17 +193,26 @@ viewPerson model person =
       []
   )
   
+
 nCols : Int
-nCols = 6
+nCols = 16
+
 
 nFields : Int
 nFields = 7
 
+
 newPersonForm : Form CustomError Person -> Html Msg
-newPersonForm = formRow 1 "Submit" "Reset" "new-person" FormMsg
+newPersonForm = formRow 1 "Submit" "Reset" "new-person" 
+  <| \msg ->
+      case msg of 
+        m ->
+          FormMsg m
+
 
 editPersonForm : Form CustomError Person -> Html Msg
 editPersonForm = formRow 2 "Save" "Cancel" "edit-person" EditFormMsg
+
 
 formRow : Int -> String -> String -> String -> (Form.Msg -> Msg) -> Form CustomError Person -> Html Msg
 formRow formn submit cancel formid wrap frm = 
@@ -207,28 +250,35 @@ formRow formn submit cancel formid wrap frm =
       (List.map ((Html.map wrap) << (formTCell formid))
        [ {-- "PID" :- pid
        ,--}
-         ("Full Name",  name, formn * nFields + 1)
-       , ("Date of Birth", dob, formn * nFields + 2)
-       , ("Sex", sex, formn * nFields + 3)
-       , ("Hand", hand, formn * nFields + 4)
-       , ("IDs", ids, formn * nFields + 5)
+         ("Full Name",  name, formn * nFields + 1, 10, 1)
+       , ("Date of Birth", dob, formn * nFields + 2, 10, 2)
+       , ("Sex", sex, formn * nFields + 3, 5, 1)
+       , ("Hand", hand, formn * nFields + 4, 5, 1)
+       , ("IDs", ids, formn * nFields + 5, 10, 1)
        ])
+
 
 resetMsg : Msg
 resetMsg = FormMsg <| Form.Reset []
 
+
 cancelMsg : Msg
 cancelMsg = NavigateTo (Just (defaultPeople Cancel)) Nothing
+
 
 newPersonMsg : Model -> Person -> Msg
 newPersonMsg model person = SubmitPerson { person | pid = model.id }
 
+
 savePersonMsg : Model -> Person -> Msg
 savePersonMsg model person = SavePerson person
 
+
 mkNPForm = makeForm "new-person" resetMsg newPersonMsg
 
+
 mkEdForm = makeForm "edit-person" cancelMsg savePersonMsg
+
 
 makeForm : String -> Msg -> (Model -> Person -> Msg) -> Model -> Form CustomError Person -> Html Msg
 makeForm name cancel success model frm = 
@@ -243,6 +293,7 @@ makeForm name cancel success model frm =
           FormMsg Form.Submit
     ]
     []
+
 
 {--
 formView : Form CustomError Person -> Html Msg
