@@ -41,7 +41,9 @@ update msg model =
         newForm = Form.update formMsg model.form
         fullnameField = Form.getFieldAsString "fullname" newForm
         fnValM = fullnameField.value
-        newfnVal = fnValM `M.andThen` UM.test ((/=) model.nameFilter)
+        newfnVal =
+          UM.test ((/=) model.nameFilter)
+            <| M.withDefault "" fnValM
         newModel = { model | form = newForm }
       in case newfnVal of
           Just fnVal ->
