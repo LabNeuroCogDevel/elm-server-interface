@@ -58,7 +58,7 @@ vtemp model =
       , makePaginator (updateRoute rq (defaultPeople All)) pg
       , SrchView.viewSearch model.searchString SearchStringChanged PeopleSearch model.ordString OrdStringChanged OrdEnter
       , table [ class "table table-striped" ]
-          [ thead []
+          [ thead [ class "thead-inverse" ]
               [ tr []
                   [ th [] [ text "PID" ]
                   , th [] [ text "Name" ]
