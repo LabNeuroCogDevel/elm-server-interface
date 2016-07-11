@@ -10,6 +10,7 @@ import Nav.Routes exposing (Route, routeToPath, routerConfig)
 import Nav.Operations exposing (Operation (..))
 import Nav.RQ exposing (RQ, getQueryRQ)
 import Components.Search.Model exposing (parseSearch, parseOrder)
+import Pages.People.Search exposing (peopleKeyInfo)
 
 import Navigation
 import Result
@@ -39,12 +40,12 @@ init rq =
                 , morecmds
                 , Cmd.map PeopleMsg 
                     <| PC.getPeople 
-                         (parseSearch
+                         (parseSearch peopleKeyInfo
                            <| M.withDefault ""
                            <| D.get "search"
                            <| getQueryRQ rq
                          )
-                         (parseOrder
+                         (parseOrder peopleKeyInfo
                            <| M.withDefault ""
                            <| D.get "order"
                            <| getQueryRQ rq

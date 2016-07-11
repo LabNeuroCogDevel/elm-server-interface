@@ -4,6 +4,7 @@ module Pages.People.Model exposing (..)
 import Nav.Routes exposing (..)
 import Form.Validate as Val exposing (..)
 import Components.Search.Model exposing (..)
+import Pages.People.Search exposing (..)
 
 import Nav.RQ exposing (RQ,getQueryParam)
 import Nav.Queries exposing (Query)
@@ -39,6 +40,7 @@ type Msg
   | ContactInfo (List ContactInfo)
   | NavigateTo (Maybe Route) (Maybe Query)
   | ChangePeopleList (List Person) PagingInfo
+  | ChangeSorting PeopleKey
 
 
 type alias Model = 
@@ -58,19 +60,31 @@ type alias Model =
   }
 
 
-buildSearch : Model -> Search
+buildSearch : Model -> Search PeopleKey
 buildSearch model = 
   ( if model.nameFilter /= ""
     then
       [{ key = Name, operator = ILike model.nameFilter }]
     else
       []
-  ) ++ (parseSearch model.searchString)
+  ) ++ (parseSearch peopleKeyInfo model.searchString)
 
 
-buildOrdering : Model -> Ordering
+-- get clean search string
+searchString : Model -> String
+searchString model = model.searchString
+
+
+buildOrdering : Model -> Ordering PeopleKey
 buildOrdering model = 
-  parseOrder model.ordString
+  parseOrder peopleKeyInfo model.ordString
+
+-- get clean order string
+ordString : Model -> String
+ordString = orderingToString peopleKeyInfo << buildOrdering
+
+getSortStatus : PeopleKey -> Model -> SortStatus
+getSortStatus key = Components.Search.Model.getSortStatus key << buildOrdering
 
 
 type CustomError

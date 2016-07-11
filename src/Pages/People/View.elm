@@ -9,11 +9,13 @@ import View.Bootstrap exposing (..)
 import Nav.Routes exposing (..)
 import Nav.RQ exposing (..)
 import Nav.Operations exposing (..)
+import Pages.People.Search exposing (..)
 
 import Maybe exposing (withDefault)
 import Form exposing (Form)
 import ElmEscapeHtml exposing (unescape)
 import View.Pagination exposing (makePaginator)
+import Components.Search.Model exposing (SortStatus (..))
 
 import String
 import Maybe
@@ -58,15 +60,64 @@ vtemp model =
       , makePaginator (updateRoute rq (defaultPeople All)) pg
       , SrchView.viewSearch model.searchString SearchStringChanged PeopleSearch model.ordString OrdStringChanged OrdEnter
       , table [ class "table table-striped" ]
-          [ thead [ class "thead-inverse" ]
+          [ thead [ class "thead-inverse no-select" ]
               [ tr []
-                  [ th [] [ text "PID" ]
-                  , th [] [ text "Name" ]
-                  , th [] [ text "Age (DOB)" ]
-                  , th [] [ text "Sex" ]
-                  , th [] [ text "Hand" ]
-                  , th [] [ text "Add Date" ]
-                  , th [] [ text "Source" ]
+                  [ th 
+                      [ classList 
+                          [("table-desc", getSortStatus Id model == Descending)
+                          ,("table-asc", getSortStatus Id model == Ascending)
+                          ]
+                      , onClick <| ChangeSorting Id
+                      ]
+                      [ text "PID" ]
+                  , th
+                      [ classList 
+                          [("table-desc", getSortStatus Name model == Descending)
+                          ,("table-asc", getSortStatus Name model == Ascending)
+                          ]
+                      , onClick <| ChangeSorting Name
+                      ] 
+                      [ text "Name" ]
+                  , th 
+                      [ classList 
+                          [("table-desc", getSortStatus DOB model == Descending)
+                          ,("table-asc", getSortStatus DOB model == Ascending)
+                          ]
+                      , onClick <| ChangeSorting DOB
+                      ]
+                      [ text "Age (DOB)" ]
+                  , th
+                      [ classList 
+                          [("table-desc", getSortStatus Sex model == Descending)
+                          ,("table-asc", getSortStatus Sex model == Ascending)
+                          ]
+                      , onClick <| ChangeSorting Sex
+                      ]
+                      [ text "Sex" ]
+                  , th 
+                      [ classList 
+                          [("table-desc", getSortStatus Hand model == Descending)
+                          ,("table-asc", getSortStatus Hand model == Ascending)
+                          ]
+                      , onClick <| ChangeSorting Hand
+                      ]
+                      [ text "Hand" ]
+                  , th 
+                      [ classList 
+                          --[("table-danger", getSortStatus PID model == Descending)
+                          --,("table-success", getSortStatus PID model == Ascending)
+                          [
+                          ]
+                      ]
+                      [ text "Add Date" ]
+                  , th 
+                      [ classList 
+                          --[("table-danger", getSortStatus PID model == Descending)
+                          --,("table-success", getSortStatus PID model == Ascending)
+                          [
+                          ]
+                      ]
+                      [ text "Source" ]
                   ]
               ]
           , tbody [] <| L.concat ([newPersonForm model.form] :: List.map (viewEditPerson model) model.people)

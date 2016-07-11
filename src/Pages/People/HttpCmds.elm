@@ -5,16 +5,26 @@ import Json.Decode exposing (..)
 import Types.Person.JsonDecoders exposing (..)
 import Nav.Paging exposing (..)
 import Components.Search.Model exposing (..)
+import Pages.People.Search exposing (..)
 
 import Regex
 import String
+import Utils
 
 import List as L
 import Dict as D
 import Pages.People.Model as P
 
 
-runSearch : Search -> Ordering -> Cmd P.Msg
+updateNavFromModel : P.Model -> Cmd P.Msg
+updateNavFromModel model
+ = Utils.navigateTo
+    model.routeQuery
+    Nothing
+    (Just <| D.fromList [("search",P.searchString model),("page","1"),("order",P.ordString model)])
+
+
+runSearch : Search PeopleKey -> Ordering PeopleKey -> Cmd P.Msg
 runSearch search order = getPeople search order 25 1
 
 
@@ -22,7 +32,7 @@ runSearch search order = getPeople search order 25 1
 -- Errors "silently" fail here
 -- not exactly silent since it returns -1 or -2, but still pretty
 -- silent
-getPeople : Search -> Ordering -> Int -> Int -> Cmd P.Msg
+getPeople : Search PeopleKey -> Ordering PeopleKey -> Int -> Int -> Cmd P.Msg
 getPeople srch ord itemsPerPage page = 
   let
     fIndex = (page - 1) * itemsPerPage
@@ -50,7 +60,7 @@ getPeople srch ord itemsPerPage page =
                             _ ->
                               makePagingInfo 1 -1 -1 -1)
 
-    <| getWithHeaders (list memberDecoderLarge) (makePersonUrl <| (orderToQuery ord)::(searchToQuery srch))
+    <| getWithHeaders (list memberDecoderLarge) (makePersonUrl <| (orderToQuery peopleKeyInfo ord)::(searchToQuery peopleKeyInfo srch))
          [ ("Range-Unit", "items")
          , ("Range", toString fIndex ++ "-" ++ toString lIndex)
          ]

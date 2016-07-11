@@ -132,7 +132,7 @@ makePaginator rq pg =
     pagesList = getDisplayList pg.totalPages pg.curPage
   in
     nav []
-      [ ul [ class "pagination" ]
+      [ ul [ class "pagination no-select" ]
           <|
             [ paginatorPrevious rq pg
             , paginatorNumber rq pg 1

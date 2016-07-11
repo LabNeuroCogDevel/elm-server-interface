@@ -7,6 +7,8 @@ import Nav.Routes exposing (..)
 
 import Form exposing (Form)
 import Nav.RQ exposing (RQ, getQueryParam)--, getQueryRQ)
+import Pages.People.HttpCmds exposing (updateNavFromModel)
+import Pages.People.Search exposing (peopleKeyInfo)
 
 import List 
 import String
@@ -78,10 +80,7 @@ update msg model =
 
     PeopleSearch ->
       ( model
-      , Utils.navigateTo
-          model.routeQuery
-          Nothing
-          (Just <| D.fromList [("search",model.searchString),("page","1"),("order",model.ordString)])
+      , updateNavFromModel model
       )
 
     OrdStringChanged ordstr ->
@@ -93,10 +92,7 @@ update msg model =
 
     OrdEnter ->
       ( model
-      , Utils.navigateTo
-          model.routeQuery
-          Nothing
-          (Just <| D.fromList [("search",model.searchString),("page","1"),("order",model.ordString)])
+      , updateNavFromModel model
       )
 
     ViewPerson pid ->
@@ -202,6 +198,28 @@ update msg model =
                        <| pList }
             , Cmd.none
             )
+
+    ChangeSorting key ->
+      let
+        ss = Pages.People.Model.getSortStatus key model
+        ord = parseOrder peopleKeyInfo model.ordString
+        nm =
+          { model 
+          | ordString = case ss of
+              Ascending ->
+                orderingToString peopleKeyInfo <| (Desc key) :: ord
+              Descending ->
+                orderingToString peopleKeyInfo <| L.filter (((/=) key) << getKey) ord
+              Unsorted ->
+                orderingToString peopleKeyInfo <| (Asc key) :: ord
+          }
+
+      in
+        ( nm
+        , updateNavFromModel nm
+        ) 
+
+          
 
     RQChanged rq -> 
       ({ model | routeQuery = rq }, Cmd.none)

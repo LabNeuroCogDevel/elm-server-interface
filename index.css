@@ -1,0 +1,26 @@
+
+.no-select {
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -ms-user-select: none;
+}
+
+
+th.table-asc {
+  background-color: #509334 !important
+}
+
+th.table-desc {
+  background-color: #d14f4f !important
+}
+
+.table-striped > tbody > tr:nth-of-type(2n) {
+    background-color: #c8c8c8;
+}
+
+.table-striped > tbody > tr:nth-of-type(2n+1) {
+    background-color: #f0f0f0;
+}
+
