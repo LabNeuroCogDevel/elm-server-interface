@@ -1,0 +1,7 @@
+Separate out keys into search keys and sort keys
+
+distinguish human readable names and computer names for keys
+
+Separate out sorting on age and sorting on DOB
+
+
