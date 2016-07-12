@@ -8,11 +8,11 @@
 }
 
 
-th.table-asc {
+.table-asc {
   background-color: #509334 !important
 }
 
-th.table-desc {
+.table-desc {
   background-color: #d14f4f !important
 }
 

@@ -2,10 +2,13 @@ module Pages.People.HttpCmds exposing (..)
 
 import Core.HttpCmds exposing (..)
 import Json.Decode exposing (..)
+import Types.Person exposing (..)
 import Types.Person.JsonDecoders exposing (..)
+import Types.Person.JsonEncoders exposing (..)
 import Nav.Paging exposing (..)
 import Components.Search.Model exposing (..)
 import Pages.People.Search exposing (..)
+import Http exposing (..)
 
 import Regex
 import String
@@ -13,7 +16,22 @@ import Utils
 
 import List as L
 import Dict as D
+import String as S
 import Pages.People.Model as P
+
+
+personSearchUrl : String
+personSearchUrl = urlstring ++ "person_search_view"
+
+personInsertUrl : String
+personInsertUrl = urlstring ++ "person"
+
+
+makePersonUrl : List (String, String) -> String
+makePersonUrl = url personSearchUrl
+
+makePersonUpdateUrl : Pid -> String
+makePersonUpdateUrl id = url personInsertUrl [("pid",S.concat ["eq.",toString id])]
 
 
 updateNavFromModel : P.Model -> Cmd P.Msg

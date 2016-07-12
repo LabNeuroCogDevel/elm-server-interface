@@ -41,11 +41,12 @@ peopleKeyInfo =
       ]
   , defaultKey = Name
   , keyNames = keyNames
+  , prettyKeyNames = prettyKeyName
   , keyDefault = keyDefault
   }
 
 
-prettyKeyName : PeopleKey -> (String,Maybe String)
+prettyKeyName : PeopleKey -> (String, Maybe String)
 prettyKeyName key = case key of
   Name -> ("Name", Just "Full name")
   Age -> ("Age", Nothing)
@@ -53,7 +54,7 @@ prettyKeyName key = case key of
   Hand -> ("Hand", Nothing)
   Id -> ("Id", Nothing)
   Ids -> ("Ids", Nothing)
-  DOB -> ("DoB", Just "Date of Birth")
+  DOB -> ("Birth", Just "Date of Birth")
   AddDate -> ("Add", Just "Add Date")
   Source -> ("Source", Nothing)
 
@@ -78,10 +79,10 @@ keyNames key = case key of
     ("ids", [])
 
   DOB ->
-    ("dob", ["born","bdate","birthdate"])
+    ("dob", ["born","bdate","birthdate","birth","date of birth"])
 
   AddDate ->
-    ("adddate", ["add date"])
+    ("adddate", ["add date","add"])
 
   Source ->
     ("source", [])

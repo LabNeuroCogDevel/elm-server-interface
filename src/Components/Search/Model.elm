@@ -21,11 +21,16 @@ type alias KeyInfo k =
   , sortKeys : List k
   , defaultKey : k
   , keyNames : k -> (String,List String)
+  , prettyKeyNames : k -> (String, Maybe String)
   , keyDefault : k -> OpTag
   }
 
 getKeyName : KeyInfo k -> k -> String
 getKeyName = curry <| fst << (uncurry (.keyNames))
+
+
+getPrettyKeyName : KeyInfo k -> k -> String
+getPrettyKeyName = curry <| fst << (uncurry (.prettyKeyNames))
 
 -- pull a tag off the input
 -- use tag to determine how to parse args and
@@ -41,6 +46,7 @@ type OpTag
   | GteT
   | RangeT
   | InT
+  | IsNullT
   | ContainsT
   | ContainedInT
   | NotT OpTag
@@ -53,6 +59,7 @@ type Operator
   | Lte String
   | Gt String
   | Gte String
+  | IsNull
   | Range (Maybe String) (Maybe String)
   | In (List String)
   | Contains (List String)
@@ -61,7 +68,7 @@ type Operator
 
 simpleOperators : List OpTag
 simpleOperators = 
-  [ ContainedInT, ContainsT, LteT, GteT, EqT, ILikeT, LikeT, LtT, GtT, InT, RangeT ]
+  [ IsNullT, ContainedInT, ContainsT, LteT, GteT, EqT, ILikeT, LikeT, LtT, GtT, InT, RangeT ]
 
 allOperators : List OpTag
 allOperators = simpleOperators ++ (L.map NotT simpleOperators)
@@ -103,6 +110,9 @@ basicOperatorNames operator = case operator of
 
   ContainedInT ->
     ["<@","contained in"]
+
+  IsNullT ->
+    ["is null","null?","null"]
 
   NotT op ->
     notNames `UL.andThen` \notname ->
@@ -188,22 +198,22 @@ getList info handle base
 
 
 searchKeys : KeyInfo k -> Dict String k
-keys info = D.fromList
+searchKeys info = D.fromList
   <| getList ((\(pk,ks) -> pk::ks) << info.keyNames) (flip (,)) info.searchKeys
 
 
 sortKeys : KeyInfo k -> Dict String k
-keys info = D.fromList
+sortKeys info = D.fromList
   <| getList ((\(pk,ks) -> pk::ks) << info.keyNames) (flip (,)) info.sortKeys
 
 
 searchKeyList : KeyInfo k -> List String
-keyList info = 
+searchKeyList info = 
   getList ((\(pk,ks) -> pk::ks) << info.keyNames) (\k str -> str) info.searchKeys
 
 
 sortKeyList : KeyInfo k -> List String
-keyList info = 
+sortKeyList info = 
   getList ((\(pk,ks) -> pk::ks) << info.keyNames) (\k str -> str) info.sortKeys
 
 
@@ -233,7 +243,7 @@ parseOrder info =
 
 parseSearchKey : KeyInfo k -> String -> Maybe (k, String)
 parseSearchKey info str =
-  (head <| filter (flip startsWith (S.toLower str)) <| keyList info) -- find the string it starts with
+  (head <| filter (flip startsWith (S.toLower str)) <| searchKeyList info) -- find the string it starts with
   `andThen`
   (\kstr -> -- save as kstr
     (D.get kstr <| searchKeys info) -- get the key
@@ -246,7 +256,7 @@ parseSearchKey info str =
 
 parseSortKey : KeyInfo k -> String -> Maybe (k, String)
 parseSortKey info str =
-  (head <| filter (flip startsWith (S.toLower str)) <| keyList info) -- find the string it starts with
+  (head <| filter (flip startsWith (S.toLower str)) <| sortKeyList info) -- find the string it starts with
   `andThen`
   (\kstr -> -- save as kstr
     (D.get kstr <| sortKeys info) -- get the key
@@ -305,6 +315,9 @@ opTagParseArgs optag = case optag of
   GteT ->
     Just << Gte
 
+  IsNullT ->
+    always <| Just IsNull
+
   RangeT ->
     \str -> case S.indices "-" str of
       [] ->
@@ -341,7 +354,7 @@ opTagParseArgs optag = case optag of
     Just << ContainedIn << splitR "\\s,\\s"
 
   NotT opt ->
-    opTagParseArgs opt
+    M.map Not << opTagParseArgs opt
 
 
 parseParam : KeyInfo k -> String -> Maybe (SearchParam k)
@@ -420,6 +433,9 @@ getDBQueries op = case op of
   ContainedIn strs ->
     [ S.concat <| ["<@","."]++["["]++(L.map (\str -> S.concat ["\"",str,"\""]) strs)++["]"] ]
 
+  IsNull ->
+    [ S.concat ["is",".","null"]]
+
   Not o ->
     L.map (\str -> S.concat ["not",".",str]) <| getDBQueries o
   
@@ -446,9 +462,9 @@ orderingToString info ord =
   S.join ", "
     <| L.map (\ordP -> case ordP of
                 Desc key ->
-                  S.concat [ getKeyName info key, " ", "desc" ]
+                  S.concat [ getPrettyKeyName info key, " ", "Desc" ]
                 Asc key ->
-                  S.concat [ getKeyName info key ]
+                  S.concat [ getPrettyKeyName info key ]
              )
              ord
 

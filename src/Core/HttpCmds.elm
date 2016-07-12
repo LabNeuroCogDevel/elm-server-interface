@@ -28,11 +28,6 @@ portnum = 3003
 urlstring : String
 urlstring = "http://localhost:3003/"
 
-personUrl : String
-personUrl = urlstring ++ "person_search_view"
-
-makePersonUrl : List (String, String) -> String
-makePersonUrl = url personUrl
 
 
 defaultJsonSets = { defaultSettings 

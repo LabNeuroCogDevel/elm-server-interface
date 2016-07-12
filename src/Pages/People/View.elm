@@ -61,64 +61,16 @@ vtemp model =
       , SrchView.viewSearch model.searchString SearchStringChanged PeopleSearch model.ordString OrdStringChanged OrdEnter
       , table [ class "table table-striped" ]
           [ thead [ class "thead-inverse no-select" ]
-              [ tr []
-                  [ th 
-                      [ classList 
-                          [("table-desc", getSortStatus Id model == Descending)
-                          ,("table-asc", getSortStatus Id model == Ascending)
-                          ]
-                      , onClick <| ChangeSorting Id
-                      ]
-                      [ text "PID" ]
-                  , th
-                      [ classList 
-                          [("table-desc", getSortStatus Name model == Descending)
-                          ,("table-asc", getSortStatus Name model == Ascending)
-                          ]
-                      , onClick <| ChangeSorting Name
-                      ] 
-                      [ text "Name" ]
-                  , th 
-                      [ classList 
-                          [("table-desc", getSortStatus DOB model == Descending)
-                          ,("table-asc", getSortStatus DOB model == Ascending)
-                          ]
-                      , onClick <| ChangeSorting DOB
-                      ]
-                      [ text "Age (DOB)" ]
-                  , th
-                      [ classList 
-                          [("table-desc", getSortStatus Sex model == Descending)
-                          ,("table-asc", getSortStatus Sex model == Ascending)
-                          ]
-                      , onClick <| ChangeSorting Sex
-                      ]
-                      [ text "Sex" ]
-                  , th 
-                      [ classList 
-                          [("table-desc", getSortStatus Hand model == Descending)
-                          ,("table-asc", getSortStatus Hand model == Ascending)
-                          ]
-                      , onClick <| ChangeSorting Hand
-                      ]
-                      [ text "Hand" ]
-                  , th 
-                      [ classList 
-                          --[("table-danger", getSortStatus PID model == Descending)
-                          --,("table-success", getSortStatus PID model == Ascending)
-                          [
-                          ]
-                      ]
-                      [ text "Add Date" ]
-                  , th 
-                      [ classList 
-                          --[("table-danger", getSortStatus PID model == Descending)
-                          --,("table-success", getSortStatus PID model == Ascending)
-                          [
-                          ]
-                      ]
-                      [ text "Source" ]
-                  ]
+              [ tr [] <|
+                  L.map (makeThCell model)
+                    [ Id
+                    , Name
+                    , DOB
+                    , Sex
+                    , Hand
+                    , AddDate
+                    , Source
+                    ]
               ]
           , tbody [] <| L.concat ([newPersonForm model.form] :: List.map (viewEditPerson model) model.people)
           ]
@@ -157,6 +109,33 @@ vtemp model =
           ]
       ]
 
+makeThCell : Model -> PeopleKey -> Html Msg
+makeThCell model key = 
+  th []
+    [ div
+        [ classList 
+            [ ("table-desc", getSortStatus key model == Descending)
+            , ("table-asc", getSortStatus key model == Ascending)
+            , ("btn", True)
+            --, ("h5", True)
+            ]
+        , onClick <| ChangeSorting key
+        ]
+        [ strong []
+            [ text (fst <| peopleKeyInfo.prettyKeyNames key)
+            ]
+        , span []
+            [ text <| unescape "&nbsp;"
+            ]
+        , i 
+            [ classList 
+                [("fa", True)
+                ,("fa-chevron-down", getSortStatus key model == Descending)
+                ,("fa-chevron-up", getSortStatus key model == Ascending)
+                ]
+            ] []
+        ]
+    ]
 
 viewEditPerson : Model -> Person -> List (Html Msg)
 viewEditPerson m p = 
