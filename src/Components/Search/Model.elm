@@ -17,7 +17,8 @@ import Maybe as M
 import Utils.List as UL
 
 type alias KeyInfo k =
-  { allKeys : List k
+  { searchKeys : List k
+  , sortKeys : List k
   , defaultKey : k
   , keyNames : k -> (String,List String)
   , keyDefault : k -> OpTag
@@ -185,14 +186,25 @@ getList info handle base
       )
       base
 
-keys : KeyInfo k -> Dict String k
+
+searchKeys : KeyInfo k -> Dict String k
 keys info = D.fromList
-  <| getList ((\(pk,ks) -> pk::ks) << info.keyNames) (flip (,)) info.allKeys
+  <| getList ((\(pk,ks) -> pk::ks) << info.keyNames) (flip (,)) info.searchKeys
 
 
-keyList : KeyInfo k -> List String
+sortKeys : KeyInfo k -> Dict String k
+keys info = D.fromList
+  <| getList ((\(pk,ks) -> pk::ks) << info.keyNames) (flip (,)) info.sortKeys
+
+
+searchKeyList : KeyInfo k -> List String
 keyList info = 
-  getList ((\(pk,ks) -> pk::ks) << info.keyNames) (\k str -> str) info.allKeys
+  getList ((\(pk,ks) -> pk::ks) << info.keyNames) (\k str -> str) info.searchKeys
+
+
+sortKeyList : KeyInfo k -> List String
+keyList info = 
+  getList ((\(pk,ks) -> pk::ks) << info.keyNames) (\k str -> str) info.sortKeys
 
 
 
@@ -219,12 +231,25 @@ parseOrder info =
         <| R.split All <| regex "\\s*[;,]\\s*"
 
 
-parseKey : KeyInfo k -> String -> Maybe (k, String)
-parseKey info str =
+parseSearchKey : KeyInfo k -> String -> Maybe (k, String)
+parseSearchKey info str =
   (head <| filter (flip startsWith (S.toLower str)) <| keyList info) -- find the string it starts with
   `andThen`
   (\kstr -> -- save as kstr
-    (D.get kstr <| keys info) -- get the key
+    (D.get kstr <| searchKeys info) -- get the key
+    `andThen`
+    (\key -> -- save as key
+      Just (key, trimLeft <| dropLeft (S.length kstr) str) -- drop matched string and trim whitespace
+    )
+  )
+
+
+parseSortKey : KeyInfo k -> String -> Maybe (k, String)
+parseSortKey info str =
+  (head <| filter (flip startsWith (S.toLower str)) <| keyList info) -- find the string it starts with
+  `andThen`
+  (\kstr -> -- save as kstr
+    (D.get kstr <| sortKeys info) -- get the key
     `andThen`
     (\key -> -- save as key
       Just (key, trimLeft <| dropLeft (S.length kstr) str) -- drop matched string and trim whitespace
@@ -234,7 +259,7 @@ parseKey info str =
 
 parseOrderParam : KeyInfo k -> String -> Maybe (OrderParam k)
 parseOrderParam info str = 
-  (parseKey info str)
+  (parseSortKey info str)
   `andThen`
   (\(key,rest) ->
     if L.any (flip startsWith (S.toLower rest)) ["d","desc","dec","descending","decreasing","v",">"]
@@ -321,7 +346,7 @@ opTagParseArgs optag = case optag of
 
 parseParam : KeyInfo k -> String -> Maybe (SearchParam k)
 parseParam info str = 
-  withDefault (info.defaultKey,str) (parseKey info str)
+  withDefault (info.defaultKey,str) (parseSearchKey info str)
   |>
   \(key,rest) ->  -- save the key as key
     let

@@ -13,19 +13,49 @@ type PeopleKey
   | Id
   | Ids
   | DOB
+  | AddDate
+  | Source
 
 peopleKeyInfo : KeyInfo PeopleKey
 peopleKeyInfo = 
-  { allKeys = allPeopleKeys
+  { searchKeys =
+      [ Name
+      , Age
+      , Sex
+      , Hand
+      , Id
+      , Ids
+      , DOB
+      , AddDate
+      , Source
+      ]
+  , sortKeys = 
+      [ Name
+      , Age
+      , Sex
+      , Hand
+      , Id
+      , DOB
+      , AddDate
+      , Source
+      ]
   , defaultKey = Name
   , keyNames = keyNames
   , keyDefault = keyDefault
   }
 
-allPeopleKeys : List PeopleKey
-allPeopleKeys =
-  [ Ids, Name, Age, Sex, Hand, Id, DOB ]
 
+prettyKeyName : PeopleKey -> (String,Maybe String)
+prettyKeyName key = case key of
+  Name -> ("Name", Just "Full name")
+  Age -> ("Age", Nothing)
+  Sex -> ("Sex", Nothing)
+  Hand -> ("Hand", Nothing)
+  Id -> ("Id", Nothing)
+  Ids -> ("Ids", Nothing)
+  DOB -> ("DoB", Just "Date of Birth")
+  AddDate -> ("Add", Just "Add Date")
+  Source -> ("Source", Nothing)
 
 keyNames : PeopleKey -> (String, List String)
 keyNames key = case key of
@@ -50,6 +80,12 @@ keyNames key = case key of
   DOB ->
     ("dob", ["born","bdate","birthdate"])
 
+  AddDate ->
+    ("adddate", ["add date"])
+
+  Source ->
+    ("source", [])
+
 keyDefault : PeopleKey -> OpTag
 keyDefault key = case key of
   Name -> ILikeT
@@ -59,6 +95,8 @@ keyDefault key = case key of
   Ids -> ContainsT
   Age -> RangeT
   DOB -> RangeT
+  AddDate -> RangeT
+  Source -> ILikeT
 
 
   

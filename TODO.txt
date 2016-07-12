@@ -1,4 +1,3 @@
-Separate out keys into search keys and sort keys
 
 distinguish human readable names and computer names for keys
 
