@@ -61,6 +61,14 @@ makeGet url headers =
   , body = empty
   }
 
+makePost : String -> String -> List (String,String) -> Request
+makePost url body headers = 
+  { verb = "POST"
+  , headers = headers
+  , url = url
+  , body = Http.string body
+  }
+
 getWithHeaders : Decoder a -> String -> List (String,String) -> Cmd (Result Error (a,Dict String String))
 getWithHeaders decoder url headers =
   defaultSend (makeGet url headers) decoder

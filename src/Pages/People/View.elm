@@ -64,7 +64,8 @@ vtemp model =
               [ tr [] <|
                   L.map (makeThCell model)
                     [ Id
-                    , Name
+                    , FName
+                    , LName
                     , DOB
                     , Sex
                     , Hand
@@ -175,8 +176,9 @@ viewPerson model person =
       [ td []
           [ text <| toString person.pid ]
       , td []
-          [ text <| withDefault "N/A" person.fullname ]
-          --if person.fullname == "" then "N/A" else person.fullname ]
+          [ text <| withDefault "N/A" person.fname ]
+      , td []
+          [ text <| withDefault "N/A" person.lname ]
       , td []
           [ text <| S.concat [ toString <| floor person.curage
                              , " ("
@@ -242,11 +244,11 @@ viewPersonRest person =
     ]
 
 nCols : Int
-nCols = 7
+nCols = 8
 
 
 nFields : Int
-nFields = 8
+nFields = 9
 
 
 newPersonForm : Form CustomError Person -> Html Msg
@@ -265,7 +267,8 @@ formRow : Int -> String -> String -> String -> (Form.Msg -> Msg) -> Form CustomE
 formRow formn submit cancel formid wrap frm = 
   let 
 --    pid = Form.getFieldAsString "pid" frm
-    name = Form.getFieldAsString "fullname" frm
+    fname = Form.getFieldAsString "fname" frm
+    lname = Form.getFieldAsString "lname" frm
     dob = Form.getFieldAsString "dob" frm
     sex = Form.getFieldAsString "sex" frm
     hand = Form.getFieldAsString "hand" frm
@@ -296,9 +299,8 @@ formRow formn submit cancel formid wrap frm =
         ])
       ::
       (List.map ((Html.map wrap) << (formTCell formid))
-       [ {-- "PID" :- pid
-       ,--}
-         ("Full Name",  name, formn * nFields + 1, 10, 1)
+       [ ("First Name", fname, formn * nFields + 1, 10, 1)
+       , ("Last Name", lname, formn * nFields + 1, 10, 1)
        , ("Date of Birth", dob, formn * nFields + 2, 10, 1)
        , ("Sex", sex, formn * nFields + 3, 5, 1)
        , ("Hand", hand, formn * nFields + 4, 5, 1)

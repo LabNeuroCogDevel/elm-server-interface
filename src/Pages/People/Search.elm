@@ -7,6 +7,8 @@ import Components.Search.Model exposing (..)
 
 type PeopleKey
   = Name
+  | FName
+  | LName
   | Age
   | Sex
   | Hand
@@ -20,6 +22,8 @@ peopleKeyInfo : KeyInfo PeopleKey
 peopleKeyInfo = 
   { searchKeys =
       [ Name
+      , FName
+      , LName
       , Age
       , Sex
       , Hand
@@ -30,7 +34,8 @@ peopleKeyInfo =
       , Source
       ]
   , sortKeys = 
-      [ Name
+      [ FName
+      , LName
       , Age
       , Sex
       , Hand
@@ -48,7 +53,9 @@ peopleKeyInfo =
 
 prettyKeyName : PeopleKey -> (String, Maybe String)
 prettyKeyName key = case key of
-  Name -> ("Name", Just "Full name")
+  Name -> ("Name", Just "Full Name")
+  FName -> ("First", Just "First Name")
+  LName -> ("Last", Just "Last Name")
   Age -> ("Age", Nothing)
   Sex -> ("Sex", Nothing)
   Hand -> ("Hand", Nothing)
@@ -62,6 +69,12 @@ keyNames : PeopleKey -> (String, List String)
 keyNames key = case key of
   Name ->
     ("fullname", ["name"])
+
+  FName ->
+    ("fname", ["first name","first"])
+    
+  LName ->
+    ("lname", ["last name","last"])
 
   Age ->
     ("curage", ["age"])
@@ -90,6 +103,8 @@ keyNames key = case key of
 keyDefault : PeopleKey -> OpTag
 keyDefault key = case key of
   Name -> ILikeT
+  FName -> ILikeT
+  LName -> ILikeT
   Sex -> ILikeT
   Hand -> ILikeT
   Id -> RangeT

@@ -33,7 +33,8 @@ type alias Person =
 memberDecoderLarge : Decoder Person
 memberDecoderLarge  = succeed Person
   |: ( "pid"        :=  int    )
-  |: ( maybe <| "fullname" := string )
+  |: ( maybe <| "fname" := string )
+  |: ( maybe <| "lname" := string )
 {--
   |: ( maybe <| ("fname"   :=  string )
                `andThen`

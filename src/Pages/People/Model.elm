@@ -51,7 +51,8 @@ type alias Model =
   , editpid : Maybe Int
   , activepid : Maybe Int
   , contactInfo : Maybe (List ContactInfo)
-  , nameFilter : String
+  , fnameFilter : String
+  , lnameFilter : String
   , searchString : String
   , ordString : String
   , paging : PagingInfo
@@ -62,12 +63,19 @@ type alias Model =
 
 buildSearch : Model -> Search PeopleKey
 buildSearch model = 
-  ( if model.nameFilter /= ""
+  ( if model.fnameFilter /= ""
     then
-      [{ key = Name, operator = ILike model.nameFilter }]
+      [{ key = FName, operator = ILike model.fnameFilter }]
     else
       []
-  ) ++ (parseSearch peopleKeyInfo model.searchString)
+  ) ++
+  ( if model.lnameFilter /= ""
+    then
+      [{ key = LName, operator = ILike model.lnameFilter }]
+    else
+      []
+  ) ++
+  (parseSearch peopleKeyInfo model.searchString)
 
 
 -- get clean search string
@@ -93,7 +101,8 @@ type CustomError
 
 personFields : Person -> List (String, Field.Field)
 personFields p = 
-  [ ("fullname", Field.Text <| withDefault "" p.fullname )
+  [ ("fname", Field.Text <| withDefault "" p.fname )
+  , ("lname", Field.Text <| withDefault "" p.lname )
   , ("dob", Field.Text <| withDefault "" p.dob )
   , ("sex", Field.Text <| withDefault "" p.sex )
   , ("hand", Field.Text <| withDefault "" p.hand )
@@ -115,7 +124,8 @@ initModel rq =
   , editpid = Nothing
   , activepid = Nothing
   , contactInfo = Nothing
-  , nameFilter = ""
+  , fnameFilter = ""
+  , lnameFilter = ""
   , searchString = withDefault "" (getQueryParam "search" rq)
   , ordString = withDefault "" (getQueryParam "order" rq)
   , paging = makePagingInfo 25 1 1 1
@@ -141,9 +151,12 @@ validate p = Val.succeed (modifyPerson p)
                          , Val.map Just int
                          ])
 --}
-  |: (get "fullname" <| oneOf [ Val.map (always Nothing) emptyString
-                              , Val.map Just string
-                              ])
+  |: (get "fname" <| oneOf [ Val.map (always Nothing) emptyString
+                           , Val.map Just string
+                           ])
+  |: (get "lname" <| oneOf [ Val.map (always Nothing) emptyString
+                           , Val.map Just string
+                           ])
   |: (get "dob" <| oneOf [ Val.map (always Nothing) emptyString
                          , Val.map Just string
                          ])

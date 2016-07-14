@@ -41,23 +41,31 @@ update msg model =
     FormMsg formMsg ->
       let 
         newForm = Form.update formMsg model.form
-        fullnameField = Form.getFieldAsString "fullname" newForm
-        fnValM = fullnameField.value
-        newfnVal =
-          UM.test ((/=) model.nameFilter)
-            <| M.withDefault "" fnValM
+        fnameField = Form.getFieldAsString "fname" newForm
+        lnameField = Form.getFieldAsString "lname" newForm
+        fValM = fnameField.value
+        lValM = lnameField.value
+        newfVal =
+          UM.test ((/=) model.fnameFilter)
+            <| M.withDefault "" fValM
+        newlVal =
+          UM.test ((/=) model.lnameFilter)
+            <| M.withDefault "" lValM
         newModel = { model | form = newForm }
-      in case newfnVal of
-          Just fnVal ->
-            let
-              m = { newModel | nameFilter = fnVal }
-            in 
-              ( m
-              , HttpCmds.runSearch (buildSearch m) (buildOrdering m)
-              )
+      in
+        if newfVal == Nothing && newlVal == Nothing
+        then 
+          ( newModel, Cmd.none )
+        else
+          let
+            fVal = M.withDefault newModel.fnameFilter newfVal 
+            lVal = M.withDefault newModel.lnameFilter newlVal
+            m = { newModel | fnameFilter = fVal, lnameFilter = lVal }
+          in
+            ( m
+            , HttpCmds.runSearch (buildSearch m) (buildOrdering m)
+            )
 
-          Nothing ->
-            ( newModel, Cmd.none )
 
     EditFormMsg formMsg ->
       ({ model | editForm = Form.update formMsg model.editForm}, Cmd.none)
@@ -67,7 +75,8 @@ update msg model =
        | form = Form.update (Form.Reset <| personFields Person.new) model.form
        , people = person :: model.people
        , id = model.id + 1
-       , nameFilter = ""
+       , fnameFilter = ""
+       , lnameFilter = ""
        }
       , Cmd.none)
 

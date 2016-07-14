@@ -27,7 +27,8 @@ type alias Pid = Int
 
 type alias Person =
   { pid : Pid
-  , fullname : Maybe String
+  , fname : Maybe String
+  , lname : Maybe String
   , dob : Maybe String
   , sex : Maybe String
   , hand : Maybe String
@@ -47,7 +48,8 @@ type alias Person =
 new : Person
 new = 
   { pid = 0
-  , fullname = Nothing
+  , fname = Nothing
+  , lname = Nothing
   , dob = Nothing
   , sex = Nothing
   , hand = Nothing
@@ -64,10 +66,11 @@ new =
   , maxdrop = Nothing
   }
 
-modifyPerson : Person -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> Person
-modifyPerson person fullname dob sex hand adddate source =
+modifyPerson : Person -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> Person
+modifyPerson person fname lname dob sex hand adddate source =
   { person
-  | fullname = fullname
+  | fname = fname
+  , lname = lname
   , dob = dob
   , sex = sex
   , hand = hand
