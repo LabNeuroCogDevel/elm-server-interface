@@ -27,10 +27,12 @@ type Msg
   | FormMsg Form.Msg
   | EditFormMsg Form.Msg
   | SubmitPerson Person
+  | SubmittedPerson Person
   | CrudOp Operation
   | ViewPerson Pid
   | EditPerson Pid
   | SavePerson Person
+  --| SavedPerson Person
   | CancelEdit
   | RQChanged RQ
   | SearchStringChanged String

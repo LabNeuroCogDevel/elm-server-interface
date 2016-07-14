@@ -30,6 +30,28 @@ personInsertUrl = urlstring ++ "person"
 makePersonUrl : List (String, String) -> String
 makePersonUrl = url personSearchUrl
 
+
+-- TODO ERROR HANDLING
+insertPerson : Person -> Cmd P.Msg
+insertPerson person =
+  Cmd.map 
+    (\result -> case result of 
+      Err _ ->
+        P.NoOp
+
+      Ok (person, headers) ->
+        P.SubmittedPerson person
+    )
+    <| 
+    postWithHeaders personEncoder memberDecoderLarge personInsertUrl
+      [ ("Prefer", "return=representation")
+      , ("Content-Type", "application/json")
+      ]
+      person
+
+--updatePerson 
+
+
 makePersonUpdateUrl : Pid -> String
 makePersonUpdateUrl id = url personInsertUrl [("pid",S.concat ["eq.",toString id])]
 

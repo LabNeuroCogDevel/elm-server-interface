@@ -27,10 +27,10 @@ type alias Pid = Int
 
 type alias Person =
   { pid : Pid
-  , fname : Maybe String
-  , lname : Maybe String
-  , dob : Maybe String
-  , sex : Maybe String
+  , fname : String
+  , lname : String
+  , dob : String
+  , sex : String
   , hand : Maybe String
   , adddate : Maybe String
   , source : Maybe String

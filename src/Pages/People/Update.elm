@@ -73,12 +73,21 @@ update msg model =
     SubmitPerson person ->
       ({ model 
        | form = Form.update (Form.Reset <| personFields Person.new) model.form
-       , people = person :: model.people
+       , people = model.people
        , id = model.id + 1
        , fnameFilter = ""
        , lnameFilter = ""
        }
-      , Cmd.none)
+      , HttpCmds.insertPerson person
+      )
+
+    SubmittedPerson person ->
+      ( model
+      , Utils.navigateTo
+          model.routeQuery
+          (Just (defaultPeople All))
+          Nothing
+      )
 
     SearchStringChanged str ->
       ( { model
@@ -189,6 +198,7 @@ update msg model =
           (Just (defaultPeople All))
           Nothing --(Just <| getQueryRQ model.routeQuery)
       )
+
       --(View person.pid)))
 
     ChangePeopleList pList pging -> 
