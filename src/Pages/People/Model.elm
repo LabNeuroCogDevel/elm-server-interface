@@ -19,12 +19,15 @@ import Utils.Date exposing (dateToString)
 import Types.Person.Hand exposing (handToString,hand,Hand)
 import Types.Person.Sex exposing (sexToString,sex,Sex)
 import Form.Error exposing (Error(CustomError,InvalidFormat))
-import Json.Decode exposing (decodeString)
+import Json.Decode exposing (Decoder, decodeString)
+import ISO8601 exposing (Time)
+import Utils.JsonDecoders exposing (date)
+
 
 import Maybe
-import Date
 
 import Maybe as M
+import Utils.JsonDecoders as JD
 
 import Form.Field as Field
 import Types.Person as Person
@@ -151,11 +154,11 @@ genders = [ "M", "F", "U", "O", "u", "o", "m", "f" ]
 hands : List String
 hands = [ "L", "R", "U", "A", "l", "r", "u", "a" ]
 
-sexValidate : Validation CustomError Sex
-sexValidate field = 
+jsonValidate : Decoder a -> Validation CustomError a
+jsonValidate dec field = 
   case Field.asString field of
     Just s ->
-      case decodeString sex ("\""++s++"\"") of
+      case decodeString dec ("\""++s++"\"") of
         Err str ->
           Err InvalidFormat
         Ok val ->
@@ -164,18 +167,14 @@ sexValidate field =
     Nothing ->
       Err <| CustomError NoError
 
+sexValidate : Validation CustomError Sex
+sexValidate = jsonValidate sex
+
 handValidate : Validation CustomError Hand
-handValidate field = 
-  case Field.asString field of
-    Just s ->
-      case decodeString hand ("\""++s++"\"") of
-        Err str ->
-          Err InvalidFormat
-        Ok val ->
-          Ok val
-      
-    Nothing ->
-      Err <| CustomError NoError
+handValidate = jsonValidate hand
+
+dateValidate : Validation CustomError Time
+dateValidate = jsonValidate JD.date
 
 (|:) = Val.apply
 
@@ -183,11 +182,11 @@ validate : Person -> Validation CustomError Person
 validate p = Val.succeed (modifyPerson p)
   |: (get "fname" string)
   |: (get "lname" string)
-  |: (get "dob" date)
+  |: (get "dob" dateValidate)
   |: (get "sex" sexValidate)
   |: (get "hand" handValidate)
   |: (get "adddate" <| oneOf [ Val.map (always Nothing) emptyString
-                             , Val.map Just date
+                             , Val.map Just dateValidate
                              ])
   |: (get "source" <| oneOf [ Val.map (always Nothing) emptyString
                             , Val.map Just string

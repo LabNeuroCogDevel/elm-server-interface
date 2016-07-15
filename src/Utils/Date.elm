@@ -1,6 +1,6 @@
 module Utils.Date exposing (..)
 
-import Date exposing (..)
+import ISO8601 exposing (Time)
 
 import String exposing (join,length)
 
@@ -19,22 +19,7 @@ atLeastTwoInLength str =
       else
         str
 
-monthNumber : Month -> Int
-monthNumber m = case m of
-  Jan -> 1
-  Feb -> 2
-  Mar -> 3
-  Apr -> 4
-  May -> 5
-  Jun -> 6
-  Jul -> 7
-  Aug -> 8
-  Sep -> 9
-  Oct -> 10
-  Nov -> 11
-  Dec -> 12
-
-dateToString : Date -> String
+dateToString : Time -> String
 dateToString date =
-  join "-" <| List.map (atLeastTwoInLength << toString << ((|>) date)) [year,monthNumber << month,day]
+  join "-" <| List.map (atLeastTwoInLength << toString << ((|>) date)) [.year,.month,.day]
 

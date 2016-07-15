@@ -3,7 +3,7 @@ module Types.Person exposing (..)
 import Types.Person.Sex exposing (..)
 import Types.Person.Hand exposing (..)
 
-import Date exposing (Date)
+import ISO8601 exposing (..)
 
 import Types.Person.Sex as S
 import Types.Person.Hand as H
@@ -34,10 +34,10 @@ type alias Pid = Int
 type alias PersonFData = 
   { fname : String
   , lname : String
-  , dob : Date
+  , dob : Time
   , sex : Sex
   , hand : Hand
-  , adddate : Maybe Date
+  , adddate : Maybe Time
   , source : Maybe String
   }
 
@@ -45,13 +45,13 @@ type alias Person =
   { pid : Pid
   , fname : String
   , lname : String
-  , dob : Date
+  , dob : Time
   , sex : Sex
   , hand : Hand
-  , adddate : Maybe Date
+  , adddate : Maybe Time
   , source : Maybe String
   , curage : Float
-  , lastvisit : Maybe Date
+  , lastvisit : Maybe Time
   , numvisits : Int
   , nstudies : Int
   , ndrops : Int
@@ -66,7 +66,7 @@ new =
   { pid = 0
   , fname = ""
   , lname = ""
-  , dob = Date.fromTime 0.0
+  , dob = fromTime 0
   , sex = S.Unknown
   , hand = H.Unknown
   , adddate = Nothing
@@ -82,7 +82,7 @@ new =
   , maxdrop = Nothing
   }
 
-modifyPerson : Person -> String -> String -> Date -> Sex -> Hand -> Maybe Date -> Maybe String -> Person
+modifyPerson : Person -> String -> String -> Time -> Sex -> Hand -> Maybe Time -> Maybe String -> Person
 modifyPerson person fname lname dob sex hand adddate source =
   { person
   | fname = fname
