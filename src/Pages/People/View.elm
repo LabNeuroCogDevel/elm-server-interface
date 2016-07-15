@@ -1,18 +1,21 @@
 module Pages.People.View exposing (..)
 
 import Types.Person exposing (..)
+import Types.Person.Sex exposing (..)
+import Types.Person.Hand exposing (..)
 import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
-import Pages.People.Model exposing (..)
 import View.Bootstrap exposing (..)
+import Pages.People.Model exposing (..)
 import Nav.Routes exposing (..)
 import Nav.RQ exposing (..)
 import Nav.Operations exposing (..)
 import Pages.People.Search exposing (..)
+import Utils.Date exposing (..)
 
 import Maybe exposing (withDefault)
-import Form exposing (Form)
+import Form exposing (Form,FieldState)
 import ElmEscapeHtml exposing (unescape)
 import View.Pagination exposing (makePaginator)
 import Components.Search.Model exposing (SortStatus (..))
@@ -21,6 +24,7 @@ import String
 import Maybe
 import Form
 
+import Maybe as M
 import List as L
 import String as S
 import Utils.List as UL
@@ -28,8 +32,11 @@ import Utils.List as UL
 import Html.App as Html
 import Html.Attributes as Atts
 import Json.Decode as Json
+import Form.Input as Input
 import Components.Contacts.View as ContView
 import Components.Search.View as SrchView
+import Types.Person.Sex as Sex
+import Types.Person.Hand as Hand
 
 
 
@@ -176,22 +183,22 @@ viewPerson model person =
       [ td []
           [ text <| toString person.pid ]
       , td []
-          [ text <| withDefault "N/A" person.fname ]
+          [ text <| person.fname ]
       , td []
-          [ text <| withDefault "N/A" person.lname ]
+          [ text <| person.lname ]
       , td []
           [ text <| S.concat [ toString <| floor person.curage
                              , " ("
-                             , withDefault "N/A" person.dob 
+                             , dateToString person.dob 
                              , ")"
                              ]
           ]
       , td []
-          [ text <| withDefault "N/A" person.sex ]
+          [ text <| prettySexToString person.sex ]
       , td []
-          [ text <| withDefault "N/A" person.hand ]
+          [ text <| prettyHandToString person.hand ]
       , td []
-          [ text <| withDefault "N/A" person.adddate ]
+          [ text <| withDefault "N/A" <| M.map dateToString person.adddate ]
       , td []
           [ text <| withDefault "N/A" person.source ]
       ]
@@ -231,7 +238,7 @@ viewPersonRest person =
     , tbody []
         <| L.map (tr [] << L.map (td [] << UL.singleton << text))
         <| UL.transpose ""
-            [ [ S.concat [ "Last Visit: ", withDefault "N/A" person.lastvisit ]
+            [ [ S.concat [ "Last Visit: ", withDefault "N/A" <| M.map dateToString person.lastvisit ]
               , S.concat [ "Total Visits: ", toString person.numvisits ]
               , S.concat [ "Total Studies: ", toString person.nstudies ]
               , S.concat [ "Max Drop: ", withDefault "N/A" person.maxdrop ]
@@ -262,6 +269,21 @@ newPersonForm = formRow 1 "Submit" "Reset" "new-person"
 editPersonForm : Form CustomError Person -> Html Msg
 editPersonForm = formRow 2 "Save" "Cancel" "edit-person" EditFormMsg
 
+formTCell : String -> (String, FieldState CustomError String, Int, Int, Int,Maybe (Input.Input CustomError String)) -> Html Form.Msg
+formTCell formid (label', state, i, l, nc,inp) =
+  td
+    [ class <| "form-group " ++ (errorClass state.liveError)
+    , colspan nc
+    ]
+    [ withDefault Input.textInput inp state
+                            [ class <| "form-control "++(errorClass state.liveError)
+                            , placeholder label'
+                            , attribute "form" formid
+                            , tabindex i
+                            , style
+                                [("min-width",(toString l)++"em")]
+                            ]
+    ]
 
 formRow : Int -> String -> String -> String -> (Form.Msg -> Msg) -> Form CustomError Person -> Html Msg
 formRow formn submit cancel formid wrap frm = 
@@ -299,13 +321,25 @@ formRow formn submit cancel formid wrap frm =
         ])
       ::
       (List.map ((Html.map wrap) << (formTCell formid))
-       [ ("First Name", fname, formn * nFields + 1, 10, 1)
-       , ("Last Name", lname, formn * nFields + 1, 10, 1)
-       , ("Date of Birth", dob, formn * nFields + 2, 10, 1)
-       , ("Sex", sex, formn * nFields + 3, 5, 1)
-       , ("Hand", hand, formn * nFields + 4, 5, 1)
-       , ("Add Date", adddate, formn * nFields + 5, 10, 1)
-       , ("Source", source, formn * nFields + 6, 10, 1)
+       [ ("First Name", fname, formn * nFields + 1, 10, 1,Nothing)
+       , ("Last Name", lname, formn * nFields + 1, 10, 1,Nothing)
+       , ("Date of Birth (yyyy-mm-dd)", dob, formn * nFields + 2, 10, 1,Nothing)
+       , ("Sex", sex, formn * nFields + 3, 8, 1
+         , Just 
+           <| Input.selectInput
+           <| List.map
+               (\x -> (sexToString x, prettySexToString x))
+               [ Male, Female, Sex.Unknown, Other ]
+         )
+       , ("Hand", hand, formn * nFields + 4, 8, 1
+         , Just 
+           <| Input.selectInput
+           <| List.map
+               (\x -> (handToString x, prettyHandToString x))
+               [ Left, Right, Hand.Unknown, Ambi ]
+         )
+       , ("Add Date (yyyy-mm-dd)", adddate, formn * nFields + 5, 10, 1,Nothing)
+       , ("Source", source, formn * nFields + 6, 10, 1,Nothing)
        ])
 
 

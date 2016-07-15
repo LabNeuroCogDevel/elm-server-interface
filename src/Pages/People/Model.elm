@@ -15,8 +15,16 @@ import String exposing (words)
 import Maybe exposing (withDefault)
 import Types.Person exposing (Person, Pid, modifyPerson)
 import Types.ContactInfo exposing (ContactInfo)
+import Utils.Date exposing (dateToString)
+import Types.Person.Hand exposing (handToString,hand,Hand)
+import Types.Person.Sex exposing (sexToString,sex,Sex)
+import Form.Error exposing (Error(CustomError,InvalidFormat))
+import Json.Decode exposing (decodeString)
 
 import Maybe
+import Date
+
+import Maybe as M
 
 import Form.Field as Field
 import Types.Person as Person
@@ -32,7 +40,7 @@ type Msg
   | ViewPerson Pid
   | EditPerson Pid
   | SavePerson Person
-  --| SavedPerson Person
+  | SavedPerson Person
   | CancelEdit
   | RQChanged RQ
   | SearchStringChanged String
@@ -103,12 +111,12 @@ type CustomError
 
 personFields : Person -> List (String, Field.Field)
 personFields p = 
-  [ ("fname", Field.Text <| withDefault "" p.fname )
-  , ("lname", Field.Text <| withDefault "" p.lname )
-  , ("dob", Field.Text <| withDefault "" p.dob )
-  , ("sex", Field.Text <| withDefault "" p.sex )
-  , ("hand", Field.Text <| withDefault "" p.hand )
-  , ("adddate", Field.Text <| withDefault "" p.adddate )
+  [ ("fname", Field.Text  p.fname )
+  , ("lname", Field.Text p.lname )
+  , ("dob", Field.Text <| dateToString p.dob )
+  , ("sex", Field.Text <| sexToString p.sex )
+  , ("hand", Field.Text <| handToString p.hand )
+  , ("adddate", Field.Text <| withDefault "" <| M.map dateToString p.adddate )
   , ("source", Field.Text <| withDefault "" p.source )
   ]
 
@@ -137,41 +145,49 @@ initModel rq =
 
 
 genders : List String
-genders = [ "M", "F", "m", "f" ]
+genders = [ "M", "F", "U", "O", "u", "o", "m", "f" ]
 
 
 hands : List String
-hands = [ "L", "R", "LR", "U", "A", "l", "r", "lr", "u", "a" ]
+hands = [ "L", "R", "U", "A", "l", "r", "u", "a" ]
 
+sexValidate : Validation CustomError Sex
+sexValidate field = 
+  case Field.asString field of
+    Just s ->
+      case decodeString sex ("\""++s++"\"") of
+        Err str ->
+          Err InvalidFormat
+        Ok val ->
+          Ok val
+      
+    Nothing ->
+      Err <| CustomError NoError
+
+handValidate : Validation CustomError Hand
+handValidate field = 
+  case Field.asString field of
+    Just s ->
+      case decodeString hand ("\""++s++"\"") of
+        Err str ->
+          Err InvalidFormat
+        Ok val ->
+          Ok val
+      
+    Nothing ->
+      Err <| CustomError NoError
 
 (|:) = Val.apply
 
 validate : Person -> Validation CustomError Person
 validate p = Val.succeed (modifyPerson p)
-{--
-  |: (get "pid" <| oneOf [ Val.map (always Nothing) emptyString
-                         , Val.map Just int
-                         ])
---}
-  |: (get "fname" <| oneOf [ Val.map (always Nothing) emptyString
-                           , Val.map Just string
-                           ])
-  |: (get "lname" <| oneOf [ Val.map (always Nothing) emptyString
-                           , Val.map Just string
-                           ])
-  |: (get "dob" <| oneOf [ Val.map (always Nothing) emptyString
-                         , Val.map Just string
-                         ])
-  |: (get "sex" <| oneOf [ Val.map (always Nothing) emptyString
-                         , Val.map Just <|
-                             string `andThen` includedIn genders
-                         ])
-  |: (get "hand" <| oneOf [ Val.map (always Nothing) emptyString
-                          , Val.map Just <|
-                              string `andThen` includedIn hands
-                          ])
+  |: (get "fname" string)
+  |: (get "lname" string)
+  |: (get "dob" date)
+  |: (get "sex" sexValidate)
+  |: (get "hand" handValidate)
   |: (get "adddate" <| oneOf [ Val.map (always Nothing) emptyString
-                             , Val.map Just string
+                             , Val.map Just date
                              ])
   |: (get "source" <| oneOf [ Val.map (always Nothing) emptyString
                             , Val.map Just string

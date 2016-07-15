@@ -2,54 +2,27 @@ module Types.Person.JsonDecoders exposing (..)
 
 import Json.Decode exposing (..)
 import Utils.JsonDecoders exposing (..)
+import Types.Person exposing (..)
+import Types.Person.Sex exposing (..)
+import Types.Person.Hand exposing (..)
 
 import Maybe exposing (Maybe, withDefault)
-import Types.Person exposing (Person)
-import String exposing (join)
+import String exposing (join,concat)
 
-{--
 
-type alias Person =
-  { pid : Pid
-  , fullname : Maybe String
-  , dob : Maybe String
-  , sex : Maybe String
-  , hand : Maybe String
-  , adddate : Maybe String
-  , source : Maybe String
-  , curage : Float
-  , lastvisit : Maybe String
-  , numvisits : Int
-  , nstudies : Int
-  , ndrops : Int
-  , ids : List String
-  , studies : List String
-  , visittypes : List String
-  , maxdrop : Maybe String
-  }
-
---}
 
 memberDecoderLarge : Decoder Person
 memberDecoderLarge  = succeed Person
   |: ( "pid"        :=  int    )
-  |: ( maybe <| "fname" := string )
-  |: ( maybe <| "lname" := string )
-{--
-  |: ( maybe <| ("fname"   :=  string )
-               `andThen`
-               (\fname -> ("lname" := string)
-                          `andThen`
-                          (\lname -> succeed
-                                     <| join " " [fname,lname])))
---}
-  |: ( maybe <| "dob"        :=  string )
-  |: ( maybe <| "sex"        :=  string )
-  |: ( maybe <| "hand"       :=  string )
-  |: ( maybe <| "adddate"    :=  string )
+  |: ( "fname" := string )
+  |: ( "lname" := string )
+  |: ( "dob"   :=  date )
+  |: ( "sex"   :=  sex )
+  |: ( "hand"  :=  hand )
+  |: ( maybe <| "adddate"    :=  date )
   |: ( maybe <| "source"     :=  string )
   |: ( map (withDefault 0.0) <| maybe <| "curage"       :=  float )
-  |: ( maybe <| "lastvisit"  :=  string )
+  |: ( maybe <| "lastvisit"  :=  date )
   |: ( map (withDefault 0) <| maybe <| "numvisits"  :=  int )
   |: ( map (withDefault 0) <| maybe <| "nstudies"   :=  int )
   |: ( map (withDefault 0) <| maybe <| "ndrops"     :=  int )

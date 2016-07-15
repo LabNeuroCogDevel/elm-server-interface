@@ -193,12 +193,16 @@ update msg model =
                            (\p -> if p.pid == person.pid then person else p)
                            model.people
               , editpid = Nothing}
+      , HttpCmds.updatePerson person
+      )
+
+    SavedPerson person ->
+      ( model
       , Utils.navigateTo
           model.routeQuery
           (Just (defaultPeople All))
-          Nothing --(Just <| getQueryRQ model.routeQuery)
+          Nothing
       )
-
       --(View person.pid)))
 
     ChangePeopleList pList pging -> 

@@ -70,9 +70,21 @@ makePost url body headers =
   , body = Http.string body
   }
 
+makePatch : String -> String -> List (String,String) -> Request
+makePatch url body headers = 
+  { verb = "PATCH"
+  , headers = headers
+  , url = url
+  , body = Http.string body
+  }
+
 postWithHeaders : Encoder a -> Decoder b -> String -> List (String,String) -> a -> Cmd (Result Error (b,Dict String String))
 postWithHeaders enc dec url headers obj =
   defaultSend (makePost url (code enc obj) headers) dec
+
+patchWithHeaders : Encoder a -> Decoder b -> String -> List (String,String) -> a -> Cmd (Result Error (b,Dict String String))
+patchWithHeaders enc dec url headers obj =
+  defaultSend (makePatch url (code enc obj) headers) dec
 
 getWithHeaders : Decoder a -> String -> List (String,String) -> Cmd (Result Error (a,Dict String String))
 getWithHeaders decoder url headers =

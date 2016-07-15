@@ -49,7 +49,22 @@ insertPerson person =
       ]
       person
 
---updatePerson 
+updatePerson : Person -> Cmd P.Msg
+updatePerson person = 
+  Cmd.map 
+    (\result -> case result of 
+      Err _ ->
+        P.NoOp
+
+      Ok (person, headers) ->
+        P.SavedPerson person
+    )
+    <| 
+    patchWithHeaders personEncoder memberDecoderLarge (makePersonUpdateUrl person.pid)
+      [ ("Prefer", "return=representation")
+      , ("Content-Type", "application/json")
+      ]
+      person
 
 
 makePersonUpdateUrl : Pid -> String

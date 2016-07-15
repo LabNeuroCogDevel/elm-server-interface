@@ -1,6 +1,7 @@
 module Utils.JsonDecoders exposing (..)
 
 import Json.Decode exposing (..)
+import Date exposing (..)
 
 apply : Decoder (a -> b) -> Decoder a -> Decoder b
 apply decF decA = decF `andThen` \f -> map f decA
@@ -15,4 +16,8 @@ stringList = oneOf [ null [], list string ]
 
 stringNull : Decoder (Maybe String)
 stringNull = maybeNull string
+
+date : Decoder Date
+date = 
+  customDecoder string fromString
 

@@ -1,6 +1,12 @@
 module Types.Person exposing (..)
 
+import Types.Person.Sex exposing (..)
+import Types.Person.Hand exposing (..)
+
 import Date exposing (Date)
+
+import Types.Person.Sex as S
+import Types.Person.Hand as H
 
 type alias Pid = Int
 
@@ -25,17 +31,27 @@ type alias Pid = Int
 --}
 
 
+type alias PersonFData = 
+  { fname : String
+  , lname : String
+  , dob : Date
+  , sex : Sex
+  , hand : Hand
+  , adddate : Maybe Date
+  , source : Maybe String
+  }
+
 type alias Person =
   { pid : Pid
   , fname : String
   , lname : String
-  , dob : String
-  , sex : String
-  , hand : Maybe String
-  , adddate : Maybe String
+  , dob : Date
+  , sex : Sex
+  , hand : Hand
+  , adddate : Maybe Date
   , source : Maybe String
   , curage : Float
-  , lastvisit : Maybe String
+  , lastvisit : Maybe Date
   , numvisits : Int
   , nstudies : Int
   , ndrops : Int
@@ -48,11 +64,11 @@ type alias Person =
 new : Person
 new = 
   { pid = 0
-  , fname = Nothing
-  , lname = Nothing
-  , dob = Nothing
-  , sex = Nothing
-  , hand = Nothing
+  , fname = ""
+  , lname = ""
+  , dob = Date.fromTime 0.0
+  , sex = S.Unknown
+  , hand = H.Unknown
   , adddate = Nothing
   , source = Nothing
   , curage = 0.0
@@ -66,7 +82,7 @@ new =
   , maxdrop = Nothing
   }
 
-modifyPerson : Person -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> Person
+modifyPerson : Person -> String -> String -> Date -> Sex -> Hand -> Maybe Date -> Maybe String -> Person
 modifyPerson person fname lname dob sex hand adddate source =
   { person
   | fname = fname
