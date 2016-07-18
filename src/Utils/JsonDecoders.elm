@@ -11,8 +11,11 @@ apply decF decA = decF `andThen` \f -> map f decA
 maybeNull : Decoder a -> Decoder (Maybe a)
 maybeNull dec = oneOf [ null Nothing, map Just dec ]
 
+nullOrList : Decoder a -> Decoder (List a)
+nullOrList dec = oneOf [ null [], list dec ]
+
 stringList : Decoder (List String)
-stringList = oneOf [ null [], list string ]
+stringList = nullOrList string
 
 stringNull : Decoder (Maybe String)
 stringNull = maybeNull string

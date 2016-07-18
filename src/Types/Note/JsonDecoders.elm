@@ -7,16 +7,6 @@ import Utils.JsonDecoders exposing (..)
 import Maybe exposing (Maybe, withDefault)
 import String exposing (join,concat)
 
-{--
-type alias Note =
-  { nid      : Int
-  , pid      : Int
-  , ra       : String
-  , ndate    : Maybe Time
-  , dropnote : Bool
-  , note     : String
-  }
---}
 
 noteDecoder : Decoder Note
 noteDecoder = succeed Note
