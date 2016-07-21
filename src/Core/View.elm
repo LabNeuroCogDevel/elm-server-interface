@@ -11,6 +11,8 @@ import Html.Events exposing (..)
 import Platform.Cmd exposing (Cmd)
 
 import Pages.People as People
+import Pages.Studies as Studies
+import Pages.Visits as Visits
 import Pages.NotFound as NotFound
 import Html.App as Html
 import Html.Attributes as Atts
@@ -18,6 +20,12 @@ import Html.Attributes as Atts
 
 handlePeopleMessage : People.Msg -> Msg
 handlePeopleMessage m = PeopleMsg m
+
+handleStudiesMessage : Studies.Msg -> Msg
+handleStudiesMessage m = StudiesMsg m
+
+handleVisitsMessage : Visits.Msg -> Msg
+handleVisitsMessage m = VisitsMsg m
 
 view : Model -> Html Msg
 view model =
@@ -35,6 +43,14 @@ view model =
         People _ _ ->
           Html.map handlePeopleMessage <|
             People.view model.peopleModel
+
+        Studies _ ->
+          Html.map handleStudiesMessage <|
+            Studies.view model.studiesModel
+
+        Visits _ ->
+          Html.map handleVisitsMessage <|
+            Visits.view model.visitsModel
 
         NotFound ->
           NotFound.view NavigateTo ()

@@ -20,7 +20,7 @@ visitDecoder = succeed Visit
   |: (maybe <| "vtimestamp" := date)
   |: (maybe <| "visitno" := int)
   |: (maybe <| "googleuri" := string)
-  |: ("status"     := string)
+  |: ("vstatus"     := string)
 
 
 

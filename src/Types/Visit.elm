@@ -1,5 +1,6 @@
 module Types.Visit exposing (..)
 
+import ISO8601 exposing (Time)
 
 
 type alias Visit =

@@ -19,6 +19,8 @@ import Nav.Queries as NQ
 type Route
   = Root
   | People PeopleQuery Operation
+  | Studies Operation
+  | Visits Operation
   | NotFound
 
 
@@ -30,6 +32,8 @@ routeBasePath x =
   case x of
     Root -> "/"
     People _ _ -> "/people"
+    Studies _ -> "/studies"
+    Visits _ -> "/visits"
     NotFound -> "/err404"
 
 
@@ -37,6 +41,12 @@ routeToPath : Route -> String
 routeToPath route = 
   case route of
     People _ op -> 
+      (routeBasePath route) ++ (operationToPath op)
+
+    Studies op ->
+      (routeBasePath route) ++ (operationToPath op)
+
+    Visits op ->
       (routeBasePath route) ++ (operationToPath op)
 
     _ ->
@@ -48,6 +58,8 @@ matchers =
   [ match1 Root <| routeBasePath Root
   , match1 Root ""
   , nested1 defaultPeople (routeBasePath <| defaultPeople All) operationMatchers
+  , nested1 Studies (routeBasePath <| Studies All) operationMatchers
+  , nested1 Visits (routeBasePath <| Visits All) operationMatchers
   , match1 NotFound <| routeBasePath NotFound
   ]
 
@@ -86,6 +98,12 @@ samePage p1 p2 = case (p1,p2) of
   (People _ _,People _ _) ->
     True
 
+  (Studies _,Studies _) ->
+    True
+
+  (Visits _,Visits _) ->
+    True
+
   _ -> False
 
 
@@ -104,6 +122,12 @@ routeToQuery page = case page of
       ,("search", x.search)
       ,("order", x.order)
       ]
+
+  Studies _ ->
+    empty
+
+  Visits _ ->
+    empty
 
 
 

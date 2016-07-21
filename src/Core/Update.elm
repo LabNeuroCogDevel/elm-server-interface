@@ -23,20 +23,30 @@ import Dict as D
 import Maybe as M
 import Pages.People.HttpCmds as PC
 import Pages.People as People
+import Pages.Studies as Studies
+import Pages.Visits as Visits
 import Pages.People.Model as PM
+import Pages.Studies.Model as SM
+import Pages.Visits.Model as VM
 
 
 
 init : RQ -> (Model, Cmd Msg)
 init rq = 
   let
-    (pm, cmds) = People.init rq
+    (pm, pcmds) = People.init rq
+    (sm, scmds) = Studies.init rq
+    (vm, vcmds) = Visits.init rq
     (model, morecmds) = update (getMessage rq)
       { routeQuery = rq
       , peopleModel = pm
+      , studiesModel = sm
+      , visitsModel = vm
       , errorMsg = ""
       }
-    cmd = batch [ Cmd.map PeopleMsg cmds
+    cmd = batch [ Cmd.map PeopleMsg pcmds
+                , Cmd.map StudiesMsg scmds
+                , Cmd.map VisitsMsg vcmds
                 , morecmds
                 , Cmd.map PeopleMsg 
                     <| PC.getPeople 
@@ -80,7 +90,32 @@ update msg model =
     PeopleMsg mg ->
       let
         (newModel, cmds) = People.update mg model.peopleModel
-      in ({ model | peopleModel = newModel }, Cmd.map PeopleMsg cmds)
+      in
+        ( { model
+          | peopleModel = newModel
+          }
+        , Cmd.map PeopleMsg cmds
+        )
+
+    StudiesMsg mg ->
+      let
+        (newModel, cmds) = Studies.update mg model.studiesModel
+      in
+        ( { model
+          | studiesModel = newModel
+          }
+        , Cmd.map StudiesMsg cmds
+        )
+
+    VisitsMsg mg ->
+      let
+        (newModel, cmds) = Visits.update mg model.visitsModel
+      in
+        ( { model
+          | visitsModel = newModel
+          }
+        , Cmd.map VisitsMsg cmds
+        )
 
 
 getMessage : RQ -> Msg
@@ -98,6 +133,13 @@ getMessage route =
         Delete _ -> PM.NoOp
         All -> PM.NoOp
         Cancel -> PM.CancelEdit
+
+    R.Studies operation ->
+      StudiesMsg <| SM.CrudOp operation
+
+    R.Visits operation ->
+      VisitsMsg <| VM.CrudOp operation
+        
         
 
 
@@ -105,29 +147,22 @@ urlUpdate : RQ -> Model -> ( Model, Cmd Msg )
 urlUpdate rq model =
   let
     (newPeopleModel, pCmd) = People.urlUpdate rq model.peopleModel
+    (newStudiesModel, sCmd) = Studies.urlUpdate rq model.studiesModel
     (newModel, cmd') = 
       update 
         (getMessage rq)
         { model
         | routeQuery = rq
         , peopleModel = newPeopleModel
+        , studiesModel = newStudiesModel
         , errorMsg = ""
-        {--
-            (toString rq)
-            ++
-            "\nmodel: "
-            ++
-            (toString model)
-            ++
-            "\npm: "
-            ++
-            (toString newPeopleModel)
-            ++
-            "\n"
-            ++
-            (toString pCmd)
-        --}
-
         }
-  in (newModel, batch [ Cmd.map PeopleMsg pCmd, cmd' ])
+  in
+    ( newModel
+    , batch
+        [ Cmd.map PeopleMsg pCmd
+        , Cmd.map StudiesMsg sCmd
+        , cmd'
+        ]
+    )
 
