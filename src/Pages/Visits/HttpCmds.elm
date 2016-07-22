@@ -2,7 +2,7 @@ module Pages.Visits.HttpCmds exposing (..)
 
 
 import Http exposing (..)
-import Core.HttpCmds exposing (..)
+import Utils.Http exposing (..)
 import Pages.Visits.Model exposing (..)
 import Json.Decode exposing (..)
 import Types.Visit.JsonDecoders exposing (..)

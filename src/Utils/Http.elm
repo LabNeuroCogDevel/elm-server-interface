@@ -6,6 +6,7 @@ import Json.Decode exposing (..)
 import Nav.Paging exposing (..)
 import Core.Model exposing (..)
 import Utils.JsonEncoders exposing (..)
+import Utils.Http.Tag exposing (..)
 --import Result exposing (..)
 
 import Task exposing (Task)
@@ -14,27 +15,32 @@ import Dict exposing (Dict)
 import String
 import Regex
 
-import Strng as S
+import Platform.Cmd as Cmd
+
+import Maybe as M
+import String as S
 import Task as T
 import Result as R
 import Dict as D
 import List as L
 
-type Tag
-  = Create
-  | Read
-  | Update
-  | Delete
 
 type alias HttpResult a = (a, Dict String String)
 
-type alias CRUDInfo a = 
-  { baseUrl : String
+type alias SearchInfo a = 
+  { url : String
+  , decode : Decoder a
+  }
+
+type alias CrudInfo a = 
+  { url : String
+  , search : Maybe (SearchInfo a)
   , getId : a -> Int
   , idField : String
   , decode : Decoder a
   , encode : Encoder a
   , headers : Tag -> Dict String String
+  , noSearch : Bool
   }
 
 
@@ -44,7 +50,7 @@ type alias ErrorHandler r = Error -> r
 type alias Handler a r = (SuccessHandler a r, ErrorHandler r)
 
 
-handle : Handler a r -> Cmd (Result Error HttpResult a) -> Cmd r
+handle : Handler a r -> Cmd (Result Error (HttpResult a)) -> Cmd r
 handle (s, f) =
   Cmd.map
     (\res -> case res of
@@ -62,7 +68,7 @@ headers heads info =
   }
 
 --
-create : CRUDInfo a -> a -> Cmd (Result Error HttpResult a)
+create : CrudInfo a -> a -> Cmd (Result Error (HttpResult a))
 create info val =
   let 
     headDict = info.headers Create
@@ -77,12 +83,23 @@ create info val =
 
 
 --
-read : CRUDInfo a -> Dict String String -> Cmd (Result Error (HttpResult (List a)))
+read : CrudInfo a -> Dict String String -> Cmd (Result Error (HttpResult (List a)))
 read info query =
-  getWithHeaders (list info.decode) (url info.url (D.fromList query)) (info.headers Read)
+  let 
+    nonsearch = getWithHeaders (list info.decode) (url info.url (D.toList query)) (D.toList <| info.headers Read)
+  in case info.search of
+    Just srchinfo ->
+      if info.noSearch
+      then
+        nonsearch
+      else
+        getWithHeaders (list srchinfo.decode) (url srchinfo.url (D.toList query)) (D.toList <| info.headers Read)
+
+    Nothing ->
+      nonsearch
 
 --
-update : CRUDInfo a -> a -> Cmd (Result Error HttpResult a)
+update : CrudInfo a -> a -> Cmd (Result Error (HttpResult a))
 update info val =
   let 
     headDict = info.headers Update
@@ -92,39 +109,39 @@ update info val =
         , ("Content-Type", "application/json")
         ]
     heads = D.toList <| D.union headDict default
-    q = D.fromList [ info.idField, S.concat [ "eq", ".", toString <| info.getId val ] ]
+    q = [( info.idField, S.concat [ "eq", ".", toString <| info.getId val ] )]
     uurl = url info.url q
   in 
     patchWithHeaders info.encode info.decode uurl heads val
   
 
 -- TODO figure out return of DELETE command postgrest
-delete : CRUDInfo a -> a -> Cmd (Result Error (HttpResult ()))
+delete : CrudInfo a -> a -> Cmd (Result Error (HttpResult ()))
 delete info val =
-  deleteById info (info.headers Delete) <| info.getId val
+  deleteById info <| info.getId val
 
 
-deleteById : CRUDInfo a -> Int -> Cmd (Result Error (HttpResult ()))
+deleteById : CrudInfo a -> Int -> Cmd (Result Error (HttpResult ()))
 deleteById info id =
   let
-    q = D.fromList [ info.idField, S.concat [ "eq", ".", toString <| id ] ]
+    q = [( info.idField, S.concat [ "eq", ".", toString <| id ] )]
     uurl = url info.url q
   in
-    deleteWithHeaders uurl (info.headers Delete)
+    deleteWithHeaders uurl (D.toList <| info.headers Delete)
 
 
-deleteNR : CRUDInfo a -> a -> Cmd (Result Error (Dict String String))
-delete info val =
-  deleteByIdNR info (info.headers Delete) <| info.getId val
+deleteNR : CrudInfo a -> a -> Cmd (Result Error (Dict String String))
+deleteNR info val =
+  deleteByIdNR info <| info.getId val
 
 
-deleteByIdNR : CRUDInfo a -> Int -> Cmd (Result Error (Dict String String))
+deleteByIdNR : CrudInfo a -> Int -> Cmd (Result Error (Dict String String))
 deleteByIdNR info id =
   let
-    q = D.fromList [ info.idField, S.concat [ "eq", ".", toString <| id ] ]
+    q = [( info.idField, S.concat [ "eq", ".", toString <| id ] )]
     uurl = url info.url q
   in
-    deleteWithHeadersNR uurl (info.headers Delete)
+    deleteWithHeadersNR uurl (D.toList <| info.headers Delete)
 
 
 defaultJsonSets : Settings
@@ -144,7 +161,7 @@ defaultSendForJson = sendForJson defaultJsonSets
 defaultSendForJsonHeaders : Request -> Decoder a -> Task Error (HttpResult a)
 defaultSendForJsonHeaders = sendForJsonHeaders defaultJsonSets
 
-sendCommand : Settings -> Request -> Decoder a -> (Error -> b) -> (HttpResult a -> b) -> Cmd b))
+sendCommand : Settings -> Request -> Decoder a -> (Error -> b) -> (HttpResult a -> b) -> Cmd b
 sendCommand s r d err encapsulate =
   T.perform err encapsulate <| sendForJsonHeaders s r d
 
@@ -201,15 +218,39 @@ deleteWithHeaders url headers =
 
 -- get rid of return value
 deleteWithHeadersNR : String -> List (String,String) -> Cmd (Result Error (Dict String String))
-deleteWithHeadersNR 
+deleteWithHeadersNR url headers =
   Cmd.map 
     (\result -> case result of
-      Err _ -> 
-        result
+      Err x -> 
+        Err x
       Ok (r,heads) ->
         Ok heads
     )
     <| deleteWithHeaders url headers
+
+
+getPagingInfoFromHeader : Int -> Dict String String -> Maybe PagingInfo
+getPagingInfoFromHeader itemsPerPage headers =
+  (D.get "Content-Range" headers)
+  `M.andThen`
+  (\contentRange -> case contentRange of
+    "*/0" ->
+      Just <| makePagingInfo itemsPerPage 0 0 0
+    range -> 
+      let
+        ints = L.map String.toInt <|
+          Regex.split Regex.All
+                      (Regex.regex "[-/]")
+                      range
+      in case ints of
+        [ Ok l, Ok u, Ok m ] ->
+          Just <| makePagingInfo itemsPerPage l u m
+        
+        _ ->
+          Nothing
+  )
+
+
 
 -- based on the code in evancz's Http library
 fromJsonHeaders : Decoder a -> Task RawError Response -> Task Error (HttpResult a)

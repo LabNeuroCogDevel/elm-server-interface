@@ -1,11 +1,17 @@
-module Utils.Http.Handlers
+module Utils.Http.Handlers exposing (..)
 
 import Utils.Http exposing (..)
 
+import Http exposing (Error)
+import Utils.Http.Tag exposing (Tag)
+import Dict exposing (Dict)
+
+import Utils.Http.Tag as Tag
+
 import Utils.Http as U
 
-type alias CRUDHandlers a r =
-  { info : CRUDInfo a
+type alias CrudHandlers a r =
+  { info : CrudInfo a
   , onError : Tag -> Error -> r
   , onCreate : HttpResult a -> r
   , onRead : HttpResult (List a) -> r
@@ -13,17 +19,44 @@ type alias CRUDHandlers a r =
   , onDelete : HttpResult () -> r
   }
 
+type CrudResult a
+  = Error Tag Error
+  | Create (HttpResult a)
+  | Read (HttpResult (List a))
+  | Update (HttpResult a)
+  | Delete (HttpResult ())
+
+defaultHandlers : CrudInfo a -> CrudHandlers a (CrudResult a)
+defaultHandlers info =
+  { info = info
+  , onError = Error
+  , onCreate = Create
+  , onRead = Read
+  , onUpdate = Update
+  , onDelete = Delete
+  }
+
+makeHandlers : CrudInfo a -> (CrudResult a -> r) -> CrudHandlers a r
+makeHandlers info func = 
+  { info = info
+  , onError = \tag -> func << Error tag
+  , onCreate = func << Create
+  , onRead = func << Read
+  , onUpdate = func << Update
+  , onDelete = func << Delete
+  }
+
 createHandler : CrudHandlers a r -> Handler a r
-createHandler handlers = (handlers.onCreate, handlers.onError Create)
+createHandler handlers = (handlers.onCreate, handlers.onError Tag.Create)
 
 readHandler : CrudHandlers a r -> Handler (List a) r
-readHandlers handlers = (handlers.onRead, handlers.onError Read)
+readHandler handlers = (handlers.onRead, handlers.onError Tag.Read)
 
 updateHandler : CrudHandlers a r -> Handler a r
-updateHandlers handlers = (handlers.onUpdate, handlers.onError Update)
+updateHandler handlers = (handlers.onUpdate, handlers.onError Tag.Update)
 
 deleteHandler : CrudHandlers a r -> Handler () r
-deleteHandler handlers = (handlers.onDelete, handlers.onError Delete)
+deleteHandler handlers = (handlers.onDelete, handlers.onError Tag.Delete)
 
 
 create : CrudHandlers a r -> a -> Cmd r
@@ -32,17 +65,17 @@ create handlers =
 
 read : CrudHandlers a r -> Dict String String -> Cmd r
 read handlers = 
-  U.handle (createHandler handlers) << U.read (handlers.info)
+  U.handle (readHandler handlers) << U.read (handlers.info)
 
 update : CrudHandlers a r -> a -> Cmd r
 update handlers = 
-  U.handle (createHandler handlers) << U.update (handlers.info)
+  U.handle (updateHandler handlers) << U.update (handlers.info)
 
 delete : CrudHandlers a r -> a -> Cmd r
 delete handlers = 
-  U.handle (createHandler handlers) << U.delete (handlers.info)
+  U.handle (deleteHandler handlers) << U.delete (handlers.info)
 
 deleteById : CrudHandlers a r -> Int -> Cmd r
 deleteById handlers = 
-  U.handle (createHandler handlers) << U.deleteById (handlers.info)
+  U.handle (deleteHandler handlers) << U.deleteById (handlers.info)
 

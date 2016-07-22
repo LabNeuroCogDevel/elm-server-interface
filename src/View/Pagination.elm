@@ -7,6 +7,7 @@ import Nav.Paging exposing (..)
 import Nav.Routes exposing (..)
 import Nav.RQ exposing (..)
 import Utils exposing (..)
+import Utils.Navigation exposing (..)
 
 import ElmEscapeHtml exposing (unescape)
 

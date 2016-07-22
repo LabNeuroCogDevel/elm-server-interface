@@ -19,6 +19,7 @@ import List as L
 import Dict as D
 import Maybe as M
 import Utils.Maybe as UM
+import Utils.Navigation as UNav
 import Pages.People.Model as P
 
 import Pages.People.HttpCmds as HttpCmds
@@ -83,7 +84,7 @@ update msg model =
 
     SubmittedPerson person ->
       ( model
-      , Utils.navigateTo
+      , UNav.navigateTo
           model.routeQuery
           (Just (defaultPeople All))
           Nothing
@@ -122,7 +123,7 @@ update msg model =
             if model.activepid == Just pid
             then
               ( { model | activepid = Nothing }
-              , Utils.navigateTo
+              , UNav.navigateTo
                   model.routeQuery
                   (Just (defaultPeople All))
                   Nothing
@@ -136,7 +137,7 @@ update msg model =
               )
           Nothing ->
             ( model
-            , Utils.navigateTo
+            , UNav.navigateTo
                 model.routeQuery
                 (Just (defaultPeople All))
                 Nothing
@@ -164,7 +165,7 @@ update msg model =
             , Cmd.none)
           Nothing ->
             ( model
-            , Utils.navigateTo
+            , UNav.navigateTo
                 model.routeQuery
                 (Just (defaultPeople All))
                 Nothing --(Just <| getQueryRQ model.routeQuery)
@@ -174,7 +175,7 @@ update msg model =
       ( {model | editpid = Nothing
                , activepid = Nothing 
                }
-      , Utils.navigateTo
+      , UNav.navigateTo
           model.routeQuery
           (Just (defaultPeople All))
           Nothing --(Just <| getQueryRQ model.routeQuery)
@@ -182,7 +183,7 @@ update msg model =
 
     NavigateTo route query ->
       ( model
-      , Utils.navigateTo
+      , UNav.navigateTo
           model.routeQuery
           route
           query
@@ -198,7 +199,7 @@ update msg model =
 
     SavedPerson person ->
       ( model
-      , Utils.navigateTo
+      , UNav.navigateTo
           model.routeQuery
           (Just (defaultPeople All))
           Nothing

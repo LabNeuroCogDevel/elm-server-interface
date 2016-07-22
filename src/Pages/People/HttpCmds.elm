@@ -1,6 +1,10 @@
 module Pages.People.HttpCmds exposing (..)
 
-import Core.HttpCmds exposing (..)
+import Utils.Http.Handlers exposing (..)
+import Utils.Http exposing (getWithHeaders, postWithHeaders, patchWithHeaders)
+import Utils.Http.Tag exposing (Tag)
+import Utils.Navigation exposing (navigateTo)
+import Core.HttpCmds exposing (urlstring)
 import Json.Decode exposing (..)
 import Types.Person exposing (..)
 import Types.Person.JsonDecoders exposing (..)
@@ -29,6 +33,40 @@ personInsertUrl = urlstring ++ "person"
 
 makePersonUrl : List (String, String) -> String
 makePersonUrl = url personSearchUrl
+
+crudHandler : CrudResult Person -> P.Msg
+crudHandler cr = case cr of
+  Error tag err ->
+    P.NoOp
+
+  Create (person, headers) ->
+    P.SubmittedPerson person
+
+  Read (people, headers) ->
+    let 
+      contentRange = D.get "Content-Range" headers
+      itemsPerPage = 25
+    in P.ChangePeopleList people <|
+      case contentRange of 
+        Nothing -> makePagingInfo 1 -2 -2 -2 -- "No content-range" --(2,1)
+        Just "*/0" -> makePagingInfo itemsPerPage 0 0 0
+        Just range -> let
+                        ints = L.map String.toInt <|
+                          Regex.split Regex.All
+                                      (Regex.regex "[-/]")
+                                      range
+                      in case ints of
+                        [ Ok l, Ok u, Ok m ] ->
+                          makePagingInfo itemsPerPage l u m
+                        
+                        _ ->
+                          makePagingInfo 1 -1 -1 -1
+
+  Update (person, headers) ->
+    P.SavedPerson person
+
+  Delete ((), headers) ->
+    P.NoOp
 
 
 -- TODO ERROR HANDLING
@@ -73,7 +111,7 @@ makePersonUpdateUrl id = url personInsertUrl [("pid",S.concat ["eq.",toString id
 
 updateNavFromModel : P.Model -> Cmd P.Msg
 updateNavFromModel model
- = Utils.navigateTo
+ = navigateTo
     model.routeQuery
     Nothing
     (Just <| D.fromList [("search",P.searchString model),("page","1"),("order",P.ordString model)])

@@ -2,7 +2,7 @@ module Pages.Studies.HttpCmds exposing (..)
 
 
 import Http exposing (..)
-import Core.HttpCmds exposing (..)
+import Utils.Http exposing (..)
 import Pages.Studies.Model exposing (..)
 import Json.Decode exposing (..)
 import Types.Study.JsonDecoders exposing (..)

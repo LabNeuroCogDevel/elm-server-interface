@@ -21,6 +21,7 @@ import Hop.Types as H
 import Core.HttpCmds as C
 import Dict as D
 import Maybe as M
+import Utils.Navigation as UNav
 import Pages.People.HttpCmds as PC
 import Pages.People as People
 import Pages.Studies as Studies
@@ -80,7 +81,7 @@ update msg model =
     NavigateTo route query -> 
       let
         rq = model.routeQuery
-        command = Utils.navigateTo
+        command = UNav.navigateTo
                     model.routeQuery
                     route
                     query
