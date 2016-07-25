@@ -3,6 +3,7 @@ module Components.Search.Model exposing (..)
 import Regex exposing (..)
 import Maybe exposing (..)
 import Utils.Maybe exposing (..)
+import Types.Either exposing (..)
 
 import String exposing (trim, startsWith, dropLeft, trimLeft, join)
 import Dict exposing (Dict)
@@ -15,6 +16,96 @@ import String as S
 import List as L
 import Maybe as M
 import Utils.List as UL
+
+
+type alias SearchModel k =
+  { keyInfo : KeyInfo k
+  , search : String
+  , order : Either String (Ordering k)
+  , modifier : SortStatus -> SortStatus
+  , additionalSearches : Dict String (SearchParam k)
+  }
+
+
+type SearchMsg k
+  = ChangeSorting k 
+  | ModifySearch String (Maybe (k, Operator))
+  | SearchStringChanged String
+  | SearchEnter
+  | OrdStringChanged String
+  | OrdEnter
+
+
+isSubmitMsg : SearchMsg k -> Bool
+isSubmitMsg msg = case msg of
+  SearchEnter ->
+    True
+
+  OrdEnter ->
+    True
+
+  ModifySearch _ _ ->
+    True
+
+  ChangeSorting _ ->
+    True
+
+  _ ->
+    False
+
+
+defaultModifier : SortStatus -> SortStatus
+defaultModifier ss = case ss of
+  Ascending ->
+    Descending
+  
+  Descending ->
+    Unsorted
+  
+  Unsorted ->
+    Ascending
+
+
+
+order : SearchModel k -> Ordering k
+order model = case model.order of
+  Left str ->
+    parseOrder model.keyInfo str
+  
+  Right order ->
+    order
+
+  
+orderString : SearchModel k -> String
+orderString model = case model.order of
+  Left str -> 
+    str
+
+  Right order ->
+    orderToString model.keyInfo order
+
+
+search : SearchModel k -> Search k
+search model = parseSearch model.keyInfo <| (model.search)
+
+
+searchString : SearchModel k -> String
+searchString = .search
+
+
+totalSearch : SearchModel k -> Search k
+totalSearch model =
+  ( D.values model.additionalSearches )
+  ++
+  ( parseSearch model.keyInfo model.search )
+
+
+modifySearch : String -> (Maybe (k, Operator)) -> SearchModel k -> SearchModel k
+modifySearch name search model =
+  { model
+  | additionalSearches = D.update name (\_ -> M.map (uncurry makeSearchParam) search) model.additionalSearches
+  }
+
 
 type alias KeyInfo k =
   { searchKeys : List k
@@ -146,6 +237,11 @@ type alias SearchParam k =
   , operator : Operator
   }
 
+makeSearchParam : k -> Operator -> SearchParam k
+makeSearchParam key op = 
+  { key = key
+  , operator = op
+  }
 
 type alias Search k = List (SearchParam k)
 
@@ -457,8 +553,8 @@ orderParamToString info ordP = case ordP of
   Asc key ->
     S.concat [ getKeyName info key, ".", "asc" ]
 
-orderingToString : KeyInfo k -> Ordering k -> String
-orderingToString info ord =
+orderToString : KeyInfo k -> Ordering k -> String
+orderToString info ord =
   S.join ", "
     <| L.map (\ordP -> case ordP of
                 Desc key ->

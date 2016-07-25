@@ -31,12 +31,15 @@ import Utils.JsonDecoders as JD
 
 import Form.Field as Field
 import Types.Person as Person
+import Components.Search.Model as Search
+import Components.Search.Update as SearchU
 
 
 type Msg
   = NoOp
   | FormMsg Form.Msg
   | EditFormMsg Form.Msg
+  | SearchMsg (SearchMsg PeopleKey)
   | SubmitPerson Person
   | SubmittedPerson Person
   | CrudOp Operation
@@ -46,14 +49,9 @@ type Msg
   | SavedPerson Person
   | CancelEdit
   | RQChanged RQ
-  | SearchStringChanged String
-  | PeopleSearch
-  | OrdStringChanged String
-  | OrdEnter
   | ContactInfo (List ContactInfo)
   | NavigateTo (Maybe Route) (Maybe Query)
   | ChangePeopleList (List Person) PagingInfo
-  | ChangeSorting PeopleKey
 
 
 type alias Model = 
@@ -66,8 +64,7 @@ type alias Model =
   , contactInfo : Maybe (List ContactInfo)
   , fnameFilter : String
   , lnameFilter : String
-  , searchString : String
-  , ordString : String
+  , searchModel : SearchModel PeopleKey
   , paging : PagingInfo
   , pagingErr : String
   , routeQuery : RQ
@@ -88,24 +85,24 @@ buildSearch model =
     else
       []
   ) ++
-  (parseSearch peopleKeyInfo model.searchString)
+  (search model.searchModel)
 
 
 -- get clean search string
 searchString : Model -> String
-searchString model = model.searchString
+searchString = Search.searchString << (.searchModel)
 
 
-buildOrdering : Model -> Ordering PeopleKey
-buildOrdering model = 
-  parseOrder peopleKeyInfo model.ordString
+buildOrder : Model -> Ordering PeopleKey
+buildOrder model = 
+  order model.searchModel
 
 -- get clean order string
 ordString : Model -> String
-ordString = orderingToString peopleKeyInfo << buildOrdering
+ordString = Search.orderString << (.searchModel)
 
 getSortStatus : PeopleKey -> Model -> SortStatus
-getSortStatus key = Components.Search.Model.getSortStatus key << buildOrdering
+getSortStatus key = Components.Search.Model.getSortStatus key << buildOrder
 
 
 type CustomError
@@ -139,8 +136,9 @@ initModel rq =
   , contactInfo = Nothing
   , fnameFilter = ""
   , lnameFilter = ""
-  , searchString = withDefault "" (getQueryParam "search" rq)
-  , ordString = withDefault "" (getQueryParam "order" rq)
+  --, searchString = withDefault "" (getQueryParam "search" rq)
+  --, ordString = withDefault "" (getQueryParam "order" rq)
+  , searchModel = SearchU.init <| peopleKeyInfo
   , paging = makePagingInfo 25 1 1 1
   , pagingErr = ""
   , routeQuery = rq

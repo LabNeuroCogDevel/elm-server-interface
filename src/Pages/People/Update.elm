@@ -27,7 +27,9 @@ import Types.Person as Person
 import Pages.People.HttpCmds as PC
 import Utils as Utils
 import Utils.Http.Handlers as Crud
-import Components.Search.Model exposing (..)
+--import Components.Search.Model exposing (..)
+import Components.Search.Model as Search
+import Components.Search.Update as SearchU
 import Components.Contacts.HttpCmds as ContHttp
 
 init : RQ -> (Model, Cmd Msg)
@@ -66,8 +68,25 @@ update msg model =
             m = { newModel | fnameFilter = fVal, lnameFilter = lVal }
           in
             ( m
-            , HttpCmds.runSearch (buildSearch m) (buildOrdering m)
+            , HttpCmds.runSearch (buildSearch m) (buildOrder m)
             )
+
+    -- TODO doesn't actually run a search ...
+    SearchMsg msg ->
+      let
+        sModel = SearchU.update model.searchModel msg
+        newModel =
+          { model 
+          | searchModel = sModel
+          }
+      in
+        ( newModel
+        , if Search.isSubmitMsg msg
+          then
+            HttpCmds.runSearch (buildSearch newModel) (buildOrder newModel)
+          else
+            HttpCmds.updateNavFromModel newModel
+        )
 
 
     EditFormMsg formMsg ->
@@ -92,6 +111,7 @@ update msg model =
           Nothing
       )
 
+{--
     SearchStringChanged str ->
       ( { model
         | searchString = str
@@ -116,6 +136,7 @@ update msg model =
       , updateNavFromModel model
       )
 
+--}
     ViewPerson pid ->
       let 
         person = List.head <| List.filter (((==) pid) << .pid) model.people
@@ -206,7 +227,6 @@ update msg model =
           (Just (defaultPeople All))
           Nothing
       )
-      --(View person.pid)))
 
     ChangePeopleList pList pging -> 
       let
@@ -225,26 +245,17 @@ update msg model =
             , Cmd.none
             )
 
+{--
     ChangeSorting key ->
-      let
-        ss = Pages.People.Model.getSortStatus key model
-        ord = parseOrder peopleKeyInfo model.ordString
-        nm =
-          { model 
-          | ordString = case ss of
-              Ascending ->
-                orderingToString peopleKeyInfo <| (Desc key) :: ord
-              Descending ->
-                orderingToString peopleKeyInfo <| L.filter (((/=) key) << getKey) ord
-              Unsorted ->
-                orderingToString peopleKeyInfo <| (Asc key) :: ord
-          }
+      update 
+        model
+        (SearchMsg
+          <| Search.ChangeSorting key)
 
-      in
-        ( nm
-        , updateNavFromModel nm
-        ) 
-
+        --( nm
+        --, updateNavFromModel nm
+        --) 
+--}
           
 
     RQChanged rq -> 
@@ -271,7 +282,7 @@ urlUpdate rq model =
         Just n ->
           --if n /= model.paging.curPage
           --then
-          HttpCmds.getPeople (buildSearch newModel) (buildOrdering newModel) 25 n
+          HttpCmds.getPeople (buildSearch newModel) (buildOrder newModel) 25 n
           --else
           --  Cmd.none
 

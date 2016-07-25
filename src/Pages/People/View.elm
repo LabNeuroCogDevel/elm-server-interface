@@ -34,7 +34,7 @@ import Html.Attributes as Atts
 import Json.Decode as Json
 import Form.Input as Input
 import Components.Contacts.View as ContView
-import Components.Search.View as SrchView
+import Components.Search.View as Search
 import Types.Person.Sex as Sex
 import Types.Person.Hand as Hand
 
@@ -65,7 +65,7 @@ vtemp model =
               ++ "." ]
       , h2 [] [ text model.pagingErr ]
       , makePaginator (updateRoute rq (defaultPeople All)) pg
-      , SrchView.viewSearch model.searchString SearchStringChanged PeopleSearch model.ordString OrdStringChanged OrdEnter
+      , Html.map SearchMsg Search.view model.searchModel
       , table [ class "table table-striped" ]
           [ thead [ class "thead-inverse no-select" ]
               [ tr [] <|

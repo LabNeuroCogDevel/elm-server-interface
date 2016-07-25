@@ -15,5 +15,25 @@ fromMaybe def mayb = case mayb of
     Right b
 
 
+right : Either a b -> Maybe b
+right val = case val of
+  Left _ -> 
+    Nothing
+
+  Right v ->
+    Just v
+
+
+left : Either a b -> Maybe a
+left val = case val of
+  Left v ->
+    Just v
+
+  Right _ ->
+    Nothing
+
+
+toMaybe : Either a b -> Maybe b
+toMaybe = right
 
 

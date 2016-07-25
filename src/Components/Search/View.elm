@@ -7,6 +7,7 @@ import Components.Search.Model exposing (..)
 import Utils.Html exposing (..)
 
 
+
 viewSearch : String -> (String -> msg) -> msg -> String -> (String -> msg) -> msg -> Html msg
 viewSearch txt onin onch ord ordin ordch =
   span []
@@ -27,4 +28,7 @@ viewSearch txt onin onch ord ordin ordch =
         , value ord
         ] []
     ]
+
+view : SearchModel k -> Html (SearchMsg k)
+view model = viewSearch (searchString model) SearchStringChanged SearchEnter (orderString model) OrdStringChanged OrdEnter
 
