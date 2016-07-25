@@ -24,7 +24,9 @@ import Pages.People.Model as P
 
 import Pages.People.HttpCmds as HttpCmds
 import Types.Person as Person
+import Pages.People.HttpCmds as PC
 import Utils as Utils
+import Utils.Http.Handlers as Crud
 import Components.Search.Model exposing (..)
 import Components.Contacts.HttpCmds as ContHttp
 
@@ -79,7 +81,7 @@ update msg model =
        , fnameFilter = ""
        , lnameFilter = ""
        }
-      , HttpCmds.insertPerson person
+      , Crud.create PC.person person
       )
 
     SubmittedPerson person ->
@@ -194,7 +196,7 @@ update msg model =
                            (\p -> if p.pid == person.pid then person else p)
                            model.people
               , editpid = Nothing}
-      , HttpCmds.updatePerson person
+      , Crud.update PC.person person
       )
 
     SavedPerson person ->

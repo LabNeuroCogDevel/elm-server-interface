@@ -1,10 +1,12 @@
-module Types.Person.CRUD exposing (..)
+module Types.Person.Crud exposing (..)
 
-import Utils.Http.Handlers exposing (..)
-import Utils.Http exposing (urlstring)
+import Utils.Http exposing (..)
+import Core.HttpCmds exposing (urlstring)
 
 import Types.Person exposing (..)
 import Types.Person.Json exposing (..)
+
+import Dict exposing (..)
 
 
 personCrudInfo : CrudInfo Person
@@ -17,9 +19,9 @@ personCrudInfo =
         }
   , getId = (.pid)
   , idField = "pid"
-  , decode = encode
-  , encode = decode
-  , headers = always []
+  , decode = decode
+  , encode = encode
+  , headers = always empty
   , noSearch = False
   }
 

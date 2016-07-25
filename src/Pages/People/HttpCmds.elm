@@ -1,10 +1,12 @@
 module Pages.People.HttpCmds exposing (..)
 
-import Utils.Http.Handlers exposing (..)
 import Utils.Http exposing (getWithHeaders, postWithHeaders, patchWithHeaders)
 import Utils.Http.Tag exposing (Tag)
 import Utils.Navigation exposing (navigateTo)
 import Core.HttpCmds exposing (urlstring)
+import Types.Person.Crud exposing (personCrudInfo)
+
+import Utils.Http.Handlers exposing (..)
 import Json.Decode exposing (..)
 import Types.Person exposing (..)
 import Types.Person.JsonDecoders exposing (..)
@@ -68,7 +70,10 @@ crudHandler cr = case cr of
   Delete ((), headers) ->
     P.NoOp
 
+person : CrudHandlers Person P.Msg
+person = makeHandlers personCrudInfo crudHandler
 
+{--
 -- TODO ERROR HANDLING
 insertPerson : Person -> Cmd P.Msg
 insertPerson person =
@@ -86,7 +91,9 @@ insertPerson person =
       , ("Content-Type", "application/json")
       ]
       person
+--}
 
+{--
 updatePerson : Person -> Cmd P.Msg
 updatePerson person = 
   Cmd.map 
@@ -104,6 +111,7 @@ updatePerson person =
       ]
       person
 
+--}
 
 makePersonUpdateUrl : Pid -> String
 makePersonUpdateUrl id = url personInsertUrl [("pid",S.concat ["eq.",toString id])]
