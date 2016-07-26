@@ -34,7 +34,8 @@ peopleKeyInfo =
       , Source
       ]
   , sortKeys = 
-      [ FName
+      [ Name
+      , FName
       , LName
       , Age
       , Sex

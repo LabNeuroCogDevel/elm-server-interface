@@ -84,6 +84,11 @@ orderString model = case model.order of
   Right order ->
     orderToString model.keyInfo order
 
+updateOrderString : String -> SearchModel k -> SearchModel k
+updateOrderString ostr model =
+  { model 
+  | order = Left ostr
+  }
 
 search : SearchModel k -> Search k
 search model = parseSearch model.keyInfo <| (model.search)
@@ -92,6 +97,11 @@ search model = parseSearch model.keyInfo <| (model.search)
 searchString : SearchModel k -> String
 searchString = .search
 
+updateSearchString : String -> SearchModel k -> SearchModel k
+updateSearchString sstr model =
+  { model
+  | search = sstr
+  }
 
 totalSearch : SearchModel k -> Search k
 totalSearch model =
@@ -106,6 +116,11 @@ modifySearch name search model =
   | additionalSearches = D.update name (\_ -> M.map (uncurry makeSearchParam) search) model.additionalSearches
   }
 
+addSearches : List (String, Maybe (k, Operator)) -> SearchModel k -> SearchModel k
+addSearches list model = L.foldr (uncurry modifySearch) model list
+
+clearAdditionalSearches : SearchModel k -> SearchModel k
+clearAdditionalSearches model = { model | additionalSearches = D.empty }
 
 type alias KeyInfo k =
   { searchKeys : List k

@@ -8,7 +8,7 @@ import Nav.Routes exposing (..)
 import Form exposing (Form)
 import Nav.RQ exposing (RQ, getQueryParam)--, getQueryRQ)
 import Pages.People.HttpCmds exposing (updateNavFromModel)
-import Pages.People.Search exposing (peopleKeyInfo)
+import Pages.People.Search exposing (peopleKeyInfo,PeopleKey (..))
 
 import List 
 import String
@@ -50,14 +50,23 @@ update msg model =
         lnameField = Form.getFieldAsString "lname" newForm
         fValM = fnameField.value
         lValM = lnameField.value
-        newfVal =
-          UM.test ((/=) model.fnameFilter)
-            <| M.withDefault "" fValM
-        newlVal =
-          UM.test ((/=) model.lnameFilter)
-            <| M.withDefault "" lValM
-        newModel = { model | form = newForm }
+        fVal = M.map (\val -> (FName, Search.ILike val)) fValM
+        lVal = M.map (\val -> (LName, Search.ILike val)) lValM
+        newModel =
+          { model
+          | form = newForm
+          , searchModel = 
+              Search.addSearches
+                [ ("fname", fVal)
+                , ("lname", lVal)
+                ]
+                model.searchModel
+          }
       in
+        ( newModel
+        , HttpCmds.runSearch (buildSearch newModel) (buildOrder newModel)
+        )
+      {--
         if newfVal == Nothing && newlVal == Nothing
         then 
           ( newModel, Cmd.none )
@@ -65,13 +74,13 @@ update msg model =
           let
             fVal = M.withDefault newModel.fnameFilter newfVal 
             lVal = M.withDefault newModel.lnameFilter newlVal
+
+            
             m = { newModel | fnameFilter = fVal, lnameFilter = lVal }
           in
-            ( m
-            , HttpCmds.runSearch (buildSearch m) (buildOrder m)
-            )
+      --}
 
-    -- TODO doesn't actually run a search ...
+    -- TODO doesn't actually run a search ... kinda does... oy it's a little weird
     SearchMsg msg ->
       let
         sModel = SearchU.update model.searchModel msg
@@ -83,9 +92,10 @@ update msg model =
         ( newModel
         , if Search.isSubmitMsg msg
           then
-            HttpCmds.runSearch (buildSearch newModel) (buildOrder newModel)
-          else
             HttpCmds.updateNavFromModel newModel
+            --HttpCmds.runSearch (buildSearch newModel) (buildOrder newModel)
+          else
+            Cmd.none--HttpCmds.updateNavFromModel newModel
         )
 
 
@@ -97,8 +107,7 @@ update msg model =
        | form = Form.update (Form.Reset <| personFields Person.new) model.form
        , people = model.people
        , id = model.id + 1
-       , fnameFilter = ""
-       , lnameFilter = ""
+       , searchModel = Search.clearAdditionalSearches model.searchModel
        }
       , Crud.create PC.person person
       )
@@ -270,12 +279,15 @@ urlUpdate rq model =
                    `M.andThen`
                    (Result.toMaybe << String.toInt)
     maybeSearchStr = getQueryParam "search" rq
-    searchStr = M.withDefault model.searchString maybeSearchStr
+    searchStr = M.withDefault (searchString model) maybeSearchStr
 
     maybeOrdStr = getQueryParam "order" rq
-    ordStr = M.withDefault model.ordString maybeOrdStr
+    ordStr = M.withDefault (ordString model) maybeOrdStr
 
-    newModel = { nM | searchString = searchStr, ordString = ordStr }
+    newModel =
+      updateSearchString searchStr
+        <| updateOrdString ordStr
+        <| nM
 
     cmd = 
       case maybePageNum of

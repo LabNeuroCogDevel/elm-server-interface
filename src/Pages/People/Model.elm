@@ -62,8 +62,6 @@ type alias Model =
   , editpid : Maybe Int
   , activepid : Maybe Int
   , contactInfo : Maybe (List ContactInfo)
-  , fnameFilter : String
-  , lnameFilter : String
   , searchModel : SearchModel PeopleKey
   , paging : PagingInfo
   , pagingErr : String
@@ -73,24 +71,19 @@ type alias Model =
 
 buildSearch : Model -> Search PeopleKey
 buildSearch model = 
-  ( if model.fnameFilter /= ""
-    then
-      [{ key = FName, operator = ILike model.fnameFilter }]
-    else
-      []
-  ) ++
-  ( if model.lnameFilter /= ""
-    then
-      [{ key = LName, operator = ILike model.lnameFilter }]
-    else
-      []
-  ) ++
-  (search model.searchModel)
+  totalSearch model.searchModel
 
 
 -- get clean search string
 searchString : Model -> String
 searchString = Search.searchString << (.searchModel)
+
+updateSearchString : String -> Model -> Model
+updateSearchString sstr model = 
+  { model
+  | searchModel = Search.updateSearchString sstr model.searchModel
+  }
+
 
 
 buildOrder : Model -> Ordering PeopleKey
@@ -100,6 +93,12 @@ buildOrder model =
 -- get clean order string
 ordString : Model -> String
 ordString = Search.orderString << (.searchModel)
+
+updateOrdString : String -> Model -> Model
+updateOrdString ostr model = 
+  { model
+  | searchModel = Search.updateOrderString ostr model.searchModel
+  }
 
 getSortStatus : PeopleKey -> Model -> SortStatus
 getSortStatus key = Components.Search.Model.getSortStatus key << buildOrder
@@ -127,6 +126,10 @@ buildEditForm p = Form.initial (personFields p) (validate p)
 
 initModel : RQ -> Model
 initModel rq =
+  let
+    searchString = withDefault "" (getQueryParam "search" rq)
+    ordString = withDefault "" (getQueryParam "order" rq)
+  in
   { form = buildEditForm Person.new
   , editForm = buildEditForm Person.new
   , people = []
@@ -134,11 +137,10 @@ initModel rq =
   , editpid = Nothing
   , activepid = Nothing
   , contactInfo = Nothing
-  , fnameFilter = ""
-  , lnameFilter = ""
-  --, searchString = withDefault "" (getQueryParam "search" rq)
-  --, ordString = withDefault "" (getQueryParam "order" rq)
-  , searchModel = SearchU.init <| peopleKeyInfo
+  , searchModel =
+      Search.updateOrderString ordString 
+        <| Search.updateSearchString searchString
+        <| SearchU.init peopleKeyInfo
   , paging = makePagingInfo 25 1 1 1
   , pagingErr = ""
   , routeQuery = rq

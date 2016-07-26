@@ -35,6 +35,7 @@ import Json.Decode as Json
 import Form.Input as Input
 import Components.Contacts.View as ContView
 import Components.Search.View as Search
+import Components.Search.Model as SearchM
 import Types.Person.Sex as Sex
 import Types.Person.Hand as Hand
 
@@ -65,7 +66,7 @@ vtemp model =
               ++ "." ]
       , h2 [] [ text model.pagingErr ]
       , makePaginator (updateRoute rq (defaultPeople All)) pg
-      , Html.map SearchMsg Search.view model.searchModel
+      , Html.map SearchMsg <| Search.view model.searchModel
       , table [ class "table table-striped" ]
           [ thead [ class "thead-inverse no-select" ]
               [ tr [] <|
@@ -106,7 +107,9 @@ vtemp model =
               , li []
                   [ text <| "search: "++(toString <| buildSearch model) ]
               , li []
-                  [ text <| "ordString: "++(toString <| buildOrdering model) ]
+                  [ text <| "ordString: "++(toString <| buildOrder model) ]
+              , li []
+                  [ text <| "searchModel: "++(toString <| model.searchModel) ]
                   {--
               , li []
                   [ text "editpid: "++(toString model.editpid) ]
@@ -127,7 +130,7 @@ makeThCell model key =
             , ("btn", True)
             --, ("h5", True)
             ]
-        , onClick <| ChangeSorting key
+        , onClick <| SearchMsg <| SearchM.ChangeSorting key
         ]
         [ strong []
             [ text (fst <| peopleKeyInfo.prettyKeyNames key)
