@@ -66,19 +66,6 @@ update msg model =
         ( newModel
         , HttpCmds.runSearch (buildSearch newModel) (buildOrder newModel)
         )
-      {--
-        if newfVal == Nothing && newlVal == Nothing
-        then 
-          ( newModel, Cmd.none )
-        else
-          let
-            fVal = M.withDefault newModel.fnameFilter newfVal 
-            lVal = M.withDefault newModel.lnameFilter newlVal
-
-            
-            m = { newModel | fnameFilter = fVal, lnameFilter = lVal }
-          in
-      --}
 
     -- TODO doesn't actually run a search ... kinda does... oy it's a little weird
     SearchMsg msg ->
@@ -120,32 +107,6 @@ update msg model =
           Nothing
       )
 
-{--
-    SearchStringChanged str ->
-      ( { model
-        | searchString = str
-        }
-      , Cmd.none
-      )
-
-    PeopleSearch ->
-      ( model
-      , updateNavFromModel model
-      )
-
-    OrdStringChanged ordstr ->
-      ( { model
-        | ordString = ordstr
-        }
-      , Cmd.none
-      )
-
-    OrdEnter ->
-      ( model
-      , updateNavFromModel model
-      )
-
---}
     ViewPerson pid ->
       let 
         person = List.head <| List.filter (((==) pid) << .pid) model.people
@@ -253,19 +214,6 @@ update msg model =
                        <| pList }
             , Cmd.none
             )
-
-{--
-    ChangeSorting key ->
-      update 
-        model
-        (SearchMsg
-          <| Search.ChangeSorting key)
-
-        --( nm
-        --, updateNavFromModel nm
-        --) 
---}
-          
 
     RQChanged rq -> 
       ({ model | routeQuery = rq }, Cmd.none)
