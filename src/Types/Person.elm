@@ -6,7 +6,7 @@ import Types.Person.Hand exposing (..)
 import ISO8601 exposing (..)
 
 import Types.Visit exposing (Visit)
-import Types.Contact exposing (ContactInfo)
+import Types.ContactInfo exposing (ContactInfo)
 
 import Types.Person.Sex as S
 import Types.Person.Hand as H

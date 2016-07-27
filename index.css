@@ -7,20 +7,35 @@
   -ms-user-select: none;
 }
 
+table > tbody > tr.tselectable:hover {
+  background-color: #558fb7 !important;
+}
+
+table.tnoborder,
+table.tnoborder tr,
+table.tnoborder td,
+tr.noborder,
+tr.noborder td {
+  border: none;
+}
+
+table {
+  border-collapse: collapse;
+}
 
 .table-asc {
-  background-color: #509334 !important
+  background-color: #509334 !important;
 }
 
 .table-desc {
-  background-color: #d14f4f !important
+  background-color: #d14f4f !important;
 }
 
 .table-striped > tbody > tr:nth-of-type(2n) {
-    background-color: #c8c8c8;
+  background-color: #c8c8c8;
 }
 
 .table-striped > tbody > tr:nth-of-type(2n+1) {
-    background-color: #f0f0f0;
+  background-color: #f0f0f0;
 }
 

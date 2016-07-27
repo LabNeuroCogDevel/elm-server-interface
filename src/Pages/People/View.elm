@@ -67,7 +67,7 @@ vtemp model =
       , h2 [] [ text model.pagingErr ]
       , makePaginator (updateRoute rq (defaultPeople All)) pg
       , Html.map SearchMsg <| Search.view model.searchModel
-      , table [ class "table table-striped" ]
+      , table [ class "table table-striped tnoborder" ]
           [ thead [ class "thead-inverse no-select" ]
               [ tr [] <|
                   L.map (makeThCell model)
@@ -181,6 +181,7 @@ viewPerson model person =
               Nothing
       , classList
           [("table-success", isActive model person)
+          ,("tselectable", True)
           ]
       ] --EditPerson person.pid ]
       [ td []
@@ -213,14 +214,66 @@ viewPerson model person =
         Nothing -> 
           []
         Just info ->
-          [ tr
-              [ style [("background","#a0a0a0")] ]
-              [ td
+          [ tr []
+              [ td 
+                  [ style [("background","#c0c4c0")]
+                  , colspan nCols
+                  ]
+                  [ div [ class "container" ]
+                      [ ul
+                          [ class "nav nav-tabs"
+                          , attribute "role" "tablist"
+                          ]
+                          [ li [ class "nav-item" ]
+                              [ a
+                                  [ class "nav-link active"
+                                  , href "#tabcontacts"
+                                  , attribute "role" "tab"
+                                  , attribute "data-toggle" "tab"
+                                  ]
+                                  [ text "Contacts"
+                                  ]
+                              ]
+                          , li [ class "nav-item" ]
+                              [ a
+                                  [ class "nav-link"
+                                  , href "#tabsummary"
+                                  , attribute "role" "tab"
+                                  , attribute "data-toggle" "tab"
+                                  ]
+                                  [ text "Visit Summary"
+                                  ]
+                              ]
+                          ]
+                      , div
+                          [ class "tab-content clearfix"
+                          ]
+                          [ div
+                              [ class "tab-pane fade in active"
+                              , attribute "role" "tabpanel"
+                              , id "tabcontacts"
+                              ]
+                              [ ContView.viewCIs info
+                              ]
+                                
+                          , div
+                              [ class "tab-pane fade"
+                              , attribute "role" "tabpanel"
+                              , id "tabsummary"
+                              ]
+                              [ viewPersonRest person
+                              ]
+                          ]
+                      ]
+                  ]
+              {--
+                td
                   [ colspan (4) ]
                   [ ContView.viewCIs info ]
               , td
                   [ colspan (nCols-4) ]
                   [ viewPersonRest person ]
+              --}
               ]
           ]
     else

@@ -30,4 +30,6 @@ memberDecoderLarge  = succeed Person
   |: ( map (withDefault []) <| maybe <| "studies"        :=  stringList )
   |: ( map (withDefault []) <| maybe <| "visittypes"        :=  stringList )
   |: ( maybe <| "maxdrop"    := string )
+  |: succeed Nothing
+  |: succeed Nothing
 
