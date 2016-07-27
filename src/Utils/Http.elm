@@ -43,6 +43,8 @@ type alias CrudInfo a =
   , noSearch : Bool
   }
 
+type alias Viewer a = SearchInfo a
+
 
 type alias SuccessHandler a r = HttpResult a -> r
 type alias ErrorHandler r = Error -> r

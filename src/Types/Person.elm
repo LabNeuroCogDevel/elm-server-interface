@@ -5,6 +5,9 @@ import Types.Person.Hand exposing (..)
 
 import ISO8601 exposing (..)
 
+import Types.Visit exposing (Visit)
+import Types.Contact exposing (ContactInfo)
+
 import Types.Person.Sex as S
 import Types.Person.Hand as H
 
@@ -59,6 +62,8 @@ type alias Person =
   , studies : List String
   , visittypes : List String
   , maxdrop : Maybe String
+  , visits : Maybe (List Visit)
+  , contacts : Maybe (List ContactInfo)
   }
 
 new : Person
@@ -80,6 +85,8 @@ new =
   , studies = []
   , visittypes = []
   , maxdrop = Nothing
+  , visits = Nothing
+  , contacts = Nothing
   }
 
 modifyPerson : Person -> String -> String -> Time -> Sex -> Hand -> Maybe Time -> Maybe String -> Person
@@ -94,4 +101,16 @@ modifyPerson person fname lname dob sex hand adddate source =
   , source = source
   }
 
+addContacts : List ContactInfo -> Person -> Person
+addContacts contacts person =
+  { person
+  | contacts = Just contacts
+  }
+
+
+addVisits : List Visit -> Person -> Person
+addVisits visits person =
+  { person
+  | visits = Just visits
+  }
 

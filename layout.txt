@@ -1,0 +1,47 @@
+
+
+
+
+
+
+People Page
+  Search
+  Table of People
+  Click on Person to open that person's detail
+    Details include visits, visit summary, contacts, perhaps make a tabbed view?
+  Double Click to edit person
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
