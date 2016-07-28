@@ -61,26 +61,29 @@ update msg model =
                 , ("lname", lVal)
                 ]
                 model.searchModel
+          , activepid = Nothing
           }
       in
         ( newModel
         , HttpCmds.runSearch (buildSearch newModel) (buildOrder newModel)
         )
 
-    -- TODO doesn't actually run a search ... kinda does... oy it's a little weird
     SearchMsg msg ->
       let
         sModel = SearchU.update model.searchModel msg
         newModel =
           { model 
           | searchModel = sModel
+          , activepid = if Search.isSubmitMsg msg then Nothing else model.activepid
           }
       in
         ( newModel
         , if Search.isSubmitMsg msg
           then
-            HttpCmds.updateNavFromModel newModel
-            --HttpCmds.runSearch (buildSearch newModel) (buildOrder newModel)
+            Cmd.batch
+              [ HttpCmds.runSearch (buildSearch newModel) (buildOrder newModel)
+              , HttpCmds.updateNavFromModel newModel
+              ]
           else
             Cmd.none--HttpCmds.updateNavFromModel newModel
         )
@@ -93,7 +96,6 @@ update msg model =
       ({ model 
        | form = Form.update (Form.Reset <| personFields Person.new) model.form
        , people = model.people
-       , id = model.id + 1
        , searchModel = Search.clearAdditionalSearches model.searchModel
        }
       , Crud.create PC.person person
@@ -113,7 +115,7 @@ update msg model =
       in 
         case person of
           Just p -> 
-            if model.activepid == Just pid
+            if model.activepid == Just pid 
             then
               ( { model | activepid = Nothing }
               , UNav.navigateTo
@@ -124,9 +126,12 @@ update msg model =
             else
               ( { model | activepid = Just pid
                         , editpid = Nothing
-                        , contactInfo = Nothing
                         }
-              , ContHttp.getCICmd (always NoOp) ContactInfo pid
+              , if p.contacts == Nothing
+                then
+                  ContHttp.getCICmd (always NoOp) (ContactInfo pid) pid
+                else
+                  Cmd.none
               )
           Nothing ->
             ( model
@@ -137,10 +142,10 @@ update msg model =
                 --(Just <| getQueryRQ model.routeQuery)
             )
     
-    ContactInfo info ->
-      ( { model | contactInfo = Just info }
-      , Cmd.none
-      )
+    ContactInfo id info ->
+          ( updatePerson id (Person.addContacts info) model
+          , Cmd.none
+          )
 
     -- TODO implement crud ops
     CrudOp op ->
@@ -240,11 +245,11 @@ urlUpdate rq model =
     cmd = 
       case maybePageNum of
         Just n ->
-          --if n /= model.paging.curPage
-          --then
-          HttpCmds.getPeople (buildSearch newModel) (buildOrder newModel) 25 n
-          --else
-          --  Cmd.none
+          if n /= model.paging.curPage || searchStr /= (searchString model) || ordStr /= (ordString model)
+          then
+            HttpCmds.getPeople (buildSearch newModel) (buildOrder newModel) 25 n
+          else
+            Cmd.none
 
         Nothing ->
           Cmd.none

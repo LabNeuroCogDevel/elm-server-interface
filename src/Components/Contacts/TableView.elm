@@ -7,10 +7,10 @@ import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 import Types.ContactInfo exposing (..)
 import Components.Contacts.Model exposing (..)
-import Components.Contacts.View exposing (splitMail,contactString,dropUnlessEmpty,showPhone)
 
 import Char exposing (isDigit)
 import ElmEscapeHtml exposing (unescape)
+import Components.Contacts.View exposing (splitMail,contactString,dropUnlessEmpty,showPhone)
 
 import Regex as R
 import String as S

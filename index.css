@@ -39,3 +39,12 @@ table {
   background-color: #f0f0f0;
 }
 
+div.tab-content {
+  background-color: #fff;
+  border-color: transparent #ddd #ddd #ddd;
+  border-style: solid;
+  border-width: 1px;
+  padding: 10px;
+  border-radius: 0px 0px 10px 10px;
+}
+

@@ -7,6 +7,7 @@ import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 import View.Bootstrap exposing (..)
+import View.TabPane exposing (..)
 import Pages.People.Model exposing (..)
 import Nav.Routes exposing (..)
 import Nav.RQ exposing (..)
@@ -103,7 +104,7 @@ vtemp model =
               , li []
                   [ text <| "activepid: "++(toString model.activepid) ]
               , li []
-                  [ text <| "contactInfo: "++(toString model.contactInfo) ]
+                  [ text <| "activePerson: "++(toString <| L.head <| L.filter (\person -> Just person.pid == model.activepid) model.people) ]
               , li []
                   [ text <| "search: "++(toString <| buildSearch model) ]
               , li []
@@ -210,72 +211,40 @@ viewPerson model person =
   ++
   ( if isActive model person
     then
-      case model.contactInfo of
-        Nothing -> 
-          []
-        Just info ->
-          [ tr []
-              [ td 
-                  [ style [("background","#c0c4c0")]
-                  , colspan nCols
-                  ]
-                  [ div [ class "container" ]
-                      [ ul
-                          [ class "nav nav-tabs"
-                          , attribute "role" "tablist"
-                          ]
-                          [ li [ class "nav-item" ]
-                              [ a
-                                  [ class "nav-link active"
-                                  , href "#tabcontacts"
-                                  , attribute "role" "tab"
-                                  , attribute "data-toggle" "tab"
-                                  ]
-                                  [ text "Contacts"
-                                  ]
-                              ]
-                          , li [ class "nav-item" ]
-                              [ a
-                                  [ class "nav-link"
-                                  , href "#tabsummary"
-                                  , attribute "role" "tab"
-                                  , attribute "data-toggle" "tab"
-                                  ]
-                                  [ text "Visit Summary"
-                                  ]
-                              ]
-                          ]
-                      , div
-                          [ class "tab-content clearfix"
-                          ]
-                          [ div
-                              [ class "tab-pane fade in active"
-                              , attribute "role" "tabpanel"
-                              , id "tabcontacts"
-                              ]
-                              [ ContView.viewCIs info
-                              ]
-                                
-                          , div
-                              [ class "tab-pane fade"
-                              , attribute "role" "tabpanel"
-                              , id "tabsummary"
-                              ]
-                              [ viewPersonRest person
-                              ]
-                          ]
+      [ tr []
+          [ td 
+              [ style [("background","#c0c4c0")]
+              , colspan nCols
+              ]
+              [ makeTabDiv
+                  ( L.map makeTabInfoTuple
+                      [ ( "tabsummary"
+                        , "Summary"
+                        , \_ -> []
+                        , \(model,person) -> 
+                            viewPersonRest person
+                        )
+                      , ( "tabcontacts"
+                        , "Contacts"
+                        , \_ -> []
+                        , \(model,person) ->
+                            withDefault
+                              (div [] [])
+                              (M.map ContView.viewCIs person.contacts)
+                        )
+                      , ( "tabvisits"
+                        , "Visits"
+                        , \_ -> []
+                        , \(model,person) ->
+                            h1 [] [ text "Visits!!!" ]
+                        )
                       ]
-                  ]
-              {--
-                td
-                  [ colspan (4) ]
-                  [ ContView.viewCIs info ]
-              , td
-                  [ colspan (nCols-4) ]
-                  [ viewPersonRest person ]
-              --}
+                  )
+                  "tabsummary"
+                  (model,person)
               ]
           ]
+      ]
     else
       []
   )

@@ -26,6 +26,7 @@ import Utils.JsonDecoders exposing (date)
 
 import Maybe
 
+import List as L
 import Maybe as M
 import Utils.JsonDecoders as JD
 
@@ -49,7 +50,8 @@ type Msg
   | SavedPerson Person
   | CancelEdit
   | RQChanged RQ
-  | ContactInfo (List ContactInfo)
+  | ContactInfo Int (List ContactInfo)
+  --| Visits Int (List Visit)
   | NavigateTo (Maybe Route) (Maybe Query)
   | ChangePeopleList (List Person) PagingInfo
 
@@ -58,16 +60,19 @@ type alias Model =
   { form : Form CustomError Person
   , editForm : Form CustomError Person
   , people : List Person
-  , id : Int
   , editpid : Maybe Int
   , activepid : Maybe Int
-  , contactInfo : Maybe (List ContactInfo)
   , searchModel : SearchModel PeopleKey
   , paging : PagingInfo
   , pagingErr : String
   , routeQuery : RQ
   }
 
+updatePerson : Int -> (Person -> Person) -> Model -> Model
+updatePerson id update model = 
+  { model 
+  | people = L.map (\person -> if person.pid == id then update person else person) model.people
+  }
 
 buildSearch : Model -> Search PeopleKey
 buildSearch model = 
@@ -133,10 +138,8 @@ initModel rq =
   { form = buildEditForm Person.new
   , editForm = buildEditForm Person.new
   , people = []
-  , id = 0
   , editpid = Nothing
   , activepid = Nothing
-  , contactInfo = Nothing
   , searchModel =
       Search.updateOrderString ordString 
         <| Search.updateSearchString searchString
