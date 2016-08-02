@@ -16,3 +16,17 @@ type alias Visit =
   , status    : String       --
   }
 
+newVisit : Int -> Visit
+newVisit n = 
+  { vid = 0
+  , pid = n
+  , vtype = ""
+  , score = Nothing
+  , durHr = Nothing
+  , age = 0.0
+  , timestamp = Nothing
+  , visitno = Nothing
+  , googleuri = Nothing
+  , status = ""
+  }
+

@@ -14,8 +14,8 @@ import Form exposing (Form)
 import String exposing (words)
 import Maybe exposing (withDefault)
 import Types.Person exposing (Person, Pid, modifyPerson)
-import Types.ContactInfo exposing (ContactInfo,Contact)
-import Types.Visit exposing (Visit)
+import Types.ContactInfo exposing (ContactInfo,Contact,newContact,modifyContact,modifyContactInfo)
+import Types.Visit exposing (Visit,newVisit)
 import Utils.Date exposing (dateToString)
 import Types.Person.Hand exposing (handToString,hand,Hand)
 import Types.Person.Sex exposing (sexToString,sex,Sex)
@@ -156,8 +156,11 @@ initModel rq =
   in
   { form = buildEditForm Person.new
   , editForm = buildEditForm Person.new
-  , contactForm = 
-  , visitForm = 
+  , contactForm =
+      Form.initial
+        newContactFields
+        (validateContact newContact)
+  , visitForm = Form.initial [] (Val.succeed (newVisit 0))
   , people = []
   , editpid = Nothing
   , activepid = Nothing
@@ -216,5 +219,20 @@ validate p = Val.succeed (modifyPerson p)
                             , Val.map Just string
                             ])
   --|: (get "ids" <| oneOf [ Val.map (always []) emptyString, Val.map words string])
+
+
+validateContact : Contact -> Validation CustomError Contact
+validateContact c = Val.succeed (modifyContact c)
+  |: (get "cType" string)
+  |: (get "content" string)
+  |: (get "notes" string)
+
+
+
+validateContactInfo : ContactInfo -> Validation CustomError ContactInfo
+validateContactInfo ci = Val.succeed (modifyContactInfo ci)
+  |: (get "relation" string)
+  |: (get "name" string)
+
 
 

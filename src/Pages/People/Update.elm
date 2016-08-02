@@ -92,6 +92,25 @@ update msg model =
 
     EditFormMsg formMsg ->
       ({ model | editForm = Form.update formMsg model.editForm}, Cmd.none)
+
+
+    NewContactFormMsg msg ->
+      ( { model
+        | contactForm = Form.update msg model.contactForm
+        }
+      , Cmd.none
+      )
+
+
+{--
+    NewVisitFromMsg msg ->
+      ( { model
+        | visitForm = Form.update msg model.visitForm
+        }
+      , Cmd.none
+      )
+--}
+
     
     SubmitPerson person ->
       ({ model 
@@ -101,6 +120,7 @@ update msg model =
        }
       , Crud.create PC.person person
       )
+
 
     SubmittedPerson person ->
       ( model
