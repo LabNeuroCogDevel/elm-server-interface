@@ -31,6 +31,7 @@ import Utils.Http.Handlers as Crud
 import Components.Search.Model as Search
 import Components.Search.Update as SearchU
 import Components.Contacts.HttpCmds as ContHttp
+import Components.Visits.HttpCmds as VistHttp
 
 init : RQ -> (Model, Cmd Msg)
 init rq = 
@@ -129,7 +130,10 @@ update msg model =
                         }
               , if p.contacts == Nothing
                 then
-                  ContHttp.getCICmd (always NoOp) (ContactInfo pid) pid
+                  Cmd.batch
+                    [ ContHttp.getCICmd (always NoOp) (ContactInfo pid) pid
+                    , VistHttp.getVisitsCmd (always NoOp) (ReceiveVisits pid) pid
+                    ]
                 else
                   Cmd.none
               )
@@ -142,6 +146,11 @@ update msg model =
                 --(Just <| getQueryRQ model.routeQuery)
             )
     
+    ReceiveVisits id visits ->
+          ( updatePerson id (Person.addVisits visits) model
+          , Cmd.none
+          )
+
     ContactInfo id info ->
           ( updatePerson id (Person.addContacts info) model
           , Cmd.none

@@ -34,9 +34,12 @@ import Html.App as Html
 import Html.Attributes as Atts
 import Json.Decode as Json
 import Form.Input as Input
+import View.Modal as Modal
+import Pages.People.Modals as Modals
 import Components.Contacts.View as ContView
 import Components.Search.View as Search
 import Components.Search.Model as SearchM
+import Components.Visits.View as VistView
 import Types.Person.Sex as Sex
 import Types.Person.Hand as Hand
 
@@ -84,6 +87,8 @@ vtemp model =
               ]
           , tbody [] <| L.concat ([newPersonForm model.form] :: List.map (viewEditPerson model) model.people)
           ]
+      , Modal.buildModal Modals.newVisitModal model
+      , Modal.buildModal Modals.newContactModal model
 
       {--
       , case model.people of 
@@ -94,8 +99,6 @@ vtemp model =
       , div [ class "alert alert-success" ]
           [ ul []
               [ li []
-                  [ text <| "id: "++(toString model.id) ]
-              , li []
                   [ text <| "editpid: "++(toString model.editpid) ]
               , li []
                   [ text <| "paging: "++(toString model.paging) ]
@@ -137,13 +140,14 @@ makeThCell model key =
             [ text (fst <| peopleKeyInfo.prettyKeyNames key)
             ]
         , span []
-            [ text <| unescape "&nbsp;"
+            [ text <| unescape "&nbsp;&nbsp;"
             ]
         , i 
             [ classList 
-                [("fa", True)
-                ,("fa-chevron-down", getSortStatus key model == Descending)
-                ,("fa-chevron-up", getSortStatus key model == Ascending)
+                [("fa fa-lg", True)
+                ,("fa-sort-desc", getSortStatus key model == Descending)
+                ,("fa-sort", getSortStatus key model == Unsorted)
+                ,("fa-sort-asc", getSortStatus key model == Ascending)
                 ]
             ] []
         ]
@@ -228,15 +232,25 @@ viewPerson model person =
                         , "Contacts"
                         , \_ -> []
                         , \(model,person) ->
-                            withDefault
-                              (div [] [])
-                              (M.map ContView.viewCIs person.contacts)
+                            div
+                              []
+                              [ Modal.buildModalButton Modals.newContactModal model
+                              , withDefault
+                                  (div [] [])
+                                  (M.map ContView.viewCIs person.contacts)
+                              ]
                         )
                       , ( "tabvisits"
                         , "Visits"
                         , \_ -> []
                         , \(model,person) ->
-                            h1 [] [ text "Visits!!!" ]
+                            div
+                              []
+                              [ Modal.buildModalButton Modals.newVisitModal model
+                              , withDefault
+                                  (div [] [])
+                                  (M.map VistView.viewVisitList person.visits)
+                              ]
                         )
                       ]
                   )
@@ -324,48 +338,53 @@ formRow formn submit cancel formid wrap frm =
   in
     tr [ class "form-group" ] <|
       (td [] 
-        [ div [ class "" ]
-          [ input
+        [ div [ class "nobr" ]
+          [ button
               [ type' "submit"
               , attribute "form" formid
               , class "btn btn-primary"
-              , value submit
+              --, value "" --submit
               , tabindex <| formn * nFields + 7
               ]
-              [ ]
-          , text " "
-          , input
+              [ i [ class "fa fa-plus" ] []
+              ]
+          , span []
+              [ text <| unescape "&nbsp;&nbsp;"--&nbsp;"
+              ]
+          , button
               [ type' "reset"
               , attribute "form" formid
               , class "btn btn-danger"
-              , value cancel
+              --, value cancel
               , tabindex <| formn * nFields + 8
               ]
-              [ ]
+              [ i [ class "fa fa-times" ] []
+              ]
           ]
         ])
       ::
-      (List.map ((Html.map wrap) << (formTCell formid))
-       [ ("First Name", fname, formn * nFields + 1, 10, 1,Nothing)
-       , ("Last Name", lname, formn * nFields + 1, 10, 1,Nothing)
-       , ("Date of Birth (yyyy-mm-dd)", dob, formn * nFields + 2, 10, 1,Nothing)
-       , ("Sex", sex, formn * nFields + 3, 8, 1
-         , Just 
-           <| Input.selectInput
-           <| List.map
-               (\x -> (sexToString x, prettySexToString x))
-               [ Male, Female, Sex.Unknown, Other ]
-         )
-       , ("Hand", hand, formn * nFields + 4, 8, 1
-         , Just 
-           <| Input.selectInput
-           <| List.map
-               (\x -> (handToString x, prettyHandToString x))
-               [ Left, Right, Hand.Unknown, Ambi ]
-         )
-       , ("Add Date (yyyy-mm-dd)", adddate, formn * nFields + 5, 10, 1,Nothing)
-       , ("Source", source, formn * nFields + 6, 10, 1,Nothing)
-       ])
+      ( List.map ((Html.map wrap) << (formTCell formid))
+        [ ("First Name", fname, formn * nFields + 1, 10, 1,Nothing)
+        , ("Last Name", lname, formn * nFields + 1, 10, 1,Nothing)
+        , ("Date of Birth (yyyy-mm-dd)", dob, formn * nFields + 2, 10, 1,Nothing)
+        , ("Sex", sex, formn * nFields + 3, 8, 1
+          , Just 
+            <| Input.selectInput
+            <| List.map
+                (\x -> (sexToString x, prettySexToString x))
+                [ Male, Female, Sex.Unknown, Other ]
+          )
+        , ("Hand", hand, formn * nFields + 4, 8, 1
+          , Just 
+            <| Input.selectInput
+            <| List.map
+                (\x -> (handToString x, prettyHandToString x))
+                [ Left, Right, Hand.Unknown, Ambi ]
+          )
+        , ("Add Date (yyyy-mm-dd)", adddate, formn * nFields + 5, 10, 1,Nothing)
+        , ("Source", source, formn * nFields + 6, 10, 1,Nothing)
+        ]
+      )
 
 
 resetMsg : Msg
@@ -377,7 +396,7 @@ cancelMsg = NavigateTo (Just (defaultPeople Cancel)) Nothing
 
 
 newPersonMsg : Model -> Person -> Msg
-newPersonMsg model person = SubmitPerson { person | pid = model.id }
+newPersonMsg model person = SubmitPerson person
 
 
 savePersonMsg : Model -> Person -> Msg

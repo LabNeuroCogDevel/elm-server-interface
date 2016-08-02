@@ -5,14 +5,10 @@ import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 
+import View.Bootstrap exposing (..)
+
 import List as L
 
-
-role : String -> Attribute msg
-role = attribute "role" 
-
-dataToggle : String -> Attribute msg
-dataToggle = attribute "data-toggle" 
 
 type alias TabInfo model msg = 
   { hrefId : String

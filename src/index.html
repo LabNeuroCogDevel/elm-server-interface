@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Modal Test</title>
+    <script type="text/javascript" src="modaltest.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.0.0.js"></script>
+    <!-- bootstrap! -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha/js/bootstrap.min.js"></script>
+    <!-- old bootstrap:
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    -->
+    <!-- end bootstrap -->
+    <!--
+    <link rel="stylesheet" href="font-awesome-4.6.3/css/font-awesome.min.css">
+    -->
+    <!--
+    <script src="https://use.fontawesome.com/9a77807818.js"></script>
+    -->
+    <link rel="stylesheet" href="index.css">
+
+  </head>
+
+  <body>
+  </body>
+
+  <script type="text/javascript">
+    var app = Elm.ModalTest.fullscreen();
+  </script>
+  <!--
+  <script type="text/javascript">
+    // see SO @ http://stackoverflow.com/questions/31901397/how-to-set-focus-on-an-element-in-elm 
+    var observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        handleAutofocus(mutation.addedNodes);
+      });
+    });
+    var target = document.querySelector('body > div');
+    var config = { childList: true, subtree: true };
+    observer.observe(target, config);
+
+    function handleAutofocus(nodeList) {
+      for (var i = 0; i < nodeList.length; i++) {
+        var node = nodeList[i];
+        if (node instanceof Element && node.hasAttribute('data-autofocus')) {
+          node.focus();
+          break;
+        } else {
+          handleAutofocus(node.childNodes);
+        }
+      }
+    }
+  </script>
+  -->
+
+</html>

@@ -14,7 +14,8 @@ import Form exposing (Form)
 import String exposing (words)
 import Maybe exposing (withDefault)
 import Types.Person exposing (Person, Pid, modifyPerson)
-import Types.ContactInfo exposing (ContactInfo)
+import Types.ContactInfo exposing (ContactInfo,Contact)
+import Types.Visit exposing (Visit)
 import Utils.Date exposing (dateToString)
 import Types.Person.Hand exposing (handToString,hand,Hand)
 import Types.Person.Sex exposing (sexToString,sex,Sex)
@@ -40,6 +41,7 @@ type Msg
   = NoOp
   | FormMsg Form.Msg
   | EditFormMsg Form.Msg
+  | NewContactFormMsg Form.Msg
   | SearchMsg (SearchMsg PeopleKey)
   | SubmitPerson Person
   | SubmittedPerson Person
@@ -51,6 +53,7 @@ type Msg
   | CancelEdit
   | RQChanged RQ
   | ContactInfo Int (List ContactInfo)
+  | ReceiveVisits Int (List Visit)
   --| Visits Int (List Visit)
   | NavigateTo (Maybe Route) (Maybe Query)
   | ChangePeopleList (List Person) PagingInfo
@@ -59,6 +62,8 @@ type Msg
 type alias Model = 
   { form : Form CustomError Person
   , editForm : Form CustomError Person
+  , visitForm : Form CustomError Visit
+  , contactForm : Form CustomError Contact
   , people : List Person
   , editpid : Maybe Int
   , activepid : Maybe Int
@@ -128,6 +133,20 @@ personFields p =
 buildEditForm : Person -> Form CustomError Person
 buildEditForm p = Form.initial (personFields p) (validate p)
 
+newContactFields : List (String, Field.Field)
+newContactFields = 
+  [ ("cType", Field.Text "")
+  , ("content", Field.Text "")
+  , ("notes", Field.Textarea "")
+  ]
+
+{--
+visitFields : List (String, Field.Field)
+visitFields = 
+  [ ("vType", Field.Text "")
+  , (
+  ]
+--}
 
 initModel : RQ -> Model
 initModel rq =
@@ -137,6 +156,8 @@ initModel rq =
   in
   { form = buildEditForm Person.new
   , editForm = buildEditForm Person.new
+  , contactForm = 
+  , visitForm = 
   , people = []
   , editpid = Nothing
   , activepid = Nothing

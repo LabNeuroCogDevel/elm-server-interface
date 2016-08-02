@@ -22,6 +22,7 @@ visitDecoder = succeed Visit
   |: (maybe <| "googleuri" := string)
   |: ("vstatus"     := string)
 
-
+visitListDecoder : Decoder (List Visit)
+visitListDecoder = list visitDecoder
 
 
