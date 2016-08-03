@@ -24,6 +24,15 @@ andThen : List a -> (a -> List b) -> List b
 andThen = flip concatMap
 
 
+bindL : List a -> (a -> List b) -> List b
+bindL = andThen
+
+
+returnL : a -> List a
+returnL = singleton
+
+
+
 foldlr : (a -> b -> b) -> (a -> b -> b) -> b -> List a -> b
 foldlr left right x0 list =
   case list of

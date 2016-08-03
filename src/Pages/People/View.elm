@@ -1,47 +1,48 @@
 module Pages.People.View exposing (..)
 
-import Types.Person exposing (..)
-import Types.Person.Sex exposing (..)
-import Types.Person.Hand exposing (..)
-import Html exposing (..)
-import Html.Events exposing (..)
-import Html.Attributes exposing (..)
-import View.Bootstrap exposing (..)
-import View.TabPane exposing (..)
-import Pages.People.Model exposing (..)
-import Nav.Routes exposing (..)
-import Nav.RQ exposing (..)
-import Nav.Operations exposing (..)
-import Pages.People.Search exposing (..)
-import Utils.Date exposing (..)
+import Html                     exposing (..)
+import Html.Attributes          exposing (..)
+import Html.Events              exposing (..)
+import Nav.Operations           exposing (..)
+import Nav.RQ                   exposing (..)
+import Nav.Routes               exposing (..)
+import Pages.People.Model       exposing (..)
+import Pages.People.Search      exposing (..)
+import Types.Person             exposing (..)
+import Types.Person.Hand        exposing (..)
+import Types.Person.Sex         exposing (..)
+import Utils.Date               exposing (..)
+import View.Bootstrap           exposing (..)
+import View.TabPane             exposing (..)
 
-import Maybe exposing (withDefault)
-import Form exposing (Form,FieldState)
-import ElmEscapeHtml exposing (unescape)
-import View.Pagination exposing (makePaginator)
-import Components.Search.Model exposing (SortStatus (..))
+import Components.Search.Model  exposing (SortStatus (..))
+import ElmEscapeHtml            exposing (unescape)
+import Form                     exposing (Form,FieldState)
+import Maybe                    exposing (withDefault)
+import View.Pagination          exposing (makePaginator)
+import Utils                    exposing (with)
 
-import String
-import Maybe
 import Form
+import Maybe
+import String
 
-import Maybe as M
-import List as L
-import String as S
-import Utils.List as UL
+import List                     as       L
+import Maybe                    as       M
+import String                   as       S
+import Utils.List               as       UL
 
-import Html.App as Html
-import Html.Attributes as Atts
-import Json.Decode as Json
-import Form.Input as Input
-import View.Modal as Modal
-import Pages.People.Modals as Modals
-import Components.Contacts.View as ContView
-import Components.Search.View as Search
-import Components.Search.Model as SearchM
-import Components.Visits.View as VistView
-import Types.Person.Sex as Sex
-import Types.Person.Hand as Hand
+import Components.Contacts.View as       ContView
+import Components.Search.Model  as       SearchM
+import Components.Search.View   as       Search
+import Components.Visits.View   as       VistView
+import Form.Input               as       Input
+import Html.App                 as       Html
+import Html.Attributes          as       Atts
+import Json.Decode              as       Json
+import Pages.People.Modals      as       Modals
+import Types.Person.Hand        as       Hand
+import Types.Person.Sex         as       Sex
+import View.Modal               as       Modal
 
 
 
@@ -50,13 +51,13 @@ view model = vtemp model
 
 vtemp model = 
   let
-    rq = model.routeQuery
-    pg = model.paging
-    page = pg.curPage
-    maxPage = pg.totalPages
+    rq        = model.routeQuery
+    pg        = model.paging
+    page      = pg.curPage
+    maxPage   = pg.totalPages
     firstItem = pg.firstItem
-    lastItem = pg.lastItem
-    maxItem = pg.numItems
+    lastItem  = pg.lastItem
+    maxItem   = pg.numItems
   in
     div
       []
@@ -234,10 +235,20 @@ viewPerson model person =
                         , \(model,person) ->
                             div
                               []
-                              [ Modal.buildModalButton Modals.newContactModal model
-                              , withDefault
+                              [ withDefault
                                   (div [] [])
-                                  (M.map ContView.viewCIs person.contacts)
+                                  (M.map 
+                                    (ContView.viewCIs <| \ci ->
+                                      [ with Modal.buttonAtts 
+                                          ( \_ ->
+                                            [ onClick (NewContactFor person ci)
+                                            ]
+                                          )
+                                          Modal.buildModalButton Modals.newContactModal model
+                                      ]
+                                    )
+                                    person.contacts
+                                  )
                               ]
                         )
                       , ( "tabvisits"

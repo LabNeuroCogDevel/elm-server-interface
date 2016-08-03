@@ -101,6 +101,12 @@ update msg model =
       , Cmd.none
       )
 
+    --TODO implement this 
+    NewContactFor person ci ->
+      ( model
+      , Cmd.none
+      )
+
 
 {--
     NewVisitFromMsg msg ->
@@ -217,10 +223,13 @@ update msg model =
       )
 
     SavePerson person ->
-      ({model | people = List.map 
-                           (\p -> if p.pid == person.pid then person else p)
-                           model.people
-              , editpid = Nothing}
+      ( { model
+        | people =
+            List.map 
+              (\p -> if p.pid == person.pid then person else p)
+              model.people
+        , editpid = Nothing
+        }
       , Crud.update PC.person person
       )
 

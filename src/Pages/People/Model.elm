@@ -45,11 +45,12 @@ type Msg
   | SearchMsg (SearchMsg PeopleKey)
   | SubmitPerson Person
   | SubmittedPerson Person
-  | CrudOp Operation
+  | CrudOp Operation -- currently unused, possible replacement for the ViewPerson messages and whatever
   | ViewPerson Pid
   | EditPerson Pid
   | SavePerson Person
   | SavedPerson Person
+  | NewContactFor Person ContactInfo
   | CancelEdit
   | RQChanged RQ
   | ContactInfo Int (List ContactInfo)
@@ -58,12 +59,14 @@ type Msg
   | NavigateTo (Maybe Route) (Maybe Query)
   | ChangePeopleList (List Person) PagingInfo
 
+--type alias ContModalModel 
 
 type alias Model = 
   { form : Form CustomError Person
   , editForm : Form CustomError Person
   , visitForm : Form CustomError Visit
   , contactForm : Form CustomError Contact
+  --, newContactModalModel : 
   , people : List Person
   , editpid : Maybe Int
   , activepid : Maybe Int

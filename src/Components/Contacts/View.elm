@@ -10,6 +10,7 @@ import Components.Contacts.Model exposing (..)
 
 import Char exposing (isDigit)
 import ElmEscapeHtml exposing (unescape)
+import Utils exposing (bindF)
 
 import Regex as R
 import String as S
@@ -106,20 +107,24 @@ viewContacts contacts =
       ]
 
 
-viewCI : ContactInfo -> Html msg
-viewCI ci = 
+viewCI : List (Html msg) -> ContactInfo -> Html msg
+viewCI customHtml ci = 
   div []
+    <|
     [ h4 [] [ text <| ci.relation ++ ": " ++ ci.name ]
-    , viewContacts ci.contacts
+    , hr [] []
+    ]
+    ++ customHtml ++
+    [ viewContacts ci.contacts
     ]
 
 
-viewCIs : List ContactInfo -> Html msg
-viewCIs model =
+viewCIs : (ContactInfo -> List (Html msg)) -> List ContactInfo -> Html msg
+viewCIs customHtml model =
   div []
     <| L.intersperse (hr [] [])
     <|
-    ( L.map viewCI
+    ( L.map (bindF customHtml viewCI)
       <| let
            (subj, rest) = L.partition (((==) "Subject") << .relation) model
          in
@@ -130,7 +135,7 @@ viewCIs model =
 view : Model -> Html Msg
 view (debug, model) =
   div []
-    [ viewCIs <| withDefault [] model
+    [ viewCIs (always []) <| withDefault [] model
     ]
 
 

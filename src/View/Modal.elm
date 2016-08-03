@@ -8,39 +8,87 @@ import ElmEscapeHtml exposing (unescape)
 
 import List as L
 
-type alias StaticModalInfo msg = 
-  { id : String
-  , title : String
-  , titleId : Maybe String
-  , label : String
-  , body : Html msg
-  , footerButtons : List (Html msg)
-  , buttonContent : Html msg
+import Utils
+
+type alias ModalButtonInfo msg =
+  { attributes    : List (Attribute msg) -- the list of attributes for the button
+  , buttonContent : List (Html msg)      -- the button's inner html
   }
 
+--:'<,'>!sed -E 's/\s*([{,:]|--)\s*/\/\1\//g' | column -t -s '/' -o ' '
+
+type alias StaticModalInfo msg = 
+  { id            : String              -- the modal's id
+  , title         : String              -- the title of the modal
+  , titleId       : Maybe String        -- optional id for the modal's title tag
+  , label         : String              -- label for accessibility
+  , body          : Html msg            -- modal body
+  , footerButtons : List (Html msg)     -- buttons to add to footer in addition to cancel (possibly other html)
+  , buttonContent : ModalButtonInfo msg -- content for button to open modal
+  }
+
+{-- Static button attribute modifier
+ -- use like:
+ --   with buttonAttsS (atts) showModalButton (staticmodinfo)
+ --}
+buttonAttsS : List (Attribute msg) -> StaticModalInfo msg -> StaticModalInfo msg
+buttonAttsS list modinfo =
+  let
+    defBC = modinfo.buttonContent
+  in 
+    { modinfo
+    | buttonContent =
+        { defBC
+        | attributes = list
+        }
+    }
+
+
+
+-- dynamic modal info that depends on the model
 type alias ModalInfo model msg = model -> StaticModalInfo msg
 
-buildModalButton : ModalInfo model msg -> model -> Html msg
-buildModalButton info model = showModalButton <| info model
 
+-- set the attributes for the button, use like buttonAttsS above
+buttonAtts : (model -> List (Attribute msg)) -> ModalInfo model msg -> ModalInfo model msg
+buttonAtts = Utils.lift2F buttonAttsS
+
+
+
+{-- since a ModalInfo is just a function that takes a model and produces
+ -- static modal info, directly feed that into showModalButton
+ --}
+buildModalButton : ModalInfo model msg -> model -> Html msg
+buildModalButton info = showModalButton << info
+
+
+
+-- does what it says on the can, show a static modal
+-- use buildModalButton to build a modal that depends on
+-- the current state
 showModalButton : StaticModalInfo msg -> Html msg
 showModalButton info =
   button
-    [ type' "button"
-    , classList
-        [ ("btn", True)
-        , ("btn-primary", True)
-        ]
-    , data "toggle" "modal"
-    , data "target" <| "#" ++ info.id
-    ]
-    [ info.buttonContent
-    ]
+    ( [ type' "button"
+      , classList
+          [ ("btn", True)
+          , ("btn-primary", True)
+          ]
+      , data "toggle" "modal"
+      , data "target" <| "#" ++ info.id
+      ]
+      ++ 
+      info.buttonContent.attributes
+    )
+    info.buttonContent.buttonContent
 
 
+-- for buildModal, showModal, see the button equivalents above
 buildModal : ModalInfo model msg -> model -> Html msg
-buildModal info model = showModal <| info model
+buildModal info = showModal << info
 
+
+-- for buildModal, showModal, see the button equivalents above
 showModal : StaticModalInfo msg -> Html msg
 showModal info =
   div
