@@ -63,15 +63,12 @@ vtemp model =
       []
       [ mkNPForm model model.form
       , mkEdForm model model.editForm
-      , h1 []
-          [ text <|
-            "Page " ++ (toString page) ++" of "++(toString maxPage) 
-              ++ " showing items " ++ (toString firstItem) ++ "-"
-              ++ toString (lastItem) ++ " of " ++ (toString maxItem)
-              ++ "." ]
       , h2 [] [ text model.pagingErr ]
-      , makePaginator (updateRoute rq (defaultPeople All)) pg
+
+      -- search bars
       , Html.map SearchMsg <| Search.view model.searchModel
+
+      -- meat: search results
       , table [ class "table table-striped tnoborder" ]
           [ thead [ class "thead-inverse no-select" ]
               [ tr [] <|
@@ -88,8 +85,17 @@ vtemp model =
               ]
           , tbody [] <| L.concat ([newPersonForm model.form] :: List.map (viewEditPerson model) model.people)
           ]
-      , Modal.buildModal Modals.newVisitModal model
-      , Modal.buildModal Modals.newContactModal model
+
+      , makePaginator (updateRoute rq (defaultPeople All)) pg
+
+      -- page no. and search counts
+      , h3 []
+          [ text <|
+            -- "Page " ++ (toString page) ++" of "++(toString maxPage) 
+              "showing items " ++ (toString firstItem) ++ "-"
+              ++ toString (lastItem) ++ "/" ++ (toString maxItem)
+          ]
+
 
       {--
       , case model.people of 
@@ -123,6 +129,10 @@ vtemp model =
                   --}
               ]
           ]
+
+      -- modals -- here but hidden
+      , Modal.buildModal Modals.newVisitModal model
+      , Modal.buildModal Modals.newContactModal model
       ]
 
 makeThCell : Model -> PeopleKey -> Html Msg
