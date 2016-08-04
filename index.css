@@ -52,3 +52,24 @@ div.tab-content {
   white-space: nowrap;
 }
 
+.search_bar {
+ width:100%;
+ text-align: center;
+}
+/* tool tips 
+ shamelessly from:  http://www.w3schools.com/css/css_tooltip.asp
+*/
+
+.tooltip_container .tooltip_text {
+ visibility: hidden;
+ background-color: #333;
+ color: #fff;
+ padding:5px 0;
+ border-radius: 5px;
+ position:absolute;
+ opacity: .8;
+ z-index: 1;
+}
+.tooltip_container:hover .tooltip_text {
+ visibility: visible;
+}
