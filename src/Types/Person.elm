@@ -12,9 +12,11 @@ import Types.Person.Sex as S
 import Types.Person.Hand as H
 
 type alias Pid = Int
+type alias Lunaid = Maybe Int
 
 {--
 { "pid":1                                      --Int
+, "lunaid": 12345                              --Maybe Int
 , "fullname":"Fake Person"                     --Maybe String          | Maybe String/String
 , "dob":"1956-08-29"                           --Maybe String          | Date/String/Maybe String/Maybe Date
 , "sex":"M"                                    --Maybe String          | String/Maybe String
@@ -26,12 +28,19 @@ type alias Pid = Int
 , "numvisits":2                                --Int
 , "nstudies":2                                 --Int
 , "ndrops":0                                   --Int
-, "ids":["9"]                                  --List String
+, "ids":["9"]                                  --List EnrollID
 , "studies":["MEGEmo", "SlotReward"]           --List String
 , "visittypes":["Behavioral", "MEG"]           --List String
 , "maxdrop":null                               --Maybe String
 }
 --}
+
+type alias EnrollID =
+  { id : String
+  , etype: String
+  , edate: Time
+  } 
+
 
 
 type alias PersonFData = 
@@ -46,6 +55,7 @@ type alias PersonFData =
 
 type alias Person =
   { pid : Pid
+  , lunaid : Lunaid
   , fname : String
   , lname : String
   , dob : Time
@@ -58,7 +68,7 @@ type alias Person =
   , numvisits : Int
   , nstudies : Int
   , ndrops : Int
-  , ids : List String
+  , ids : List EnrollID
   , studies : List String
   , visittypes : List String
   , maxdrop : Maybe String
@@ -69,6 +79,7 @@ type alias Person =
 new : Person
 new = 
   { pid = 0
+  , lunaid = Nothing
   , fname = ""
   , lname = ""
   , dob = fromTime 0

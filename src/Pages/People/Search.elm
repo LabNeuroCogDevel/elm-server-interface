@@ -17,6 +17,7 @@ type PeopleKey
   | DOB
   | AddDate
   | Source
+  | LunaID
 
 peopleKeyInfo : KeyInfo PeopleKey
 peopleKeyInfo = 
@@ -27,6 +28,7 @@ peopleKeyInfo =
       , Age
       , Sex
       , Hand
+      , LunaID
       , Id
       , Ids
       , DOB
@@ -41,6 +43,7 @@ peopleKeyInfo =
       , Sex
       , Hand
       , Id
+      , LunaID
       , DOB
       , AddDate
       , Source
@@ -61,6 +64,7 @@ prettyKeyName key = case key of
   Sex -> ("Sex", Nothing)
   Hand -> ("Hand", Nothing)
   Id -> ("Id", Nothing)
+  LunaID -> ("LunaID", Nothing)
   Ids -> ("Ids", Nothing)
   DOB -> ("Birth", Just "Date of Birth")
   AddDate -> ("Add", Just "Add Date")
@@ -89,6 +93,9 @@ keyNames key = case key of
   Id ->
     ("pid", ["id"])
 
+  LunaID ->
+    ("lunaid", ["lid"])
+
   Ids ->
     ("ids", [])
 
@@ -109,6 +116,7 @@ keyDefault key = case key of
   Sex -> ILikeT
   Hand -> ILikeT
   Id -> RangeT
+  LunaID -> EqT
   Ids -> ContainsT
   Age -> RangeT
   DOB -> RangeT

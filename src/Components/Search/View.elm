@@ -20,7 +20,7 @@ viewSearch txt onin onch ord ordin ordch =
           , size 40
           , value txt
           ] []
-        , span [class "tooltip_text"] [text "e.g: age >=15; age < 30"]
+        , span [class "tooltip_text"] [text "e.g. lid: 10931 \ne.g: age >=15; age < 30"]
        ]
    , span [class "tooltip_container"]
        [ input

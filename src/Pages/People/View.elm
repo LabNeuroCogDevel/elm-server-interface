@@ -68,12 +68,12 @@ vtemp model =
       -- search bars
       , Html.map SearchMsg <| Search.view model.searchModel
 
-      -- meat: search results
+      -- header: search results
       , table [ class "table table-striped tnoborder" ]
           [ thead [ class "thead-inverse no-select" ]
               [ tr [] <|
                   L.map (makeThCell model)
-                    [ Id
+                    [ LunaID
                     , FName
                     , LName
                     , DOB
@@ -83,6 +83,8 @@ vtemp model =
                     , Source
                     ]
               ]
+
+          -- MEAT: search results
           , tbody [] <| L.concat ([newPersonForm model.form] :: List.map (viewEditPerson model) model.people)
           ]
 
@@ -201,7 +203,8 @@ viewPerson model person =
           ]
       ] --EditPerson person.pid ]
       [ td []
-          [ text <| toString person.pid ]
+          -- [ text <| toString person.pid ]
+          [ text <| toString <| withDefault 0 person.lunaid ]
       , td []
           [ text <| person.fname ]
       , td []
@@ -221,7 +224,7 @@ viewPerson model person =
           [ text <| withDefault "N/A" <| M.map dateToString person.adddate ]
       , td []
           [ text <| withDefault "N/A" person.source ]
-      ]
+     ]
   ]
   ++
   ( if isActive model person
@@ -284,6 +287,22 @@ viewPerson model person =
       []
   )
   
+-- how to view multiple ids: list of divs
+viewID : EnrollID -> Html Msg
+viewID id =
+ div []
+   [ span [] [text id.id]
+   , span [] [text id.etype]
+   , span [] [text (dateToString id.edate)]
+   ]
+ 
+viewIDs : List EnrollID -> Html  Msg
+viewIDs ids = div [] (L.map viewID ids)
+
+-- stop gap so we can skip worrying about applying above
+viewIDstring : List EnrollID -> List String
+viewIDstring ids = L.map (\id -> S.concat [id.etype," ", id.id]) ids
+
 viewPersonRest : Person -> Html msg
 viewPersonRest person = 
   table [ class "table table-striped" ]
@@ -306,7 +325,7 @@ viewPersonRest person =
               ]
             , person.visittypes
             , person.studies
-            , person.ids
+            , viewIDstring person.ids
             ]
     ]
 
