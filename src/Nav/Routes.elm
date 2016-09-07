@@ -51,6 +51,8 @@ routeToPath route =
     Visits op ->
       (routeBasePath route) ++ (operationToPath op)
 
+    Login op ->
+      (routeBasePath route) ++ (operationToPath op)
     _ ->
       routeBasePath route
 
@@ -62,6 +64,7 @@ matchers =
   , nested1 defaultPeople (routeBasePath <| defaultPeople All) operationMatchers
   , nested1 Studies (routeBasePath <| Studies All) operationMatchers
   , nested1 Visits (routeBasePath <| Visits All) operationMatchers
+  , nested1 Login (routeBasePath <| Login All) operationMatchers
   , match1 NotFound <| routeBasePath NotFound
   ]
 

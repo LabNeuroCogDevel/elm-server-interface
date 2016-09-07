@@ -9,7 +9,7 @@ import Task exposing (perform)
 
 
 testUrl : String
-testUrl = "http://localhost:3003/contacts_view?pid=eq."
+testUrl = "/db/contacts_view?pid=eq."
 
 
 getCICmd : (String -> msg) -> (List ContactInfo -> msg) -> Int -> Cmd msg

@@ -7,7 +7,7 @@ import Pages.Visits.Model exposing (..)
 import Json.Decode exposing (..)
 import Types.Visit.JsonDecoders exposing (..)
 
-visitUrl = "http://localhost:3003/visit"
+visitUrl = "/db/visit"
 
 fetchVisits : Cmd Msg
 fetchVisits = 

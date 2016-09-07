@@ -41,6 +41,29 @@ update msg model = case msg of
       , Cmd.none
       )
 
+
+  -- KLUDGEY! rather than figure out jason's abstractions
+  -- hard code the form elements
+
+  -- PassUp passstr -> ( {model | cred.pass = passstr } , Cmd.none)
+  IdUp str ->
+    let 
+      cred = model.cred
+      cred' : Cred
+      cred' = {cred | id = str}
+    in
+      ({model | cred = cred'} , Cmd.none)
+  PassUp str ->
+    let 
+      cred = model.cred
+      cred' : Cred
+      cred' = {cred | pass = str}
+    in
+      ({model | cred = cred'} , Cmd.none)
+ 
+  SetAuth ->
+     (model, HttpCmds.fetchAuthToken model.cred)
+
   NoOp -> ( model , Cmd.none)
    
 

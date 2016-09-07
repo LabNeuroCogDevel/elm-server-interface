@@ -13,6 +13,9 @@ type Msg
   | Error String
   | ReceiveLogin Cred
   | NoOp
+  | PassUp String   -- the following are gross un-abstracted queries
+  | IdUp String
+  | SetAuth
   
 
 

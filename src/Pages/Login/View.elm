@@ -11,13 +11,18 @@ viewLogin : Cred -> Html Msg
 viewLogin cred = 
   div 
     []
-    [text "hi there"]
+    [input [ onInput Pages.Login.Model.IdUp, placeholder "UPMC id" ] []
+    ,input [ type' "password", onInput Pages.Login.Model.PassUp] []
+    ,button [onClick Pages.Login.Model.SetAuth] [text "authenticate"] 
+    ]
+    -- ,text (toString cred.isvalid)
+    -- ,text cred.authtoken ]
 
 view : Model -> Html Msg
 view model =
   div []
     [ h4 [] [ text <| model.error ]
-    , h4 [] [text "this is the login view for model"]
+    , h4 [] [text "Login"]
     , viewLogin model.cred
     ]
 

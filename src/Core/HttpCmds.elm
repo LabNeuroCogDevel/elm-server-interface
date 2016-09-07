@@ -6,10 +6,10 @@ hostname : String
 hostname = "localhost"
 
 portnum : Int
-portnum = 3003
+portnum = 3001
 
 urlstring : String
-urlstring = "http://localhost:3003/"
+urlstring = "/db/"
 
 
 

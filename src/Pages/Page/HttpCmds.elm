@@ -7,7 +7,7 @@ import Pages.Page.Model exposing (..)
 import Json.Decode exposing (..)
 import Types.Study.JsonDecoders exposing (..)
 
-studyUrl = "http://localhost:3003/study"
+studyUrl = "/db/study"
 
 fetchStudies : Cmd Msg
 fetchStudies = 

@@ -9,7 +9,7 @@ import Task exposing (perform)
 
 
 testUrl : String
-testUrl = "http://localhost:3003/visit?pid=eq."
+testUrl = "/db/visit?pid=eq."
 
 
 getVisitsCmd : (String -> msg) -> (List Visit -> msg) -> Int -> Cmd msg

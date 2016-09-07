@@ -7,7 +7,7 @@ import Pages.Login.Model exposing (..)
 import Json.Decode exposing (..)
 import Types.Login exposing (..)
 
-loginUrl = "http://localhost:3001/login"
+loginUrl = "/login"
 
 fetchAuthToken : Cred -> Cmd Msg
 fetchAuthToken  cred = 
@@ -18,6 +18,11 @@ fetchAuthToken  cred =
             Error <| toString err
 
           Ok (token,query) ->
-            ReceiveLogin {cred | authtoken = token}
+            ReceiveLogin {cred | authtoken = token, isvalid = True }
     )
-    <| defaultSend (makePost loginUrl "" [("user",cred.id), ("pass",cred.pass)]) Json.Decode.string --toString
+    <| defaultSend { verb = "POST"
+                   , headers = [("Content-type", "application/x-www-form-urlencoded")]
+                   , url = loginUrl
+                   , body = Http.string  ("user=" ++ cred.id ++ "&pass=" ++  cred.pass )
+                   } 
+                  Json.Decode.string 
