@@ -2,6 +2,7 @@
 
 # vim swp files
 .*.swp
+.*.swo
 
 # elm-package generated files
 elm-stuff/
