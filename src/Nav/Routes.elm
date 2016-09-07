@@ -21,6 +21,7 @@ type Route
   | People PeopleQuery Operation
   | Studies Operation
   | Visits Operation
+  | Login Operation
   | NotFound
 
 
@@ -34,6 +35,7 @@ routeBasePath x =
     People _ _ -> "/people"
     Studies _ -> "/studies"
     Visits _ -> "/visits"
+    Login _ -> "/login"
     NotFound -> "/err404"
 
 
@@ -104,6 +106,9 @@ samePage p1 p2 = case (p1,p2) of
   (Visits _,Visits _) ->
     True
 
+  (Login _,Login _) ->
+    True
+
   _ -> False
 
 
@@ -129,6 +134,8 @@ routeToQuery page = case page of
   Visits _ ->
     empty
 
+  Login _ ->
+    empty
 
 
   

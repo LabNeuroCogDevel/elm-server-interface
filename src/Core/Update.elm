@@ -30,6 +30,9 @@ import Pages.People.Model as PM
 import Pages.Studies.Model as SM
 import Pages.Visits.Model as VM
 
+import Pages.Login as Login
+import Pages.Login.Model as LM
+
 
 
 init : RQ -> (Model, Cmd Msg)
@@ -38,11 +41,14 @@ init rq =
     (pm, pcmds) = People.init rq
     (sm, scmds) = Studies.init rq
     (vm, vcmds) = Visits.init rq
+    (lm, lcmds) = Login.init rq
+
     (model, morecmds) = update (getMessage rq)
       { routeQuery = rq
       , peopleModel = pm
       , studiesModel = sm
       , visitsModel = vm
+      , loginModel = lm
       , errorMsg = ""
       }
     cmd = batch [ Cmd.map PeopleMsg pcmds
@@ -118,6 +124,16 @@ update msg model =
         , Cmd.map VisitsMsg cmds
         )
 
+    LoginMsg mg ->
+      let
+        (newModel, cmds) = Login.update mg model.loginModel
+      in
+        ( { model
+          | loginModel = newModel
+          }
+        , Cmd.map LoginMsg cmds
+        )
+
 
 getMessage : RQ -> Msg
 getMessage route = 
@@ -140,6 +156,9 @@ getMessage route =
 
     R.Visits operation ->
       VisitsMsg <| VM.CrudOp operation
+
+    R.Login operation ->
+      LoginMsg <| LM.CrudOp operation
         
         
 
@@ -149,6 +168,9 @@ urlUpdate rq model =
   let
     (newPeopleModel, pCmd) = People.urlUpdate rq model.peopleModel
     (newStudiesModel, sCmd) = Studies.urlUpdate rq model.studiesModel
+    -- login does not update on url change
+    -- does visit?
+
     (newModel, cmd') = 
       update 
         (getMessage rq)

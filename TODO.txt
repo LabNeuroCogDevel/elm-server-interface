@@ -1,4 +1,17 @@
 
+
+2016-08-05
+- 'add date' for person should default to today
+- authentication
+- color code person row by max drop/color indication for drop. 
+- filter for maxdrop (add to search)
+- page for person
+- new visit + GOOGLE CALENDAR
+  - visit checkin
+
+
+
+FROM JASON:
 distinguish human readable names and computer names for keys
 
 Separate out sorting on age and sorting on DOB

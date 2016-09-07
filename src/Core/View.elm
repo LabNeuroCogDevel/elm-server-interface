@@ -17,6 +17,12 @@ import Pages.NotFound as NotFound
 import Html.App as Html
 import Html.Attributes as Atts
 
+import Pages.Login as Login
+import Types.Login exposing (..)
+
+
+handleLoginMessage : Login.Msg -> Msg
+handleLoginMessage m = LoginMsg m
 
 handlePeopleMessage : People.Msg -> Msg
 handlePeopleMessage m = PeopleMsg m
@@ -40,6 +46,10 @@ view model =
           Html.map handlePeopleMessage <|
             People.view model.peopleModel
         
+        Login _ ->
+            Html.map handleLoginMessage <|
+             Login.view model.loginModel
+
         People _ _ ->
           Html.map handlePeopleMessage <|
             People.view model.peopleModel
