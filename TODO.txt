@@ -1,4 +1,11 @@
+PRIORITY
+- new visit 
+- google calendar
+- visit checkin
+- task edit
+- add contact (add contact button on new subject)
 
+ALL
 
 2016-08-05
 - 'add date' for person should default to today
@@ -9,6 +16,10 @@
 - new visit + GOOGLE CALENDAR
   - visit checkin
 
+2016-09-07
+- new visit button on person
+- more info on search page (use search_person view)
+- search by visit status
 
 
 FROM JASON:

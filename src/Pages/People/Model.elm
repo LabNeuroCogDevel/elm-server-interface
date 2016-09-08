@@ -58,6 +58,7 @@ type Msg
   --| Visits Int (List Visit)
   | NavigateTo (Maybe Route) (Maybe Query)
   | ChangePeopleList (List Person) PagingInfo
+  | DebugLog String
 
 --type alias ContModalModel 
 

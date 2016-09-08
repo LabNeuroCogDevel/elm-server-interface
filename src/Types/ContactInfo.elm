@@ -55,6 +55,3 @@ modifyContactInfo ci relation name =
   | relation = relation
   , name = name
   }
-
-
-

@@ -79,12 +79,8 @@ newContactModal model =
         ]
   , footerButtons = [] --model -> List (Html msg)
   , buttonContent =
-      { attributes =
-          [
-          ]
-      , buttonContent = 
-          [ text "New Contact"
-          ]
+      { attributes    = [ ]
+      , buttonContent = [ text "New Contact" ]
       }
     -- modal -> Html msg
   }

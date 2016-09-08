@@ -45,4 +45,3 @@ contactInfoDecoder = succeed ContactInfo
 
 ciListDecoder : Decoder (List ContactInfo)
 ciListDecoder = list contactInfoDecoder
-

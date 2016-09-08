@@ -154,6 +154,7 @@ showModal info =
                 ]
                 [ info.body
                 ]
+            , div [] [ button info.buttonContent.attributes info.buttonContent.buttonContent ] 
             , div
                 [ classList
                     [ ("modal-footer", True)
@@ -170,9 +171,9 @@ showModal info =
                       [ text "Close"
                       ]
                   ]
-                  ++
-                  ( info.footerButtons )
+                  ++ ( info.footerButtons )
                 )
+
                 {--
                 , button
                     [ type' "button"
@@ -181,9 +182,8 @@ showModal info =
                         , ("btn-primary", True)
                         ]
                     ]
-                    [ text "Save changes"
-                    ]
-                ]--}
+                    [ text "Save changes" ]
+                --}
             ]
         ]
     ]

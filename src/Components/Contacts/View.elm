@@ -137,5 +137,3 @@ view (debug, model) =
   div []
     [ viewCIs (always []) <| withDefault [] model
     ]
-
-

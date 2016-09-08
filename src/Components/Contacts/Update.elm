@@ -36,4 +36,3 @@ update msg (debug,model) = case msg of
         
   ContactStuff cs ->
     ((debug ++ " cs",Just cs), Cmd.none)
-

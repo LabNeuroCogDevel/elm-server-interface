@@ -9,4 +9,3 @@ type Msg
   | Error String
   | NumberChange String
   | ContactStuff (List ContactInfo)
-

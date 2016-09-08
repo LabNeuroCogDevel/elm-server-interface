@@ -16,4 +16,3 @@ getCICmd : (String -> msg) -> (List ContactInfo -> msg) -> Int -> Cmd msg
 getCICmd err cstuff n = 
   perform (err << toString) cstuff
     <| get ciListDecoder (testUrl ++ toString n)
-

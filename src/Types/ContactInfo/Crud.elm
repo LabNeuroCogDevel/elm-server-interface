@@ -23,8 +23,3 @@ contactInfoListCI =
   , headers = always empty
   , noSearch = False
   }
-
-
-
-
-

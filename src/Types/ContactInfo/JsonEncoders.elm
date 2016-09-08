@@ -31,4 +31,3 @@ contactInfoEncoder ci =
     <| L.map
         (contactEncoder ci.belongsTo ci.relation ci.name)
         ci.contacts
-

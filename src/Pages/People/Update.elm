@@ -99,7 +99,15 @@ update msg model =
         | contactForm = Form.update msg model.contactForm
         }
       , Cmd.none
+      ) --Cmd.none
+
+    {-- SubmitContact  ->
+      ({ model 
+       | form = Form.update (Form.Reset <| newContactFields Contact.new) model.form
+       }
+      , -- Crud.create PC.person person
       )
+    --} 
 
     --TODO implement this 
     NewContactFor person ci ->
@@ -261,6 +269,9 @@ update msg model =
     RQChanged rq -> 
       ({ model | routeQuery = rq }, Cmd.none)
 
+    DebugLog string ->
+      Debug.log string
+      (model,Cmd.none)
 
 urlUpdate : RQ -> Model -> (Model, Cmd Msg)
 urlUpdate rq model = 

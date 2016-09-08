@@ -89,4 +89,3 @@ view (debug, model) =
     , br [] []
     , viewCIs <| withDefault [] model
     ]
-
