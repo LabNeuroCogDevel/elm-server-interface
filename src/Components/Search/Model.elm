@@ -580,5 +580,3 @@ orderToString info ord =
              ord
 
   
-
-

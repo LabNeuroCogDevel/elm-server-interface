@@ -187,5 +187,3 @@ showModal info =
             ]
         ]
     ]
-
-

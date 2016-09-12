@@ -24,5 +24,3 @@ visitDecoder = succeed Visit
 
 visitListDecoder : Decoder (List Visit)
 visitListDecoder = list visitDecoder
-
-

@@ -10,6 +10,8 @@ import String exposing (toInt)
 import Components.Contacts.HttpCmds exposing (getCICmd)
 
 
+-- turn an contanct int into a cmd msg
+-- use HttpCmds.elm getCICmd 
 ciCmd : Int -> Cmd Msg
 ciCmd = getCICmd Error ContactStuff
 

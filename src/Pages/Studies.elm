@@ -22,4 +22,3 @@ update = U.update
 
 urlUpdate : RQ -> Model -> (Model, Cmd Msg)
 urlUpdate = U.urlUpdate
-

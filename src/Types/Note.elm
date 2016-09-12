@@ -8,4 +8,3 @@ type alias Note =
   , dropnote : Bool
   , note : String
   }
-

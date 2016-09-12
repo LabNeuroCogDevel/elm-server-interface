@@ -22,5 +22,3 @@ personEncoder p =
     , ("adddate", withDefault null <| map dateEncoder <| p.adddate )
     , ("source", withDefault null <| map string <| p.source )
     ]
-
-

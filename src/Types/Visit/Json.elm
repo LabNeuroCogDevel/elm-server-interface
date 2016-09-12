@@ -16,5 +16,3 @@ decode = visit
 
 encode : Encoder Visit
 encode = visitEncoder
-
-

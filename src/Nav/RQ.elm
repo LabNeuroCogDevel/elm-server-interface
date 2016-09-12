@@ -68,5 +68,3 @@ urlParser = Navigation.makeParser <| \loc ->
     (r,hloc) = matchUrl routerConfig loc.href
   in
     makeRQ r hloc.query
-
-

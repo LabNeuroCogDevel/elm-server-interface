@@ -23,5 +23,3 @@ view navTo _ =
             , value "Go Home"
             ] []
     ]
-
-

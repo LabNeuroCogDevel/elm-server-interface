@@ -12,7 +12,3 @@ studyDecoder = succeed Study
   |: ("grantname" := string)
   |: ("cohorts" := stringList)
   |: ("visit_types" := stringList)
-
-
-
-

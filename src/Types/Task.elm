@@ -9,4 +9,3 @@ type alias Task =
   , settings : List String -- "settings", TODO type unclear
   , modes : List String -- "modes"
   }
-

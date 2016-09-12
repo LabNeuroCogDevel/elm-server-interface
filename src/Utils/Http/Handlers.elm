@@ -78,4 +78,3 @@ delete handlers =
 deleteById : CrudHandlers a r -> Int -> Cmd r
 deleteById handlers = 
   U.handle (deleteHandler handlers) << U.deleteById (handlers.info)
-

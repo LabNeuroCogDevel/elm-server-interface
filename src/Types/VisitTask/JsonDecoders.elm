@@ -13,5 +13,3 @@ visitTaskDecode = succeed VisitTask
   |: ("task" := string)
   |: ("measures" := oneOf [ null [], keyValuePairs float ])
   |: ("files" := stringList)
-
-

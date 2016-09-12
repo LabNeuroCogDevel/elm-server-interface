@@ -15,4 +15,3 @@ newCred  =
   , isvalid = False
   , authtoken = ""
   }
-

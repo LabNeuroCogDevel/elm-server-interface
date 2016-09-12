@@ -24,5 +24,3 @@ personCrudInfo =
   , headers = always empty
   , noSearch = False
   }
-
-

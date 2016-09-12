@@ -28,4 +28,3 @@ encode note =
     , ("dropnote" , bool note.dropnote)
     , ("note"     , string note.note)
     ]
-

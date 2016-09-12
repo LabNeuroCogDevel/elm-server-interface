@@ -23,4 +23,3 @@ stringNull = maybeNull string
 date : Decoder Time
 date = 
   customDecoder string fromString
-

@@ -23,4 +23,3 @@ type alias Model =
   { cred: Cred  -- cred.id, cred.authtoken, cred.isvalid
   , error: String
   }
-

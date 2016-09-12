@@ -61,4 +61,3 @@ hand =
           _ ->
             Err <| concat ["Invalid hand: \"", str, "\"."]
       )
-

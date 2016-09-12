@@ -25,4 +25,3 @@ type Msg
   | StudiesMsg Studies.Msg
   | VisitsMsg Visits.Msg
   | LoginMsg Login.Msg
-

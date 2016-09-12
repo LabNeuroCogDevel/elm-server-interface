@@ -8,4 +8,3 @@ type alias Enroll =
   , id : String     -- "id"
   , date : Time     -- "edate"
   }
-

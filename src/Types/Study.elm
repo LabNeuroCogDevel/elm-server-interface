@@ -7,4 +7,3 @@ type alias Study =
   , cohorts : List String     -- "cohorts"
   , visitTypes : List String  -- "visit_types"
   }
-

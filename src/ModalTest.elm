@@ -39,4 +39,3 @@ main = App.beginnerProgram
   , view = view
   , update = update
   }
-

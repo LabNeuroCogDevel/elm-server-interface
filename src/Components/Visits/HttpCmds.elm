@@ -16,4 +16,3 @@ getVisitsCmd : (String -> msg) -> (List Visit -> msg) -> Int -> Cmd msg
 getVisitsCmd err vstuff n = 
   perform (err << toString) vstuff
     <| get visitListDecoder (testUrl ++ toString n)
-

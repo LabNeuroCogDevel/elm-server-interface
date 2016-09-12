@@ -14,4 +14,3 @@ studyEncoder st =
     , ("cohorts", list <| L.map string st.cohorts)
     , ("visit_types", list <| L.map string st.visitTypes)
     ]
-

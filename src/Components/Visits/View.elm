@@ -67,4 +67,3 @@ view model =
         ]
     , viewVisitList model.visits
     ]
-

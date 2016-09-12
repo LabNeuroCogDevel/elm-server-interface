@@ -24,4 +24,3 @@ encode e =
     , ("id", string e.id)
     , ("edate", dateEncoder e.date)
     ]
-

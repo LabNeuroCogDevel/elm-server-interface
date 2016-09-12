@@ -81,11 +81,3 @@ makeTabDiv list defaultTab mod =
         <| L.map (((|>) mod) << makeTabPane defaultTab) list
     ]
   
-
-
-
-
-
-
-
-

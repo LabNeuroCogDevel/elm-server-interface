@@ -14,4 +14,3 @@ type alias Model =
   { visits : List Visit
   , error : String
   }
-

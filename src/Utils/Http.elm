@@ -287,4 +287,3 @@ promoteError raw =
   case raw of
     RawTimeout -> Timeout
     RawNetworkError -> NetworkError
-

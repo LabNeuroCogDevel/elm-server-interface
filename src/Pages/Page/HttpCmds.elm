@@ -21,4 +21,3 @@ fetchStudies =
             ReceiveStudies studies
     )
     <| getWithHeaders (list studyDecoder) studyUrl []
-

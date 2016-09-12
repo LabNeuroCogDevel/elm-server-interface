@@ -29,4 +29,3 @@ newVisit n =
   , googleuri = Nothing
   , status = ""
   }
-

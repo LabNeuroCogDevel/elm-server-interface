@@ -41,4 +41,3 @@ memberDecoderLarge  = succeed Person
   |: ( maybe <| "maxdrop"    := string )
   |: succeed Nothing
   |: succeed Nothing
-

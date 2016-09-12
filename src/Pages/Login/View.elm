@@ -25,4 +25,3 @@ view model =
     , h4 [] [text "Login"]
     , viewLogin model.cred
     ]
-

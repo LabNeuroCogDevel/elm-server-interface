@@ -18,4 +18,3 @@ prettyCode enc n val = encode n (enc val)
 dateEncoder : Encoder Time
 dateEncoder = string << dateToString
   
-

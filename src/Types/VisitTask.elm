@@ -8,4 +8,3 @@ type alias VisitTask =
   , measures : List (String,Float) -- "measures"
   , files : List String            -- "files"
   }
-

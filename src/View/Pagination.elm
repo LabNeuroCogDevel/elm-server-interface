@@ -166,6 +166,3 @@ makePaginator rq pg =
             [ paginatorNext rq pg
             ]
       ]
-
-
-

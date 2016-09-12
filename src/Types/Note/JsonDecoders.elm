@@ -16,5 +16,3 @@ noteDecoder = succeed Note
   |: (maybe <| "ndate" := date)
   |: ("dropnote" := bool)
   |: ("note"     := string)
-
-

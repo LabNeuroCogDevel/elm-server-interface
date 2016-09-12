@@ -10,7 +10,3 @@ portnum = 3001
 
 urlstring : String
 urlstring = "/db/"
-
-
-
-

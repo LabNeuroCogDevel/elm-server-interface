@@ -16,4 +16,3 @@ visitTaskEncoder vt =
     , ("measures", object <| L.map (\(x,y) -> (x, float y)) vt.measures)
     , ("files", list <| L.map string vt.files)
     ]
-

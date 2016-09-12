@@ -35,4 +35,3 @@ view model =
   div []
     <| L.intersperse (hr [] [])
     <| L.map viewStudy model.studies
-

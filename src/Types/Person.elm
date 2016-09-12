@@ -124,4 +124,3 @@ addVisits visits person =
   { person
   | visits = Just visits
   }
-

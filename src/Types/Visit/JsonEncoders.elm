@@ -19,5 +19,3 @@ visitEncoder v =
     , ("googleuri", withDefault null <| map string v.googleuri)
     , ("vstatus", string v.status)
     ]
-
-

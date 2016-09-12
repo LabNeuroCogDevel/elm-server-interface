@@ -69,4 +69,3 @@ getOrderFromQuery queries struct =
           <| D.get "order" queries
   in
     { struct | order = str }
-

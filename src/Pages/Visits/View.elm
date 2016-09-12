@@ -61,4 +61,3 @@ view model =
         <| L.intersperse (hr [] [])
         <| L.map viewVisit model.visits
     ]
-

@@ -69,4 +69,3 @@ urlUpdate rq model =
   ( model
   , Cmd.none
   )
-

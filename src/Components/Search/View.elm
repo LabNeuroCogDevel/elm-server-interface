@@ -38,4 +38,3 @@ viewSearch txt onin onch ord ordin ordch =
 
 view : SearchModel k -> Html (SearchMsg k)
 view model = viewSearch (searchString model) SearchStringChanged SearchEnter (orderString model) OrdStringChanged OrdEnter
-

@@ -35,5 +35,3 @@ left val = case val of
 
 toMaybe : Either a b -> Maybe b
 toMaybe = right
-
-

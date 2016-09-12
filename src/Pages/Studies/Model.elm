@@ -12,4 +12,3 @@ type Msg
 type alias Model =
   { studies : List Study
   }
-

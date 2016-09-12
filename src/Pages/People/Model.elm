@@ -237,6 +237,3 @@ validateContactInfo : ContactInfo -> Validation CustomError ContactInfo
 validateContactInfo ci = Val.succeed (modifyContactInfo ci)
   |: (get "relation" string)
   |: (get "name" string)
-
-
-

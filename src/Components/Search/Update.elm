@@ -65,6 +65,3 @@ update model msg =
       | order = Right <| order model
       }
       
-
-
-

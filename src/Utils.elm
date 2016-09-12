@@ -75,6 +75,3 @@ map = lift1
 lift2 : (a -> m a) -> (m a -> (a -> m b) -> m b) -> (a -> b -> c) -> m a -> m b -> m c
 lift2 return bind f ma mb = (return f) `ap return bind` ma `ap return bind` mb
 --}
-
-
-

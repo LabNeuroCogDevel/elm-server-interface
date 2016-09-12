@@ -22,4 +22,3 @@ atLeastTwoInLength str =
 dateToString : Time -> String
 dateToString date =
   join "-" <| List.map (atLeastTwoInLength << toString << ((|>) date)) [.year,.month,.day]
-

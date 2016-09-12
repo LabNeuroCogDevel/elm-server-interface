@@ -28,5 +28,3 @@ type alias Msg = M.Msg
 
 urlUpdate : RQ -> M.Model -> (M.Model, Cmd M.Msg)
 urlUpdate = U.urlUpdate
-
-

@@ -11,5 +11,3 @@ enrollDecoder = succeed Enroll
   |: ("etype" := string)
   |: ("id" := string)
   |: ("edate" := date)
-
-

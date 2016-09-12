@@ -304,6 +304,3 @@ urlUpdate rq model =
           Cmd.none
   in
     (newModel,cmd)
-
-
-

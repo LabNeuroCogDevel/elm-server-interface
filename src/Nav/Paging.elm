@@ -41,5 +41,3 @@ isFirstPage info = info.curPage == 1
 
 updatePagingInfo : PagingInfo -> Int -> Int -> Int -> PagingInfo
 updatePagingInfo = makePagingInfo << (.itemsPerPage)
-
-

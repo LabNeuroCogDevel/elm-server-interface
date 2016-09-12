@@ -15,4 +15,3 @@ decode  = memberDecoderLarge
 
 encode : Encoder Person
 encode = personEncoder
-
