@@ -23,7 +23,7 @@ import Task exposing (perform)
 
 -- update
 import Nav.RQ as NavRQ  -- RQ is short for Route and Query
--- import Cmd.Extra -- causes repl to crash
+import Cmd.Extra -- causes repl to crash
 import Form exposing (Form)
 import Form.Validate as FmVl 
 --import Nav.Operations exposing (Operation (..))
@@ -98,6 +98,7 @@ type Msg =
 
     -- recieve http get of contact
   | SetContact (List Contact)
+  | ContactToForm
   | UpdateID   CID
 
     -- will recurse from FetchError to Error
@@ -226,14 +227,19 @@ validate =
 init : (Model, Cmd Msg)
 init = ( { contact = Form.initial [] validate , error = "", initc = blankContact 0 } , Cmd.none)
 
+updateFormModel : Model -> Model
+updateFormModel model =
+  Debug.log (toString model.initc)
+  model
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = case msg of
   -- change contact info (on click do this)
   UpdateID   n   -> ( model, getCmd n)
-  --                     (on success of http do this)
-  SetContact c   -> ( { model | initc = (unlistContact  c)    } , Cmd.none)
+  --                     (on success of http do initc changes, and then form changes)
+  SetContact c   -> ( { model | initc = (unlistContact  c)    } ,Cmd.Extra.message ContactToForm )
 
+  ContactToForm  -> (  updateFormModel model, Cmd.none)
   -- add error to model
   Error string   -> ( { model | error = string } , Cmd.none)
 

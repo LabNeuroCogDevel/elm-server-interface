@@ -62,9 +62,12 @@ view model =
           Html.map handleVisitsMessage <|
             Visits.view model.visitsModel
 
+        -- temporary put Contact as a not found page while we debug it as a main app
+        -- contact is not yet imported, but it exists in route.Nav
+        Contact _ ->
+          NotFound.view NavigateTo ()
+
         NotFound ->
           NotFound.view NavigateTo ()
     ]
     
-
-

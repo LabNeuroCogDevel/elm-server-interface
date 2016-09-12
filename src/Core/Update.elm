@@ -44,12 +44,12 @@ init rq =
     (lm, lcmds) = Login.init rq
 
     (model, morecmds) = update (getMessage rq)
-      { routeQuery = rq
-      , peopleModel = pm
-      , studiesModel = sm
-      , visitsModel = vm
-      , loginModel = lm
-      , errorMsg = ""
+      { routeQuery   =  rq
+      , peopleModel  =  pm
+      , studiesModel =  sm
+      , visitsModel  =  vm
+      , loginModel   =  lm
+      , errorMsg     =  ""
       }
     cmd = batch [ Cmd.map PeopleMsg pcmds
                 , Cmd.map StudiesMsg scmds
@@ -128,9 +128,7 @@ update msg model =
       let
         (newModel, cmds) = Login.update mg model.loginModel
       in
-        ( { model
-          | loginModel = newModel
-          }
+        ( { model | loginModel = newModel }
         , Cmd.map LoginMsg cmds
         )
 
@@ -156,6 +154,12 @@ getMessage route =
 
     R.Visits operation ->
       VisitsMsg <| VM.CrudOp operation
+
+
+    -- temporary put Contact as a not found page while we debug it as a main app
+    -- contact is not yet imported, but it exists in route.Nav
+    R.Contact _ ->
+      NoOp
 
     R.Login operation ->
       LoginMsg <| LM.CrudOp operation
@@ -188,4 +192,3 @@ urlUpdate rq model =
         , cmd'
         ]
     )
-

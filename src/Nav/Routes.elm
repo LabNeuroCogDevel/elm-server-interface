@@ -22,6 +22,7 @@ type Route
   | Studies Operation
   | Visits Operation
   | Login Operation
+  | Contact Operation
   | NotFound
 
 
@@ -32,11 +33,12 @@ routeBasePath : Route -> String
 routeBasePath x =
   case x of
     Root -> "/"
-    People _ _ -> "/people"
-    Studies _ -> "/studies"
-    Visits _ -> "/visits"
-    Login _ -> "/login"
-    NotFound -> "/err404"
+    People  _ _ -> "/people"
+    Studies _   -> "/studies"
+    Visits  _   -> "/visits"
+    Login   _   -> "/login"
+    Contact _   -> "/contact"
+    NotFound    -> "/err404"
 
 
 routeToPath : Route -> String
@@ -53,8 +55,17 @@ routeToPath route =
 
     Login op ->
       (routeBasePath route) ++ (operationToPath op)
-    _ ->
-      routeBasePath route
+
+    Contact op ->
+      (routeBasePath route) ++ (operationToPath op)
+
+    NotFound ->
+       routeBasePath route
+    Root ->
+       routeBasePath route
+   -- It's nice to get an error when we add something
+   --  _ ->
+   --    routeBasePath route
 
 
 matchers : List (PathMatcher Route)
@@ -140,5 +151,10 @@ routeToQuery page = case page of
   Login _ ->
     empty
 
+  Contact _ ->
+    empty
+
+  -- _ ->
+  --   empty
 
   
