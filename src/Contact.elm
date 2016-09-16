@@ -45,6 +45,47 @@ import VirtualDom
 import String
 
 
+--------------
+-- MINIPERSON
+--------------
+firstListOrDef : List a -> a -> a
+firstListOrDef  lpn def = List.head lpn |> Maybe.withDefault def
+
+-- types 
+type alias PName = { fname : String, lname: String }
+
+pnameConcat : PName -> String
+pnameConcat p = p.fname ++ " " ++ p.lname
+
+unlistPName : List PName -> PName
+unlistPName lpn = 
+ let 
+  def : PName
+  def= {fname="",lname=""}
+ in
+  firstListOrDef lpn def
+
+-- json decoding
+pnameDecoder : Decoder PName
+pnameDecoder = succeed PName
+  |: ( "fname"      := string )
+  |: ( "lname"      := string )
+
+pnameListDecoder : Decoder (List PName)
+pnameListDecoder = nullOrList pnameDecoder
+
+-- get
+pidnameURL :String
+pidnameURL = "/db/person?select=fname,lname&pid=eq."
+
+getPName : Model -> AuthToken -> Cmd Msg
+getPName model token =
+  let
+    url = (pidnameURL++(toString model.initc.pid) )
+    get = (authorizedGet pnameListDecoder url token)
+  in
+    -- send results to update: will unlist and concat name
+    Task.perform FetchError SetName get
 
 ---------------
 -- TYPES
@@ -82,6 +123,11 @@ blankContact n =
   --, added     = Nothing
   }
 
+-- have a nexted model update. 
+-- using an update function instead of focus package
+-- b/c i know how to do this
+contactRenamewho : Contact -> String -> Contact
+contactRenamewho c whom = {c | forwhom = whom }
 
 --
 -- handling types
@@ -119,6 +165,10 @@ type Msg =
   | Refresh 
   -- run updateCmd
   | Update
+
+  -- get the name of the contact pid
+  | GetName 
+  | SetName (List PName)
 
     -- will recurse from FetchError to Error
   | FetchError Http.Error 
@@ -163,6 +213,7 @@ view model =
     , h3 [] [text (toString model.initc.cid), text (toString model.initc.pid), text model.initc.ctype, text model.initc.relation ]
     , button [Html.Events.onClick  (ChangeContact cidint) ] [text "click"] 
     , button [Html.Events.onClick  Update                 ] [text "update"] 
+    , button [Html.Events.onClick  GetName                ] [text "upname"] 
     , Html.App.map FormMsg (viewForm model.contact)
     , h1 [] [text model.error]
     ]
@@ -216,6 +267,7 @@ contactListDecoder : Decoder (List Contact)
 contactListDecoder = nullOrList contactDecoder
 
 
+
 contactEncoder : Contact -> String
 contactEncoder c =
   Json.Encode.encode 0 (Json.Encode.object
@@ -254,27 +306,20 @@ authorizedSend url verb token headers body dec =
   in
     Http.fromJson dec (Http.send Http.defaultSettings req)
 
+
+
+
 -- send and do nothing on success
 -- we need this for patch (update) b/c server can return nothing and succeed
 -- also need to pull promoteError out of http package (not epxosed)
-{-promoteError : Http.RawError -> Decoder a -- Platform.Task Http.Error a
-promoteError res =
-    case res of
-        Http.RawTimeout      -> Http.Timeout
-        Http.RawNetworkError -> Http.NetworkError
-        _ -> if 200 <= res.status && res.status < 300 then
-               res.value
-             else
-               fail (Http.BadResponse res.status res.statusText)
--}
-promoteError : Http.RawError -> Http.Error
-promoteError rawError =
+httpPromoteError : Http.RawError -> Http.Error
+httpPromoteError rawError =
   case rawError of
       Http.RawTimeout      -> Http.Timeout
       Http.RawNetworkError -> Http.NetworkError
 
-handleResponse :  Http.Response -> Task.Task Http.Error String 
-handleResponse response =
+httpHandleResponse :  Http.Response -> Task.Task Http.Error String 
+httpHandleResponse response =
   if 200 <= response.status && response.status < 300 then
     case response.value of
         Http.Text str -> Task.succeed str 
@@ -282,6 +327,25 @@ handleResponse response =
   else 
     Task.fail (Http.BadResponse response.status response.statusText)
 
+
+reqStr : Task.Task Http.RawError Http.Response -> Task.Task Http.Error String
+reqStr t = Task.mapError httpPromoteError t `Task.andThen` httpHandleResponse
+
+-- trying to do all of the above in one swoop
+{-
+reqStrAll : Task.Task Http.RawError Http.Response -> Task.Task Http.Error String 
+reqStrAll  =
+  case response of
+   Http.RawTimeout      -> Http.Timeout
+   Http.RawNetworkError -> Http.NetworkError
+   Http.Success         -> 
+     if 200 <= response.status && response.status < 300 then
+       case response.value of
+           Http.Text str -> Task.succeed str 
+           _ -> Task.fail (Http.UnexpectedPayload "Response body is a blob, expecting a string.")
+     else 
+       Task.fail (Http.BadResponse response.status response.statusText)
+-}
 
 authorizedSendNoRecieve : String -> String -> AuthToken-> List (String,String)->Http.Body -> 
                  Platform.Task Http.Error String
@@ -293,7 +357,10 @@ authorizedSendNoRecieve url verb token headers body =
           , body = body
           }
   in
-    Task.mapError promoteError (Http.send Http.defaultSettings req) `Task.andThen` handleResponse
+    -- Task.mapError promoteError (Http.send Http.defaultSettings req) `Task.andThen` handleResponse
+     reqStr (Http.send Http.defaultSettings req)
+
+---- 
 
 -- rewrite Http.get (take decoder and url) to included authkey (maybe string)
 authorizedGet : (Decoder value) -> String -> AuthToken -> Platform.Task Http.Error value
@@ -334,7 +401,6 @@ createCmd model token  =
     body = contactEncoder model.initc 
     header=[("Prefer", "return=representation")]
     req = authorizedSend contactURL "POST" token header (Http.string body) contactListDecoder 
-    -- req = authorizedSend contactURL "PATCH" token [] body dec
   in
     -- fetch cid again after update
     Task.perform FetchError SetContact req
@@ -475,6 +541,13 @@ update msg model = case msg of
   -- updating the form updates the model -- handled by simple form library
   FormMsg fm ->     ( { model | contact = Form.update fm model.contact }
                     , Cmd.none) 
+
+  -- fill in name when we have a pid
+  -- useful for when we are creating a new contact
+  GetName       -> ( model, getPName model Nothing)
+  -- NOTE: will reset the from to whatever is in initc
+  SetName pn    -> ( { model | initc=contactRenamewho model.initc ( unlistPName pn|>pnameConcat )  } 
+                    , Cmd.Extra.message ContactToForm )
 
   -- do nothing
   NoOp ->           (model, Cmd.none)
